@@ -23,7 +23,7 @@ const Header = () => {
     >
       <div className="container mx-auto flex items-center justify-between py-4">
         <a href="/" className="flex items-center">
-          <img src={logo} alt="AgendaAÍ Pro" className="h-10 md:h-12" />
+          <img src={logo} alt="AgendaAÍ Pro" className="h-14 md:h-16" />
         </a>
 
         {/* Desktop Navigation */}
