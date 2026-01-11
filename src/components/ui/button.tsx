@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -15,11 +15,18 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Hero CTA - Primary action with glow
+        hero: "bg-gradient-to-r from-[hsl(180,85%,50%)] to-[hsl(200,85%,55%)] text-[hsl(222,47%,6%)] shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
+        // Hero secondary - Outline style
+        heroOutline: "border-2 border-[hsl(180,85%,50%)]/50 bg-transparent text-[hsl(180,85%,50%)] hover:bg-[hsl(180,85%,50%)]/10 hover:border-[hsl(180,85%,50%)]",
+        // Glass style
+        glass: "bg-[hsl(222,47%,8%)]/50 backdrop-blur-xl border border-[hsl(222,30%,18%)]/50 text-[hsl(210,40%,98%)] hover:bg-[hsl(222,47%,8%)]/70",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        lg: "h-12 px-8 text-base",
+        xl: "h-14 px-10 text-lg",
         icon: "h-10 w-10",
       },
     },
