@@ -2,9 +2,25 @@ import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Background images
+import bgBarber from "@/assets/bg-professional-barber.png";
+import bgFitness from "@/assets/bg-professional-fitness.png";
+
 const CTASection = () => {
   return (
     <section id="contato" className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional images */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 left-0 w-full h-full bg-cover bg-center opacity-[0.08]"
+          style={{ backgroundImage: `url(${bgBarber})` }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.08]"
+          style={{ backgroundImage: `url(${bgFitness})` }}
+        />
+      </div>
+      
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />

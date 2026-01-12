@@ -1,9 +1,32 @@
 import { motion } from "framer-motion";
-import { Play, PlayCircle } from "lucide-react";
+import { Play, X } from "lucide-react";
 import { useState } from "react";
 
-const VideoSection = () => {
+interface VideoSectionProps {
+  videoUrl?: string; // YouTube or Vimeo URL
+}
+
+const VideoSection = ({ videoUrl }: VideoSectionProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Extract video ID and determine platform
+  const getEmbedUrl = (url: string) => {
+    // YouTube
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`;
+    }
+    
+    // Vimeo
+    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+    }
+    
+    return null;
+  };
+
+  const embedUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
 
   return (
     <section id="video" className="py-20 md:py-32 relative overflow-hidden">
@@ -17,6 +40,14 @@ const VideoSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
+          <motion.span 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <span className="text-sm text-primary font-medium">Demonstração</span>
+          </motion.span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Veja o <span className="gradient-text">AgendaAÍ Pro</span> em ação
           </h2>
@@ -33,18 +64,18 @@ const VideoSection = () => {
           className="max-w-4xl mx-auto"
         >
           <div className="relative aspect-video rounded-2xl overflow-hidden glass-card border border-border/50 shadow-2xl shadow-primary/10">
-            {/* Video placeholder - replace src with actual video URL */}
             {!isPlaying ? (
               <div className="absolute inset-0 bg-gradient-to-br from-card via-secondary to-card flex items-center justify-center">
-                {/* Placeholder content */}
+                {/* Grid pattern */}
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
                 
                 {/* Play button */}
                 <motion.button
                   onClick={() => setIsPlaying(true)}
-                  className="relative z-10 group"
+                  className="relative z-10 group cursor-pointer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
+                  disabled={!embedUrl}
                 >
                   <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150 group-hover:bg-primary/30 transition-colors" />
                   <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
@@ -56,26 +87,32 @@ const VideoSection = () => {
                 <div className="absolute bottom-6 left-6 right-6 text-left">
                   <p className="text-sm text-muted-foreground mb-2">Demonstração</p>
                   <h3 className="text-lg md:text-xl font-semibold">Como usar o AgendaAÍ Pro</h3>
+                  {!embedUrl && (
+                    <p className="text-xs text-muted-foreground/70 mt-2">
+                      Vídeo em breve...
+                    </p>
+                  )}
                 </div>
+              </div>
+            ) : embedUrl ? (
+              <div className="absolute inset-0 bg-black">
+                <button 
+                  onClick={() => setIsPlaying(false)}
+                  className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="AgendaAÍ Pro Demo"
+                />
               </div>
             ) : (
               <div className="absolute inset-0 bg-black flex items-center justify-center">
-                {/* Replace this with actual video embed */}
-                <div className="text-center p-8">
-                  <PlayCircle className="w-16 h-16 text-primary mx-auto mb-4 animate-pulse" />
-                  <p className="text-muted-foreground">
-                    Espaço reservado para o vídeo demonstrativo.
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Cole o link do YouTube ou Vimeo aqui
-                  </p>
-                  <button 
-                    onClick={() => setIsPlaying(false)}
-                    className="mt-4 text-primary hover:underline text-sm"
-                  >
-                    Voltar
-                  </button>
-                </div>
+                <p className="text-muted-foreground">Vídeo não disponível</p>
               </div>
             )}
           </div>
