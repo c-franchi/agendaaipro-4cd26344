@@ -47,12 +47,116 @@ export type Database = {
         }
         Relationships: []
       }
+      voucher_uses: {
+        Row: {
+          discount_amount: number
+          final_amount: number
+          id: string
+          original_amount: number
+          plan_type: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          used_at: string
+          user_email: string
+          user_name: string | null
+          voucher_id: string
+        }
+        Insert: {
+          discount_amount: number
+          final_amount: number
+          id?: string
+          original_amount: number
+          plan_type?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          used_at?: string
+          user_email: string
+          user_name?: string | null
+          voucher_id: string
+        }
+        Update: {
+          discount_amount?: number
+          final_amount?: number
+          id?: string
+          original_amount?: number
+          plan_type?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          used_at?: string
+          user_email?: string
+          user_name?: string | null
+          voucher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voucher_uses_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vouchers: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          max_uses_per_user: number | null
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_voucher_uses: {
+        Args: { voucher_code: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
