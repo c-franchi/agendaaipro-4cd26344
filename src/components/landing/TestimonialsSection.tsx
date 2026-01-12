@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 
+// Background images
+import bgTattoo from "@/assets/bg-professional-tattoo.png";
+import bgTrainer from "@/assets/bg-professional-trainer.png";
+
 const testimonials = [
   {
     name: "Carlos Silva",
@@ -24,7 +28,20 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="py-20 md:py-32 relative">
+    <section className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional images */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute bottom-0 left-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.1]"
+          style={{ backgroundImage: `url(${bgTattoo})` }}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.1]"
+          style={{ backgroundImage: `url(${bgTrainer})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background" />
+      </div>
+      
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
       
       <div className="container relative z-10">
@@ -34,6 +51,14 @@ const TestimonialsSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
+          <motion.span 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <span className="text-sm text-primary font-medium">Depoimentos</span>
+          </motion.span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             O que nossos <span className="gradient-text">clientes dizem</span>
           </h2>
@@ -50,7 +75,7 @@ const TestimonialsSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="glass-card p-8 card-hover relative"
+              className="glass-card p-8 card-hover relative backdrop-blur-lg"
             >
               <Quote className="w-10 h-10 text-primary/20 absolute top-6 right-6" />
               

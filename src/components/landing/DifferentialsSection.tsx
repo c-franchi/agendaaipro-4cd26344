@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
+// Background images
+import bgFitness from "@/assets/bg-professional-fitness.png";
+import bgSpa from "@/assets/bg-professional-spa.png";
+
 const differentials = [
   "Cada cliente recebe um sistema personalizado",
   "Logo, cores e identidade visual próprias",
@@ -13,6 +17,19 @@ const differentials = [
 const DifferentialsSection = () => {
   return (
     <section className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional images */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.12]"
+          style={{ backgroundImage: `url(${bgFitness})` }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.12]"
+          style={{ backgroundImage: `url(${bgSpa})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background" />
+      </div>
+      
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
       
       <div className="container relative z-10">
@@ -37,7 +54,7 @@ const DifferentialsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="glass-card p-8 md:p-12"
+            className="glass-card p-8 md:p-12 backdrop-blur-xl"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {differentials.map((item, index) => (
