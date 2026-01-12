@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Star, Palette, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 // Background images
 import bgBarber from "@/assets/bg-professional-barber.png";
@@ -170,13 +171,15 @@ const PricingSection = () => {
                   </div>
                 </div>
 
-                <Button
-                  variant={plan.highlighted ? "hero" : "heroOutline"}
-                  className="w-full"
-                >
-                  Solicitar proposta
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <a href={getWhatsAppLink(getWhatsAppMessage("pricing"))} target="_blank" rel="noopener noreferrer" className="block">
+                  <Button
+                    variant={plan.highlighted ? "hero" : "heroOutline"}
+                    className="w-full"
+                  >
+                    Solicitar proposta
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </a>
               </div>
             </motion.div>
           ))}

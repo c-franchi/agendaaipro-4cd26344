@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoSimple from "@/assets/logo-simple.png";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +14,8 @@ const Header = () => {
     { label: "Planos", href: "#planos" },
     { label: "Contato", href: "#contato" },
   ];
+
+  const whatsappLink = getWhatsAppLink(getWhatsAppMessage("hero"));
 
   return (
     <motion.header
@@ -40,12 +43,16 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="heroOutline" size="sm">
-            Falar no WhatsApp
-          </Button>
-          <Button variant="hero" size="sm">
-            Começar Agora
-          </Button>
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <Button variant="heroOutline" size="sm">
+              Falar no WhatsApp
+            </Button>
+          </a>
+          <a href="#contato">
+            <Button variant="hero" size="sm">
+              Começar Agora
+            </Button>
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -77,12 +84,16 @@ const Header = () => {
               </a>
             ))}
             <div className="flex flex-col gap-3 pt-4 border-t border-border/30">
-              <Button variant="heroOutline" className="w-full">
-                Falar no WhatsApp
-              </Button>
-              <Button variant="hero" className="w-full">
-                Começar Agora
-              </Button>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <Button variant="heroOutline" className="w-full">
+                  Falar no WhatsApp
+                </Button>
+              </a>
+              <a href="#contato">
+                <Button variant="hero" className="w-full">
+                  Começar Agora
+                </Button>
+              </a>
             </div>
           </nav>
         </motion.div>
