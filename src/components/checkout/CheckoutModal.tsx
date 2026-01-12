@@ -71,6 +71,13 @@ export const CheckoutModal = ({
       if (error) throw error;
 
       if (data?.url) {
+        // Save checkout data for confirmation email
+        localStorage.setItem("checkout_data", JSON.stringify({
+          email,
+          name,
+          planName,
+          amount: finalPrice,
+        }));
         window.open(data.url, "_blank");
         toast.success("Redirecionando para o pagamento...");
         onOpenChange(false);

@@ -21,7 +21,7 @@ const HeroSection = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-32 md:pt-24 pb-12 overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-[100svh] flex items-center pt-20 md:pt-24 pb-8 md:pb-12 overflow-hidden">
       {/* Animated Background Effects */}
       <div className="absolute inset-0 bg-hero-glow" />
       
@@ -90,19 +90,19 @@ const HeroSection = () => {
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       
-      <motion.div style={{ opacity, scale }} className="container relative z-10 py-8 md:py-16">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <motion.div style={{ opacity, scale }} className="container relative z-10 py-4 md:py-16">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left">
+          <div className="text-center lg:text-left space-y-4 md:space-y-0">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+              className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 md:mb-6"
             >
-              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-sm text-primary font-medium">Sistema Profissional de Agenda Digital</span>
+              <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-primary animate-pulse" />
+              <span className="text-xs md:text-sm text-primary font-medium">Sistema Profissional de Agenda Digital</span>
             </motion.div>
 
             {/* Main Title */}
@@ -110,7 +110,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-6"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-4 md:mb-6"
             >
               Seu atendimento, seus pagamentos e suas vendas{" "}
               <motion.span 
@@ -128,7 +128,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 text-balance"
+              className="text-sm md:text-base lg:text-lg text-muted-foreground mb-4 md:mb-8 max-w-xl mx-auto lg:mx-0 text-balance"
             >
               O AgendaAÍ Pro é o sistema de agenda digital da sua marca, com pagamentos via Pix e venda de produtos integrada.
             </motion.p>
@@ -138,16 +138,17 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-4"
+              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 md:gap-4 mb-3 md:mb-4"
             >
               <motion.a
                 href="#contato"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
-                <Button variant="hero" size="xl" className="w-full sm:w-auto group">
+                <Button variant="hero" size="lg" className="w-full sm:w-auto group text-sm md:text-base">
                   Quero minha agenda profissional
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </motion.a>
               <motion.a
@@ -156,9 +157,10 @@ const HeroSection = () => {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
-                <Button variant="heroOutline" size="xl" className="w-full sm:w-auto group">
-                  <MessageCircle className="w-5 h-5 transition-transform group-hover:scale-110" />
+                <Button variant="heroOutline" size="lg" className="w-full sm:w-auto group text-sm md:text-base">
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:scale-110" />
                   Falar com um especialista
                 </Button>
               </motion.a>
@@ -169,7 +171,7 @@ const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="text-sm text-primary/80 mb-8 text-center lg:text-left"
+              className="text-xs md:text-sm text-primary/80 mb-4 md:mb-8 text-center lg:text-left"
             >
               ⚡ Configuração rápida. Comece a usar em poucos dias.
             </motion.p>
@@ -179,7 +181,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="grid grid-cols-3 gap-4 md:gap-6 pt-8 border-t border-border/30"
+              className="grid grid-cols-3 gap-2 md:gap-6 pt-4 md:pt-8 border-t border-border/30"
             >
               {[
                 { value: "100%", label: "Sistema personalizado" },
@@ -194,8 +196,8 @@ const HeroSection = () => {
                   transition={{ delay: 0.6 + index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text">{stat.value}</div>
-                  <div className="text-xs md:text-sm text-muted-foreground mt-1">{stat.label}</div>
+                  <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold gradient-text">{stat.value}</div>
+                  <div className="text-[10px] md:text-xs lg:text-sm text-muted-foreground mt-0.5 md:mt-1">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -208,7 +210,7 @@ const HeroSection = () => {
             transition={{ delay: 0.4, duration: 0.8, type: "spring" as const, stiffness: 50 }}
             className="relative"
           >
-            <div className="relative max-w-sm sm:max-w-md mx-auto lg:max-w-none">
+            <div className="relative max-w-[280px] sm:max-w-sm md:max-w-md mx-auto lg:max-w-none">
               {/* Multiple glow layers */}
               <motion.div 
                 className="absolute inset-0 bg-primary/20 blur-3xl rounded-3xl scale-90"
