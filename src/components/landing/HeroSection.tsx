@@ -7,6 +7,7 @@ import bgManicure from "@/assets/bg-professional-manicure.png";
 import bgMassage from "@/assets/bg-professional-massage.png";
 import bgTrainer from "@/assets/bg-professional-trainer.png";
 import { useRef } from "react";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 const HeroSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -139,7 +140,8 @@ const HeroSection = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-4"
             >
-              <motion.div
+              <motion.a
+                href="#contato"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -147,8 +149,11 @@ const HeroSection = () => {
                   Quero minha agenda profissional
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
-              </motion.div>
-              <motion.div
+              </motion.a>
+              <motion.a
+                href={getWhatsAppLink(getWhatsAppMessage("hero"))}
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -156,7 +161,7 @@ const HeroSection = () => {
                   <MessageCircle className="w-5 h-5 transition-transform group-hover:scale-110" />
                   Falar com um especialista
                 </Button>
-              </motion.div>
+              </motion.a>
             </motion.div>
             
             {/* Urgency phrase */}

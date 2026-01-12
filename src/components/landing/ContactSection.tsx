@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
+import { MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LeadCaptureForm from "./LeadCaptureForm";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 const ContactSection = () => {
   return (
-    <section id="contato" className="py-20 md:py-32 relative overflow-hidden">
+    <section id="contato-form" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/5" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
@@ -18,27 +19,27 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
               Pronto para transformar{" "}
               <span className="gradient-text">seu negócio?</span>
             </h2>
             
-            <p className="text-muted-foreground text-lg mb-8 max-w-lg">
+            <p className="text-muted-foreground text-base sm:text-lg mb-8 max-w-lg">
               Preencha o formulário e nossa equipe entrará em contato para apresentar uma proposta personalizada para seu negócio.
             </p>
 
             <div className="space-y-4 mb-8">
               <div className="flex items-center gap-4 text-muted-foreground">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <MessageCircle className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium text-foreground">WhatsApp</p>
-                  <p className="text-sm">(11) 99999-9999</p>
+                  <p className="text-sm">(16) 99781-3038</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-muted-foreground">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5 text-primary" />
                 </div>
                 <div>
@@ -48,10 +49,12 @@ const ContactSection = () => {
               </div>
             </div>
 
-            <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
-              <MessageCircle className="w-5 h-5" />
-              Falar no WhatsApp
-            </Button>
+            <a href={getWhatsAppLink(getWhatsAppMessage("hero"))} target="_blank" rel="noopener noreferrer">
+              <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
+                <MessageCircle className="w-5 h-5" />
+                Falar no WhatsApp
+              </Button>
+            </a>
           </motion.div>
 
           {/* Right - Form */}

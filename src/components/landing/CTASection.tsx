@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 // Background images
 import bgBarber from "@/assets/bg-professional-barber.png";
@@ -32,12 +33,12 @@ const CTASection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto text-center"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
             Pronto para profissionalizar seus atendimentos e{" "}
             <span className="gradient-text">aumentar seu faturamento?</span>
           </h2>
           
-          <p className="text-muted-foreground text-lg mb-4 max-w-xl mx-auto">
+          <p className="text-muted-foreground text-base sm:text-lg mb-4 max-w-xl mx-auto">
             Tenha agora o sistema da sua marca — não um app genérico.
           </p>
           
@@ -46,14 +47,18 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="hero" size="xl" className="w-full sm:w-auto">
-              Quero meu AgendaAÍ Pro
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
-              <MessageCircle className="w-5 h-5" />
-              Falar no WhatsApp
-            </Button>
+            <a href="#contato">
+              <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                Quero meu AgendaAÍ Pro
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </a>
+            <a href={getWhatsAppLink(getWhatsAppMessage("cta"))} target="_blank" rel="noopener noreferrer">
+              <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
+                <MessageCircle className="w-5 h-5" />
+                Falar no WhatsApp
+              </Button>
+            </a>
           </div>
         </motion.div>
       </div>

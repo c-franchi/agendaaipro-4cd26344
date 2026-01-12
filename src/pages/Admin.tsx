@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,13 +29,15 @@ import {
   RefreshCw,
   ArrowLeft,
   Trash2,
-  Building2
+  Building2,
+  LogOut
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import logoSimple from "@/assets/logo-simple.png";
+import type { User } from "@supabase/supabase-js";
 
 interface Lead {
   id: string;
@@ -48,10 +51,39 @@ interface Lead {
 }
 
 const Admin = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+      if (!session?.user) {
+        navigate("/auth");
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+      if (!session?.user) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logout realizado com sucesso");
+    navigate("/auth");
+  };
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -92,8 +124,10 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    if (user) {
+      fetchLeads();
+    }
+  }, [user]);
 
   const filteredLeads = leads.filter(lead => 
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,11 +150,19 @@ const Admin = () => {
     }).length,
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container py-4 flex items-center justify-between">
+        <div className="container py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon">
@@ -128,15 +170,21 @@ const Admin = () => {
               </Button>
             </Link>
             <img src={logoSimple} alt="AgendaAÍ Pro" className="h-10" />
-            <div>
+            <div className="hidden sm:block">
               <h1 className="text-xl font-bold">Painel Administrativo</h1>
-              <p className="text-sm text-muted-foreground">Gerenciamento de Leads</p>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button onClick={fetchLeads} variant="outline" disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Atualizar
-          </Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <Button onClick={fetchLeads} variant="outline" disabled={loading} size="sm">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline ml-2">Atualizar</span>
+            </Button>
+            <Button onClick={handleLogout} variant="ghost" size="sm">
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Sair</span>
+            </Button>
+          </div>
         </div>
       </header>
 
