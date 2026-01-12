@@ -1,6 +1,5 @@
-import { motion } from "framer-motion";
 import { MessageCircle, Mail, Instagram } from "lucide-react";
-import logo from "@/assets/logo-agendaai-pro.png";
+import logoDetailed from "@/assets/logo-detailed.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo and description */}
           <div className="md:col-span-2">
-            <img src={logo} alt="AgendaAÍ Pro" className="h-14 md:h-16 mb-4" />
+            <img src={logoDetailed} alt="AgendaAÍ Pro" className="h-20 md:h-24 w-auto mb-4" />
             <p className="text-muted-foreground text-sm max-w-sm mb-6">
               O sistema de agenda digital profissional que transforma a gestão do seu negócio. 
               Agendamentos, pagamentos e vendas em um só lugar.
