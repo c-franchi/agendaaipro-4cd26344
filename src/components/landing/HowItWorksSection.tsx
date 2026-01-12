@@ -2,6 +2,10 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Calendar, ShoppingBag, CreditCard, ClipboardCheck, ThumbsUp } from "lucide-react";
 import { useRef } from "react";
 
+// Background images
+import bgTattoo from "@/assets/bg-professional-tattoo.png";
+import bgBarber from "@/assets/bg-professional-barber.png";
+
 const steps = [
   {
     icon: Calendar,
@@ -12,8 +16,8 @@ const steps = [
   {
     icon: ShoppingBag,
     step: "2",
-    title: "Escolhe serviço e produtos",
-    description: "Pode adicionar produtos ao agendamento se desejar",
+    title: "Escolhe serviço e produtos (opcional)",
+    description: "Pode adicionar produtos ao agendamento, aumentando seu ticket",
   },
   {
     icon: CreditCard,
@@ -46,6 +50,20 @@ const HowItWorksSection = () => {
 
   return (
     <section ref={sectionRef} id="como-funciona" className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional images */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgTattoo})` }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgBarber})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
+      </div>
+      
       {/* Parallax background gradient */}
       <motion.div 
         style={{ y: useTransform(scrollYProgress, [0, 1], [50, -50]) }}

@@ -8,6 +8,7 @@ import bgSpa from "@/assets/bg-professional-spa.png";
 const differentials = [
   "Cada cliente recebe um sistema personalizado",
   "Logo, cores e identidade visual próprias",
+  "Cartão de visita digital profissional",
   "Domínio próprio opcional para sua marca",
   "Profissionalismo e credibilidade garantidos",
   "Não é um app genérico com sua logo",
@@ -20,14 +21,14 @@ const DifferentialsSection = () => {
       {/* Background professional images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.12]"
+          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.22]"
           style={{ backgroundImage: `url(${bgFitness})` }}
         />
         <div 
-          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.12]"
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.22]"
           style={{ backgroundImage: `url(${bgSpa})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background" />
       </div>
       
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />

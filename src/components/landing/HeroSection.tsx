@@ -27,47 +27,47 @@ const HeroSection = () => {
       {/* Background professional images with transparency */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
-          className="absolute top-[10%] left-[2%] opacity-[0.06] hidden lg:block"
+          className="absolute top-[10%] left-[2%] opacity-[0.18] hidden lg:block"
           animate={{ y: [0, -20, 0] }}
           transition={{ duration: 10, repeat: Infinity }}
         >
           <img 
             src={bgBarber} 
             alt="" 
-            className="w-40 xl:w-52 h-auto rounded-2xl blur-[1px]"
+            className="w-40 xl:w-52 h-auto rounded-2xl"
           />
         </motion.div>
         <motion.div 
-          className="absolute bottom-[15%] left-[5%] opacity-[0.06] hidden lg:block"
+          className="absolute bottom-[15%] left-[5%] opacity-[0.15] hidden lg:block"
           animate={{ y: [0, 15, 0] }}
           transition={{ duration: 8, repeat: Infinity, delay: 1 }}
         >
           <img 
             src={bgManicure} 
             alt="" 
-            className="w-36 xl:w-44 h-auto rounded-2xl blur-[1px]"
+            className="w-36 xl:w-44 h-auto rounded-2xl"
           />
         </motion.div>
         <motion.div 
-          className="absolute top-[20%] right-[2%] opacity-[0.06] hidden lg:block"
+          className="absolute top-[20%] right-[2%] opacity-[0.18] hidden lg:block"
           animate={{ y: [0, -15, 0] }}
           transition={{ duration: 9, repeat: Infinity, delay: 0.5 }}
         >
           <img 
             src={bgMassage} 
             alt="" 
-            className="w-36 xl:w-48 h-auto rounded-2xl blur-[1px]"
+            className="w-36 xl:w-48 h-auto rounded-2xl"
           />
         </motion.div>
         <motion.div 
-          className="absolute bottom-[20%] right-[3%] opacity-[0.06] hidden lg:block"
+          className="absolute bottom-[20%] right-[3%] opacity-[0.15] hidden lg:block"
           animate={{ y: [0, 20, 0] }}
           transition={{ duration: 7, repeat: Infinity, delay: 2 }}
         >
           <img 
             src={bgTrainer} 
             alt="" 
-            className="w-32 xl:w-40 h-auto rounded-2xl blur-[1px]"
+            className="w-32 xl:w-40 h-auto rounded-2xl"
           />
         </motion.div>
       </div>
@@ -137,7 +137,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-10"
+              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-4"
             >
               <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
@@ -158,18 +158,28 @@ const HeroSection = () => {
                 </Button>
               </motion.div>
             </motion.div>
+            
+            {/* Urgency phrase */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="text-sm text-primary/80 mb-8 text-center lg:text-left"
+            >
+              ⚡ Configuração rápida. Comece a usar em poucos dias.
+            </motion.p>
 
             {/* Stats */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
               className="grid grid-cols-3 gap-4 md:gap-6 pt-8 border-t border-border/30"
             >
               {[
-                { value: "1000+", label: "Profissionais ativos" },
-                { value: "50k+", label: "Agendamentos/mês" },
-                { value: "99.9%", label: "Uptime garantido" },
+                { value: "100%", label: "Sistema personalizado" },
+                { value: "24/7", label: "Agendamentos online" },
+                { value: "99.9%", label: "Infraestrutura estável" },
               ].map((stat, index) => (
                 <motion.div 
                   key={stat.label} 

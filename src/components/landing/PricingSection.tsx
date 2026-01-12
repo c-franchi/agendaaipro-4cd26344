@@ -67,15 +67,15 @@ const PricingSection = () => {
       {/* Background professional images with transparency */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-0 left-0 w-1/3 h-full bg-cover bg-center opacity-[0.08]"
+          className="absolute top-0 left-0 w-1/3 h-full bg-cover bg-center opacity-[0.18]"
           style={{ backgroundImage: `url(${bgBarber})` }}
         />
         <div 
-          className="absolute top-0 right-0 w-1/3 h-full bg-cover bg-center opacity-[0.08]"
+          className="absolute top-0 right-0 w-1/3 h-full bg-cover bg-center opacity-[0.18]"
           style={{ backgroundImage: `url(${bgMassage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
       </div>
 
       <div className="container relative z-10">
@@ -94,10 +94,10 @@ const PricingSection = () => {
             <span className="text-sm text-primary font-medium">Planos e Preços</span>
           </motion.span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Planos que <span className="gradient-text">cabem no seu bolso</span>
+            Planos <span className="gradient-text">a partir de</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Escolha o plano ideal para o seu negócio
+            Solicite uma proposta personalizada para seu negócio
           </p>
         </motion.div>
 
@@ -174,7 +174,7 @@ const PricingSection = () => {
                   variant={plan.highlighted ? "hero" : "heroOutline"}
                   className="w-full"
                 >
-                  Escolher {plan.name}
+                  Solicitar proposta
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -197,13 +197,13 @@ const PricingSection = () => {
             </div>
             <h4 className="font-semibold mb-2">Serviço de Criação de Identidade Visual</h4>
             <p className="text-sm text-muted-foreground">
-              <span className="text-foreground font-medium">Não possui banners ou logotipo?</span> Nossa equipe pode criar para você! 
+              <span className="text-foreground font-medium">Não possui banners, logotipo ou cartão de visita digital?</span> Nossa equipe pode criar para você! 
               Nos planos <span className="text-primary font-medium">Essencial</span> e <span className="text-primary font-medium">Pro</span>, 
               este serviço é oferecido de forma avulsa. No plano <span className="text-primary font-medium">Premium</span>, 
               a criação de toda identidade visual já está <span className="text-primary font-medium">inclusa no valor</span>.
             </p>
             <p className="text-xs text-muted-foreground/70 mt-3">
-              * Valores de criação avulsa: Logo a partir de R$ 150 | Banners a partir de R$ 80
+              * Valores de criação avulsa: Logo a partir de R$ 150 | Banners a partir de R$ 80 | Cartão de visita digital a partir de R$ 50
             </p>
           </div>
         </motion.div>
