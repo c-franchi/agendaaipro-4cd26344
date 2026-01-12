@@ -1,6 +1,10 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Calendar, CreditCard, ShoppingCart, BarChart3, MessageSquare, Palette, Scissors, Clock, Sparkles } from "lucide-react";
+import { Calendar, CreditCard, ShoppingCart, BarChart3, MessageSquare, Palette, CreditCard as Card } from "lucide-react";
 import { useRef } from "react";
+
+// Background images
+import bgBarber from "@/assets/bg-professional-barber.png";
+import bgManicure from "@/assets/bg-professional-manicure.png";
 
 const features = [
   {
@@ -38,6 +42,12 @@ const features = [
     title: "Sua marca",
     description: "Sistema totalmente personalizado com sua identidade visual",
     highlight: "Exclusivo",
+  },
+  {
+    icon: Card,
+    title: "Cartão de visita digital",
+    description: "Compartilhe seu contato e serviços de forma moderna e profissional",
+    highlight: "Moderno",
   },
 ];
 
@@ -77,29 +87,18 @@ const FeaturesSection = () => {
 
   return (
     <section ref={sectionRef} id="funcionalidades" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background professional icons */}
+      {/* Background professional images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          className="absolute top-[10%] right-[10%] opacity-[0.03]"
-          animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 7, repeat: Infinity }}
-        >
-          <Scissors className="w-32 h-32 text-primary" />
-        </motion.div>
-        <motion.div 
-          className="absolute bottom-[15%] left-[5%] opacity-[0.03]"
-          animate={{ y: [0, 10, 0], rotate: [0, -3, 0] }}
-          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-        >
-          <Clock className="w-28 h-28 text-primary" />
-        </motion.div>
-        <motion.div 
-          className="absolute top-[50%] left-[2%] opacity-[0.02]"
-          animate={{ y: [0, -20, 0] }}
-          transition={{ duration: 9, repeat: Infinity, delay: 2 }}
-        >
-          <Sparkles className="w-24 h-24 text-primary" />
-        </motion.div>
+        <div 
+          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgBarber})` }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgManicure})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
       </div>
       
       {/* Parallax background elements */}

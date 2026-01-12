@@ -32,14 +32,14 @@ const TestimonialsSection = () => {
       {/* Background professional images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute bottom-0 left-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.1]"
+          className="absolute bottom-0 left-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.2]"
           style={{ backgroundImage: `url(${bgTattoo})` }}
         />
         <div 
-          className="absolute bottom-0 right-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.1]"
+          className="absolute bottom-0 right-0 w-1/2 h-full bg-cover bg-bottom opacity-[0.2]"
           style={{ backgroundImage: `url(${bgTrainer})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background" />
       </div>
       
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />

@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 
+// Background images
+import bgMassage from "@/assets/bg-professional-massage.png";
+import bgTrainer from "@/assets/bg-professional-trainer.png";
+
 const problems = [
   { problem: "Conflito de horários", solution: "Agenda inteligente sem sobreposição" },
   { problem: "Falta de confirmação de clientes", solution: "Confirmação automática" },
@@ -12,8 +16,22 @@ const problems = [
 
 const ProblemsSection = () => {
   return (
-    <section className="py-20 md:py-32">
-      <div className="container">
+    <section className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional images */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgMassage})` }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
+          style={{ backgroundImage: `url(${bgTrainer})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
+      </div>
+      
+      <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

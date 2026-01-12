@@ -12,11 +12,11 @@ const CTASection = () => {
       {/* Background professional images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-0 left-0 w-full h-full bg-cover bg-center opacity-[0.08]"
+          className="absolute top-0 left-0 w-full h-full bg-cover bg-center opacity-[0.18]"
           style={{ backgroundImage: `url(${bgBarber})` }}
         />
         <div 
-          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.08]"
+          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.18]"
           style={{ backgroundImage: `url(${bgFitness})` }}
         />
       </div>
@@ -33,17 +33,21 @@ const CTASection = () => {
           className="max-w-3xl mx-auto text-center"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
-            Tenha sua própria agenda profissional e{" "}
-            <span className="gradient-text">aumente seu faturamento.</span>
+            Pronto para profissionalizar seus atendimentos e{" "}
+            <span className="gradient-text">aumentar seu faturamento?</span>
           </h2>
           
-          <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
-            Comece agora e transforme a forma como você gerencia seus atendimentos, pagamentos e vendas.
+          <p className="text-muted-foreground text-lg mb-4 max-w-xl mx-auto">
+            Tenha agora o sistema da sua marca — não um app genérico.
+          </p>
+          
+          <p className="text-sm text-primary/80 mb-8">
+            ⚡ Configuração rápida. Comece a usar em poucos dias.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" className="w-full sm:w-auto">
-              Quero o AgendaAÍ Pro
+              Quero meu AgendaAÍ Pro
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
