@@ -1,7 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, MessageCircle, Sparkles, Scissors, User, Calendar } from "lucide-react";
+import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroMockup from "@/assets/hero-mockup.png";
+import bgBarber from "@/assets/bg-professional-barber.png";
+import bgManicure from "@/assets/bg-professional-manicure.png";
+import bgMassage from "@/assets/bg-professional-massage.png";
+import bgTrainer from "@/assets/bg-professional-trainer.png";
 import { useRef } from "react";
 
 const HeroSection = () => {
@@ -16,39 +20,55 @@ const HeroSection = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden">
       {/* Animated Background Effects */}
       <div className="absolute inset-0 bg-hero-glow" />
       
-      {/* Background professional icons with transparency */}
+      {/* Background professional images with transparency */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
-          className="absolute top-[15%] left-[5%] opacity-[0.03]"
-          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-[10%] left-[2%] opacity-[0.06] hidden lg:block"
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 10, repeat: Infinity }}
         >
-          <Scissors className="w-32 h-32 md:w-48 md:h-48 text-primary" />
+          <img 
+            src={bgBarber} 
+            alt="" 
+            className="w-40 xl:w-52 h-auto rounded-2xl blur-[1px]"
+          />
         </motion.div>
         <motion.div 
-          className="absolute top-[60%] left-[8%] opacity-[0.03]"
-          animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 7, repeat: Infinity, delay: 1 }}
+          className="absolute bottom-[15%] left-[5%] opacity-[0.06] hidden lg:block"
+          animate={{ y: [0, 15, 0] }}
+          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
         >
-          <Calendar className="w-24 h-24 md:w-40 md:h-40 text-primary" />
+          <img 
+            src={bgManicure} 
+            alt="" 
+            className="w-36 xl:w-44 h-auto rounded-2xl blur-[1px]"
+          />
         </motion.div>
         <motion.div 
-          className="absolute top-[25%] right-[3%] opacity-[0.03]"
-          animate={{ y: [0, -15, 0], rotate: [0, -3, 0] }}
+          className="absolute top-[20%] right-[2%] opacity-[0.06] hidden lg:block"
+          animate={{ y: [0, -15, 0] }}
           transition={{ duration: 9, repeat: Infinity, delay: 0.5 }}
         >
-          <User className="w-28 h-28 md:w-44 md:h-44 text-primary" />
+          <img 
+            src={bgMassage} 
+            alt="" 
+            className="w-36 xl:w-48 h-auto rounded-2xl blur-[1px]"
+          />
         </motion.div>
         <motion.div 
-          className="absolute bottom-[20%] right-[6%] opacity-[0.03]"
-          animate={{ y: [0, 20, 0], rotate: [0, 8, 0] }}
-          transition={{ duration: 6, repeat: Infinity, delay: 2 }}
+          className="absolute bottom-[20%] right-[3%] opacity-[0.06] hidden lg:block"
+          animate={{ y: [0, 20, 0] }}
+          transition={{ duration: 7, repeat: Infinity, delay: 2 }}
         >
-          <Scissors className="w-20 h-20 md:w-36 md:h-36 text-primary rotate-45" />
+          <img 
+            src={bgTrainer} 
+            alt="" 
+            className="w-32 xl:w-40 h-auto rounded-2xl blur-[1px]"
+          />
         </motion.div>
       </div>
       
@@ -69,16 +89,16 @@ const HeroSection = () => {
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       
-      <motion.div style={{ opacity, scale }} className="container relative z-10 py-12 md:py-20 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <motion.div style={{ opacity, scale }} className="container relative z-10 py-8 md:py-16">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left order-2 lg:order-1">
+          <div className="text-center lg:text-left">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
             >
               <Sparkles className="w-4 h-4 text-primary animate-pulse" />
               <span className="text-sm text-primary font-medium">Sistema Profissional de Agenda Digital</span>
@@ -89,7 +109,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
             >
               Seu atendimento, seus pagamentos e suas vendas{" "}
               <motion.span 
@@ -107,7 +127,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 text-balance"
+              className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 text-balance"
             >
               O AgendaAÍ Pro é o sistema de agenda digital da sua marca, com pagamentos via Pix e venda de produtos integrada.
             </motion.p>
@@ -117,7 +137,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4"
+              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-10"
             >
               <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
@@ -144,7 +164,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="grid grid-cols-3 gap-6 mt-12 pt-12 border-t border-border/30"
+              className="grid grid-cols-3 gap-4 md:gap-6 pt-8 border-t border-border/30"
             >
               {[
                 { value: "1000+", label: "Profissionais ativos" },
@@ -159,7 +179,7 @@ const HeroSection = () => {
                   transition={{ delay: 0.6 + index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div className="text-2xl md:text-3xl font-bold gradient-text">{stat.value}</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text">{stat.value}</div>
                   <div className="text-xs md:text-sm text-muted-foreground mt-1">{stat.label}</div>
                 </motion.div>
               ))}
@@ -171,9 +191,9 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.8, type: "spring" as const, stiffness: 50 }}
-            className="relative order-1 lg:order-2 mt-8 lg:mt-0"
+            className="relative"
           >
-            <div className="relative max-w-md mx-auto lg:max-w-none">
+            <div className="relative max-w-sm sm:max-w-md mx-auto lg:max-w-none">
               {/* Multiple glow layers */}
               <motion.div 
                 className="absolute inset-0 bg-primary/20 blur-3xl rounded-3xl scale-90"
@@ -190,7 +210,7 @@ const HeroSection = () => {
               <motion.img 
                 src={heroMockup} 
                 alt="AgendaAÍ Pro Dashboard - Sistema de Agendamento Profissional" 
-                className="relative z-10 w-full h-auto rounded-2xl shadow-2xl object-contain max-h-[300px] sm:max-h-[400px] lg:max-h-[500px]"
+                className="relative z-10 w-full h-auto rounded-2xl shadow-2xl object-contain"
                 style={{ y }}
                 animate={{ 
                   y: [0, -8, 0],
@@ -208,7 +228,7 @@ const HeroSection = () => {
       
       {/* Scroll indicator */}
       <motion.div 
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}

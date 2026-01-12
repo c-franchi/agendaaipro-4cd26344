@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo-agendaai-pro.png";
+import logoSimple from "@/assets/logo-simple.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,9 +21,9 @@ const Header = () => {
       transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30"
     >
-      <div className="container mx-auto flex items-center justify-between py-4">
+      <div className="container mx-auto flex items-center justify-between py-3">
         <a href="/" className="flex items-center">
-          <img src={logo} alt="AgendaAÍ Pro" className="h-14 md:h-16" />
+          <img src={logoSimple} alt="AgendaAÍ Pro" className="h-12 md:h-14 w-auto" />
         </a>
 
         {/* Desktop Navigation */}
