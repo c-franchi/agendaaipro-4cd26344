@@ -21,7 +21,7 @@ const HeroSection = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-32 md:pt-24 pb-12 overflow-hidden">
       {/* Animated Background Effects */}
       <div className="absolute inset-0 bg-hero-glow" />
       
@@ -110,7 +110,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-6"
             >
               Seu atendimento, seus pagamentos e suas vendas{" "}
               <motion.span 
