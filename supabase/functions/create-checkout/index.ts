@@ -17,6 +17,13 @@ interface CheckoutRequest {
   finalAmount: number;
 }
 
+// Stripe price IDs for each plan
+const PLAN_PRICE_IDS: Record<string, string> = {
+  essencial: "price_1SooiSENKykBJoOzvGAD2WyQ",
+  pro: "price_1SooikENKykBJoOzLOBA5dVR",
+  premium: "price_1SoojEENKykBJoOzQBTKmCaK",
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -54,6 +61,12 @@ serve(async (req) => {
       throw new Error("Email, plano e valor são obrigatórios");
     }
 
+    const priceId = PLAN_PRICE_IDS[planType.toLowerCase()];
+    if (!priceId) {
+      throw new Error(`Plano inválido: ${planType}`);
+    }
+    logStep("Price ID resolved", { planType, priceId });
+
     // If voucher code is provided, validate it again on the server side
     let validatedVoucher = null;
     if (voucherCode) {
@@ -80,25 +93,33 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
-    // Create Stripe Checkout Session with dynamic pricing
-    const session = await stripe.checkout.sessions.create({
+    // Create coupon if voucher has discount
+    let stripeCouponId: string | undefined;
+    if (validatedVoucher && discountAmount > 0) {
+      const couponParams: Stripe.CouponCreateParams = {
+        duration: "once",
+        name: `Voucher ${voucherCode}`,
+      };
+
+      if (validatedVoucher.discount_type === "percentage") {
+        couponParams.percent_off = validatedVoucher.discount_value;
+      } else {
+        couponParams.amount_off = Math.round(discountAmount * 100);
+        couponParams.currency = "brl";
+      }
+
+      const coupon = await stripe.coupons.create(couponParams);
+      stripeCouponId = coupon.id;
+      logStep("Stripe coupon created", { couponId: coupon.id });
+    }
+
+    // Create Stripe Checkout Session with real price_id
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       line_items: [
         {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: `AgendaAÍ Pro - Plano ${planType}`,
-              description: voucherCode 
-                ? `Assinatura mensal com voucher ${voucherCode} aplicado`
-                : "Assinatura mensal do sistema de agenda profissional",
-            },
-            unit_amount: Math.round(finalAmount * 100), // Convert to cents
-            recurring: {
-              interval: "month",
-            },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -115,7 +136,14 @@ serve(async (req) => {
         customer_name: name,
         customer_email: email,
       },
-    });
+    };
+
+    // Add discount if coupon was created
+    if (stripeCouponId) {
+      sessionParams.discounts = [{ coupon: stripeCouponId }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 

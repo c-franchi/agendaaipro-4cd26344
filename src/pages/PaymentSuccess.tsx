@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,15 +6,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle2, ArrowRight, MessageCircle } from "lucide-react";
 import logoSimple from "@/assets/logo-simple.png";
 import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    // Optional: You could verify the session here with a backend call
-    console.log("Payment successful, session:", sessionId);
-  }, [sessionId]);
+    const sendConfirmationEmail = async () => {
+      if (emailSent || !sessionId) return;
+      
+      // Get data from URL or localStorage
+      const checkoutData = localStorage.getItem("checkout_data");
+      if (checkoutData) {
+        try {
+          const { email, name, planName, amount } = JSON.parse(checkoutData);
+          await supabase.functions.invoke("send-subscription-email", {
+            body: { email, name, planName, amount },
+          });
+          setEmailSent(true);
+          localStorage.removeItem("checkout_data");
+        } catch (error) {
+          console.error("Error sending confirmation email:", error);
+        }
+      }
+    };
+
+    sendConfirmationEmail();
+  }, [sessionId, emailSent]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
