@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Star, Palette, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
+import { CheckoutModal } from "@/components/checkout/CheckoutModal";
 
 // Background images
 import bgBarber from "@/assets/bg-professional-barber.png";
@@ -11,7 +12,9 @@ import bgMassage from "@/assets/bg-professional-massage.png";
 const plans = [
   {
     name: "Essencial",
-    price: "R$ 97",
+    planType: "essencial",
+    price: 97,
+    priceDisplay: "R$ 97",
     period: "/mês",
     description: "Ideal para começar",
     features: [
@@ -27,7 +30,9 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "R$ 197",
+    planType: "pro",
+    price: 197,
+    priceDisplay: "R$ 197",
     period: "/mês",
     description: "Mais vendido",
     features: [
@@ -44,7 +49,9 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "R$ 397",
+    planType: "premium",
+    price: 397,
+    priceDisplay: "R$ 397",
     period: "/mês",
     description: "Para quem quer tudo",
     features: [
@@ -63,6 +70,13 @@ const plans = [
 ];
 
 const PricingSection = () => {
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
+
+  const handleContractClick = (plan: typeof plans[0]) => {
+    setSelectedPlan(plan);
+    setCheckoutOpen(true);
+  };
   return (
     <section id="planos" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background professional images with transparency */}
@@ -136,7 +150,7 @@ const PricingSection = () => {
                   <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
                   <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-bold gradient-text">{plan.price}</span>
+                    <span className="text-4xl font-bold gradient-text">{plan.priceDisplay}</span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
                 </div>
@@ -171,15 +185,14 @@ const PricingSection = () => {
                   </div>
                 </div>
 
-                <a href={getWhatsAppLink(getWhatsAppMessage("pricing"))} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button
-                    variant={plan.highlighted ? "hero" : "heroOutline"}
-                    className="w-full"
-                  >
-                    Solicitar proposta
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </a>
+                <Button
+                  variant={plan.highlighted ? "hero" : "heroOutline"}
+                  className="w-full"
+                  onClick={() => handleContractClick(plan)}
+                >
+                  Contratar agora
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
               </div>
             </motion.div>
           ))}
@@ -211,6 +224,17 @@ const PricingSection = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Checkout Modal */}
+      {selectedPlan && (
+        <CheckoutModal
+          open={checkoutOpen}
+          onOpenChange={setCheckoutOpen}
+          planType={selectedPlan.planType}
+          planName={selectedPlan.name}
+          originalPrice={selectedPlan.price}
+        />
+      )}
     </section>
   );
 };
