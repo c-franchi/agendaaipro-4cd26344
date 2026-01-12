@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowRight, MessageCircle, Sparkles, Scissors, User, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroMockup from "@/assets/hero-mockup.png";
 import { useRef } from "react";
@@ -20,6 +20,38 @@ const HeroSection = () => {
       {/* Animated Background Effects */}
       <div className="absolute inset-0 bg-hero-glow" />
       
+      {/* Background professional icons with transparency */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          className="absolute top-[15%] left-[5%] opacity-[0.03]"
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 8, repeat: Infinity }}
+        >
+          <Scissors className="w-32 h-32 md:w-48 md:h-48 text-primary" />
+        </motion.div>
+        <motion.div 
+          className="absolute top-[60%] left-[8%] opacity-[0.03]"
+          animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+          transition={{ duration: 7, repeat: Infinity, delay: 1 }}
+        >
+          <Calendar className="w-24 h-24 md:w-40 md:h-40 text-primary" />
+        </motion.div>
+        <motion.div 
+          className="absolute top-[25%] right-[3%] opacity-[0.03]"
+          animate={{ y: [0, -15, 0], rotate: [0, -3, 0] }}
+          transition={{ duration: 9, repeat: Infinity, delay: 0.5 }}
+        >
+          <User className="w-28 h-28 md:w-44 md:h-44 text-primary" />
+        </motion.div>
+        <motion.div 
+          className="absolute bottom-[20%] right-[6%] opacity-[0.03]"
+          animate={{ y: [0, 20, 0], rotate: [0, 8, 0] }}
+          transition={{ duration: 6, repeat: Infinity, delay: 2 }}
+        >
+          <Scissors className="w-20 h-20 md:w-36 md:h-36 text-primary rotate-45" />
+        </motion.div>
+      </div>
+      
       {/* Floating orbs with parallax */}
       <motion.div 
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
@@ -37,10 +69,10 @@ const HeroSection = () => {
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       
-      <motion.div style={{ opacity, scale }} className="container relative z-10 py-16 md:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <motion.div style={{ opacity, scale }} className="container relative z-10 py-12 md:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left">
+          <div className="text-center lg:text-left order-2 lg:order-1">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -136,19 +168,18 @@ const HeroSection = () => {
 
           {/* Right Content - Mockup */}
           <motion.div
-            initial={{ opacity: 0, x: 80, rotateY: -15 }}
-            animate={{ opacity: 1, x: 0, rotateY: 0 }}
-            transition={{ delay: 0.4, duration: 1, type: "spring", stiffness: 50 }}
-            style={{ y }}
-            className="hidden lg:block relative"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.8, type: "spring" as const, stiffness: 50 }}
+            className="relative order-1 lg:order-2 mt-8 lg:mt-0"
           >
-            <div className="relative">
+            <div className="relative max-w-md mx-auto lg:max-w-none">
               {/* Multiple glow layers */}
               <motion.div 
-                className="absolute inset-0 bg-primary/30 blur-3xl rounded-3xl scale-90"
+                className="absolute inset-0 bg-primary/20 blur-3xl rounded-3xl scale-90"
                 animate={{ 
-                  opacity: [0.3, 0.5, 0.3],
-                  scale: [0.9, 0.95, 0.9]
+                  opacity: [0.2, 0.4, 0.2],
+                  scale: [0.85, 0.9, 0.85]
                 }}
                 transition={{ 
                   duration: 4,
@@ -156,25 +187,13 @@ const HeroSection = () => {
                   ease: "easeInOut"
                 }}
               />
-              <motion.div 
-                className="absolute -inset-4 bg-primary/10 blur-2xl rounded-3xl"
-                animate={{ 
-                  opacity: [0.2, 0.4, 0.2],
-                }}
-                transition={{ 
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.5
-                }}
-              />
               <motion.img 
                 src={heroMockup} 
                 alt="AgendaAÍ Pro Dashboard - Sistema de Agendamento Profissional" 
-                className="relative z-10 w-full h-auto rounded-2xl shadow-2xl"
+                className="relative z-10 w-full h-auto rounded-2xl shadow-2xl object-contain max-h-[300px] sm:max-h-[400px] lg:max-h-[500px]"
+                style={{ y }}
                 animate={{ 
-                  y: [0, -10, 0],
-                  rotateZ: [0, 0.5, 0]
+                  y: [0, -8, 0],
                 }}
                 transition={{ 
                   duration: 6,
