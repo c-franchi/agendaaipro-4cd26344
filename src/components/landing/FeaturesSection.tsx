@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Calendar, CreditCard, ShoppingCart, BarChart3, MessageSquare, Palette } from "lucide-react";
+import { Calendar, CreditCard, ShoppingCart, BarChart3, MessageSquare, Palette, Scissors, Clock, Sparkles } from "lucide-react";
 import { useRef } from "react";
 
 const features = [
@@ -77,6 +77,31 @@ const FeaturesSection = () => {
 
   return (
     <section ref={sectionRef} id="funcionalidades" className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background professional icons */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          className="absolute top-[10%] right-[10%] opacity-[0.03]"
+          animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 7, repeat: Infinity }}
+        >
+          <Scissors className="w-32 h-32 text-primary" />
+        </motion.div>
+        <motion.div 
+          className="absolute bottom-[15%] left-[5%] opacity-[0.03]"
+          animate={{ y: [0, 10, 0], rotate: [0, -3, 0] }}
+          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
+        >
+          <Clock className="w-28 h-28 text-primary" />
+        </motion.div>
+        <motion.div 
+          className="absolute top-[50%] left-[2%] opacity-[0.02]"
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 9, repeat: Infinity, delay: 2 }}
+        >
+          <Sparkles className="w-24 h-24 text-primary" />
+        </motion.div>
+      </div>
+      
       {/* Parallax background elements */}
       <motion.div 
         style={{ y: backgroundY }}

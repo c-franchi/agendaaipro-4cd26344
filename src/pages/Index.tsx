@@ -1,5 +1,6 @@
 import Header from "@/components/landing/Header";
 import HeroSection from "@/components/landing/HeroSection";
+import PartnersSection from "@/components/landing/PartnersSection";
 import TargetAudienceSection from "@/components/landing/TargetAudienceSection";
 import ProblemsSection from "@/components/landing/ProblemsSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
@@ -8,7 +9,7 @@ import DifferentialsSection from "@/components/landing/DifferentialsSection";
 import PricingSection from "@/components/landing/PricingSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FAQSection from "@/components/landing/FAQSection";
-import CTASection from "@/components/landing/CTASection";
+import ContactSection from "@/components/landing/ContactSection";
 import Footer from "@/components/landing/Footer";
 
 const Index = () => {
@@ -17,6 +18,7 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
+        <PartnersSection />
         <TargetAudienceSection />
         <ProblemsSection />
         <HowItWorksSection />
@@ -25,7 +27,7 @@ const Index = () => {
         <PricingSection />
         <TestimonialsSection />
         <FAQSection />
-        <CTASection />
+        <ContactSection />
       </main>
       <Footer />
     </div>
