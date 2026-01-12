@@ -1,43 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Users, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  Search, 
-  RefreshCw,
-  ArrowLeft,
-  Trash2,
-  Building2,
-  LogOut
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, Mail, Phone, Search, RefreshCw, ArrowLeft, Trash2, Building2, LogOut, BarChart3, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import logoSimple from "@/assets/logo-simple.png";
 import type { User } from "@supabase/supabase-js";
+import { LeadsDashboard } from "@/components/admin/LeadsDashboard";
+import { VouchersManager } from "@/components/admin/VouchersManager";
 
 interface Lead {
   id: string;
@@ -106,13 +83,8 @@ const Admin = () => {
   const deleteLead = async (id: string) => {
     setDeleting(id);
     try {
-      const { error } = await supabase
-        .from("leads")
-        .delete()
-        .eq("id", id);
-
+      const { error } = await supabase.from("leads").delete().eq("id", id);
       if (error) throw error;
-      
       setLeads(leads.filter(lead => lead.id !== id));
       toast.success("Lead removido com sucesso");
     } catch (error) {
@@ -129,26 +101,12 @@ const Admin = () => {
     }
   }, [user]);
 
-  const filteredLeads = leads.filter(lead => 
+  const filteredLeads = leads.filter(lead =>
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (lead.phone && lead.phone.includes(searchTerm)) ||
     (lead.business_type && lead.business_type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
-  const stats = {
-    total: leads.length,
-    today: leads.filter(lead => {
-      const today = new Date();
-      const leadDate = new Date(lead.created_at);
-      return leadDate.toDateString() === today.toDateString();
-    }).length,
-    thisWeek: leads.filter(lead => {
-      const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      return new Date(lead.created_at) >= weekAgo;
-    }).length,
-  };
 
   if (authLoading) {
     return (
@@ -160,7 +118,6 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -189,164 +146,118 @@ const Admin = () => {
       </header>
 
       <main className="container py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="leads" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Leads
+            </TabsTrigger>
+            <TabsTrigger value="vouchers" className="flex items-center gap-2">
+              <Gift className="w-4 h-4" />
+              Vouchers
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard">
+            <LeadsDashboard leads={leads} />
+          </TabsContent>
+
+          <TabsContent value="leads">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total de Leads</CardTitle>
-                <Users className="w-4 h-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle>Leads Capturados</CardTitle>
+                <CardDescription>Lista de todos os leads cadastrados</CardDescription>
+                <div className="relative mt-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por nome, email, telefone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <p className="text-xs text-muted-foreground">leads capturados</p>
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : filteredLeads.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Nenhum lead encontrado</p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Telefone</TableHead>
+                          <TableHead>Negócio</TableHead>
+                          <TableHead>Data</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredLeads.map((lead) => (
+                          <TableRow key={lead.id}>
+                            <TableCell className="font-medium">{lead.name}</TableCell>
+                            <TableCell>
+                              <a href={`mailto:${lead.email}`} className="text-primary hover:underline flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {lead.email}
+                              </a>
+                            </TableCell>
+                            <TableCell>
+                              {lead.phone ? (
+                                <a href={`tel:${lead.phone}`} className="flex items-center gap-1 hover:text-primary">
+                                  <Phone className="w-3 h-3" />
+                                  {lead.phone}
+                                </a>
+                              ) : "-"}
+                            </TableCell>
+                            <TableCell>
+                              {lead.business_type ? (
+                                <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                                  <Building2 className="w-3 h-3" />
+                                  {lead.business_type}
+                                </Badge>
+                              ) : "-"}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {format(new Date(lead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => deleteLead(lead.id)}
+                                disabled={deleting === lead.id}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className={`w-4 h-4 ${deleting === lead.id ? 'animate-spin' : ''}`} />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </motion.div>
+          </TabsContent>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Hoje</CardTitle>
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">{stats.today}</div>
-                <p className="text-xs text-muted-foreground">novos leads hoje</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Esta Semana</CardTitle>
-                <Mail className="w-4 h-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.thisWeek}</div>
-                <p className="text-xs text-muted-foreground">últimos 7 dias</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Search and Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Leads Capturados</CardTitle>
-            <CardDescription>
-              Lista de todos os leads cadastrados através do formulário de contato
-            </CardDescription>
-            <div className="relative mt-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome, email, telefone ou negócio..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            ) : filteredLeads.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhum lead encontrado</h3>
-                <p className="text-muted-foreground">
-                  {searchTerm ? "Tente outro termo de busca" : "Os leads aparecerão aqui quando forem capturados"}
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-md border overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Negócio</TableHead>
-                      <TableHead>Origem</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <TableRow key={lead.id}>
-                        <TableCell className="font-medium">{lead.name}</TableCell>
-                        <TableCell>
-                          <a 
-                            href={`mailto:${lead.email}`} 
-                            className="text-primary hover:underline flex items-center gap-1"
-                          >
-                            <Mail className="w-3 h-3" />
-                            {lead.email}
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          {lead.phone ? (
-                            <a 
-                              href={`tel:${lead.phone}`}
-                              className="flex items-center gap-1 hover:text-primary"
-                            >
-                              <Phone className="w-3 h-3" />
-                              {lead.phone}
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {lead.business_type ? (
-                            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                              <Building2 className="w-3 h-3" />
-                              {lead.business_type}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{lead.source || "landing_page"}</Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(new Date(lead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteLead(lead.id)}
-                            disabled={deleting === lead.id}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className={`w-4 h-4 ${deleting === lead.id ? 'animate-spin' : ''}`} />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          <TabsContent value="vouchers">
+            <VouchersManager />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
