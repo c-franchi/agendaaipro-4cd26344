@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MessageCircle, Mail, Instagram } from "lucide-react";
 import logoDetailed from "@/assets/logo-detailed.png";
 const Footer = () => {
@@ -52,14 +53,14 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <Link to="/termos" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   Termos de Uso
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <Link to="/privacidade" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   Política de Privacidade
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#contato" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
