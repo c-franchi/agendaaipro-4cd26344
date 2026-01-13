@@ -1,28 +1,32 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, User, Settings } from "lucide-react";
+import { Menu, X, User, Settings, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import logoSimple from "@/assets/logo-simple.png";
 import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 const ADMIN_EMAIL = "neifranchi@gmail.com";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
       setIsAdmin(user?.email === ADMIN_EMAIL);
     };
     
-    checkAdmin();
+    checkUser();
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      checkAdmin();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+      setIsAdmin(session?.user?.email === ADMIN_EMAIL);
     });
 
     return () => subscription.unsubscribe();
@@ -33,7 +37,6 @@ const Header = () => {
     { label: "Como Funciona", href: "#como-funciona" },
     { label: "Planos", href: "#planos" },
     { label: "Contato", href: "#contato" },
-    { label: "Minha Assinatura", href: "/minha-assinatura", isLink: true },
   ];
 
   const whatsappLink = getWhatsAppLink(getWhatsAppMessage("hero"));
@@ -53,25 +56,31 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            'isLink' in link && link.isLink ? (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium flex items-center gap-1"
-              >
-                <User className="w-4 h-4" />
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </a>
-            )
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+            >
+              {link.label}
+            </a>
           ))}
+          {user ? (
+            <Link
+              to="/meu-perfil"
+              className="text-primary hover:text-primary/80 transition-colors text-sm font-medium flex items-center gap-1"
+            >
+              <User className="w-4 h-4" />
+              Meu Perfil
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium flex items-center gap-1"
+            >
+              <LogIn className="w-4 h-4" />
+              Entrar
+            </Link>
+          )}
           {isAdmin && (
             <Link
               to="/admin"
@@ -115,27 +124,34 @@ const Header = () => {
         >
           <nav className="container py-6 flex flex-col gap-4">
             {navLinks.map((link) => (
-              'isLink' in link && link.isLink ? (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2 flex items-center gap-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User className="w-4 h-4" />
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              )
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.label}
+              </a>
             ))}
+            {user ? (
+              <Link
+                to="/meu-perfil"
+                className="text-primary hover:text-primary/80 transition-colors py-2 flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                Meu Perfil
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="text-muted-foreground hover:text-foreground transition-colors py-2 flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <LogIn className="w-4 h-4" />
+                Entrar
+              </Link>
+            )}
             {isAdmin && (
               <Link
                 to="/admin"

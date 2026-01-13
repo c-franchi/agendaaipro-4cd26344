@@ -117,7 +117,32 @@ const PricingSection = () => {
     };
 
     fetchPlans();
-  }, []);
+
+    // Check for auto-open checkout after login
+    const autoOpenCheckout = localStorage.getItem("auto_open_checkout");
+    if (autoOpenCheckout) {
+      try {
+        const checkoutData = JSON.parse(autoOpenCheckout);
+        // Wait a bit for plans to load, then open checkout
+        setTimeout(() => {
+          const planKey = checkoutData.planType?.toLowerCase();
+          if (planKey && pricingPlans[planKey as keyof PricingPlans]) {
+            const plan = pricingPlans[planKey as keyof PricingPlans];
+            setSelectedPlan({
+              planType: planKey,
+              name: plan.name,
+              price: checkoutData.originalPrice || plan.promotional_price || plan.price,
+              promotional_price: plan.promotional_price,
+            });
+            setCheckoutOpen(true);
+          }
+          localStorage.removeItem("auto_open_checkout");
+        }, 500);
+      } catch {
+        localStorage.removeItem("auto_open_checkout");
+      }
+    }
+  }, [pricingPlans]);
 
   const handleContractClick = (planKey: string, plan: PlanData) => {
     setSelectedPlan({
