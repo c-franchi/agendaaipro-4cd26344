@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { RefreshCw, Save, Plus, X, Upload, ImageIcon, Trash2 } from "lucide-react";
+import { RefreshCw, Save, Plus, X, Upload, ImageIcon, Trash2, Scissors, Sparkles, Heart } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -52,6 +53,8 @@ interface TargetAudienceItem {
   icon: string;
   title: string;
   description: string;
+  backgroundImage?: string;
+  opacity?: number;
 }
 
 export const LandingPageEditor = () => {
@@ -92,10 +95,10 @@ export const LandingPageEditor = () => {
       // Set default target audiences if not found
       if (!data?.find(item => item.key === "target_audiences")) {
         setTargetAudiences([
-          { icon: "Scissors", title: "Barbeiros e Barbearias", description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada" },
-          { icon: "Sparkles", title: "Cabeleireiros e Salões", description: "Organize sua equipe e maximize o faturamento com vendas integradas" },
-          { icon: "HandMetal", title: "Manicures e Esteticistas", description: "Receba antecipado via Pix e venda produtos junto ao agendamento" },
-          { icon: "Heart", title: "Profissionais Autônomos", description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado" }
+          { icon: "Scissors", title: "Barbeiros e Barbearias", description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada", opacity: 40 },
+          { icon: "Sparkles", title: "Cabeleireiros e Salões", description: "Organize sua equipe e maximize o faturamento com vendas integradas", opacity: 40 },
+          { icon: "HandMetal", title: "Manicures e Esteticistas", description: "Receba antecipado via Pix e venda produtos junto ao agendamento", opacity: 40 },
+          { icon: "Heart", title: "Profissionais Autônomos", description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado", opacity: 40 }
         ]);
       }
     } catch (error) {
@@ -153,11 +156,45 @@ export const LandingPageEditor = () => {
     }
   };
   
-  const updateTargetAudience = (index: number, field: keyof TargetAudienceItem, value: string) => {
+  const updateTargetAudience = (index: number, field: keyof TargetAudienceItem, value: string | number) => {
     if (!targetAudiences) return;
     const updated = [...targetAudiences];
     updated[index] = { ...updated[index], [field]: value };
     setTargetAudiences(updated);
+  };
+
+  const handleAudienceImageUpload = async (index: number, file: File) => {
+    if (!file || !targetAudiences) return;
+    
+    setUploading(`audience_${index}`);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `audience-${index}-${Date.now()}.${fileExt}`;
+      const filePath = `audience/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("landing-images")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrl } = supabase.storage
+        .from("landing-images")
+        .getPublicUrl(filePath);
+
+      updateTargetAudience(index, "backgroundImage", publicUrl.publicUrl);
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error) {
+      console.error("Error uploading audience image:", error);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeAudienceImage = (index: number) => {
+    updateTargetAudience(index, "backgroundImage", "");
+    toast.success("Imagem removida");
   };
 
   const handleImageUpload = async (planKey: keyof PricingPlans, file: File) => {
@@ -647,6 +684,82 @@ export const LandingPageEditor = () => {
                     value={audience.description}
                     onChange={(e) => updateTargetAudience(index, "description", e.target.value)}
                   />
+                </div>
+                
+                {/* Image Upload Section */}
+                <div>
+                  <Label className="mb-2 block">Imagem de Fundo</Label>
+                  <div className="flex items-start gap-4">
+                    {audience.backgroundImage ? (
+                      <div className="relative group">
+                        <img 
+                          src={audience.backgroundImage} 
+                          alt={`Background ${audience.title}`}
+                          className="w-32 h-24 object-cover rounded-lg border border-border shadow-lg"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeAudienceImage(index)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        ref={(el) => { fileInputRefs.current[`audience_${index}`] = el; }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleAudienceImageUpload(index, file);
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRefs.current[`audience_${index}`]?.click()}
+                        disabled={uploading === `audience_${index}`}
+                      >
+                        {uploading === `audience_${index}` ? (
+                          <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Upload className="w-4 h-4 mr-2" />
+                        )}
+                        {audience.backgroundImage ? "Trocar" : "Enviar"}
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Recomendado: 400x300px
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Opacity Control */}
+                <div>
+                  <Label className="mb-2 block">Transparência da Imagem: {audience.opacity || 40}%</Label>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-muted-foreground">0%</span>
+                    <Slider
+                      value={[audience.opacity || 40]}
+                      onValueChange={(value) => updateTargetAudience(index, "opacity", value[0])}
+                      min={0}
+                      max={100}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-muted-foreground">100%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Quanto maior o valor, mais visível a imagem ficará
+                  </p>
                 </div>
               </div>
             ))}
