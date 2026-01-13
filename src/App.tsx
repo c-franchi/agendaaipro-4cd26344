@@ -13,6 +13,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import MySubscription from "./pages/MySubscription";
 import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,8 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        {/* LGPD Cookie Consent Banner */}
+        <CookieConsentBanner />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
