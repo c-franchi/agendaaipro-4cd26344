@@ -15,6 +15,7 @@ interface AudienceItem {
   description: string;
   gradient: string;
   backgroundImage: string;
+  opacity?: number;
 }
 
 const defaultAudiences: AudienceItem[] = [
@@ -23,28 +24,32 @@ const defaultAudiences: AudienceItem[] = [
     title: "Barbeiros e Barbearias",
     description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada",
     gradient: "from-cyan-500/20 to-blue-500/20",
-    backgroundImage: bgBarber
+    backgroundImage: bgBarber,
+    opacity: 40
   },
   {
     icon: Sparkles,
     title: "Cabeleireiros e Salões",
     description: "Organize sua equipe e maximize o faturamento com vendas integradas",
     gradient: "from-purple-500/20 to-pink-500/20",
-    backgroundImage: bgSpa
+    backgroundImage: bgSpa,
+    opacity: 40
   },
   {
     icon: HandMetal,
     title: "Manicures e Esteticistas",
     description: "Receba antecipado via Pix e venda produtos junto ao agendamento",
     gradient: "from-pink-500/20 to-rose-500/20",
-    backgroundImage: bgManicure
+    backgroundImage: bgManicure,
+    opacity: 40
   },
   {
     icon: Heart,
     title: "Profissionais Autônomos",
     description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado",
     gradient: "from-emerald-500/20 to-teal-500/20",
-    backgroundImage: bgMassage
+    backgroundImage: bgMassage,
+    opacity: 40
   },
 ];
 
@@ -85,7 +90,8 @@ const TargetAudienceSection = () => {
           title: item.title || defaultAudiences[index].title,
           description: item.description || defaultAudiences[index].description,
           icon: iconMap[item.icon] || defaultAudiences[index].icon,
-          backgroundImage: item.backgroundImage || imageMap[index] || defaultAudiences[index].backgroundImage
+          backgroundImage: item.backgroundImage || imageMap[index] || defaultAudiences[index].backgroundImage,
+          opacity: item.opacity !== undefined ? item.opacity : (defaultAudiences[index]?.opacity || 40)
         }));
         setAudiences(mappedAudiences);
       }
@@ -185,8 +191,11 @@ const TargetAudienceSection = () => {
             >
               {/* Background image with transparency */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity duration-500"
-                style={{ backgroundImage: `url(${item.backgroundImage})` }}
+                className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
+                style={{ 
+                  backgroundImage: `url(${item.backgroundImage})`,
+                  opacity: (item.opacity || 40) / 100
+                }}
               />
               
               {/* Overlay gradient for better text readability */}
