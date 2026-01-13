@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { VoucherInput } from "./VoucherInput";
-import { CreditCard, Loader2, Check, ArrowRight } from "lucide-react";
+import { CreditCard, Loader2, ArrowRight, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -32,9 +33,12 @@ export const CheckoutModal = ({
   planName,
   originalPrice,
 }: CheckoutModalProps) => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [voucherData, setVoucherData] = useState<{
     code: string;
     discountAmount: number;
@@ -44,6 +48,41 @@ export const CheckoutModal = ({
 
   const finalPrice = voucherData ? voucherData.finalAmount : originalPrice;
   const discountAmount = voucherData ? voucherData.discountAmount : 0;
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      setCheckingAuth(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setIsAuthenticated(true);
+        setEmail(user.email || "");
+        // Try to get user's name from metadata if available
+        const userName = user.user_metadata?.full_name || user.user_metadata?.name || "";
+        if (userName) setName(userName);
+      } else {
+        setIsAuthenticated(false);
+      }
+      setCheckingAuth(false);
+    };
+
+    if (open) {
+      checkAuth();
+    }
+  }, [open]);
+
+  const handleLoginRedirect = () => {
+    // Store checkout data for after login
+    localStorage.setItem("pending_checkout", JSON.stringify({
+      planType,
+      planName,
+      originalPrice,
+      voucherData,
+    }));
+    onOpenChange(false);
+    navigate("/auth?redirect=checkout");
+  };
 
   const handleCheckout = async () => {
     try {
@@ -56,39 +95,7 @@ export const CheckoutModal = ({
 
       setLoading(true);
 
-      // If 100% discount (free), handle without Stripe
-      if (finalPrice === 0 && voucherData) {
-        const { data, error } = await supabase.functions.invoke("create-free-subscription", {
-          body: {
-            planType,
-            email,
-            name,
-            voucherCode: voucherData.code,
-            voucherId: voucherData.voucherId,
-            originalAmount: originalPrice,
-            discountAmount,
-          },
-        });
-
-        if (error) throw error;
-
-        if (data?.success) {
-          localStorage.setItem("checkout_data", JSON.stringify({
-            email,
-            name,
-            planName,
-            amount: 0,
-            isFree: true,
-          }));
-          toast.success("Assinatura gratuita ativada com sucesso!");
-          window.location.href = "/payment-success?free=true";
-          return;
-        } else {
-          throw new Error(data?.error || "Erro ao criar assinatura gratuita");
-        }
-      }
-
-      // Normal checkout with Stripe
+      // Always use Stripe checkout - even for 100% discount (to collect card for renewal)
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           planType,
@@ -104,12 +111,16 @@ export const CheckoutModal = ({
       if (error) throw error;
 
       if (data?.url) {
-        // Save checkout data for confirmation email
+        // Save checkout data for confirmation page
         localStorage.setItem("checkout_data", JSON.stringify({
           email,
           name,
           planName,
-          amount: finalPrice,
+          planType,
+          originalAmount: originalPrice,
+          discountAmount,
+          finalAmount: finalPrice,
+          voucherCode: voucherData?.code || null,
         }));
         window.open(data.url, "_blank");
         toast.success("Redirecionando para o pagamento...");
@@ -124,6 +135,80 @@ export const CheckoutModal = ({
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LogIn className="w-5 h-5 text-primary" />
+              Faça login para continuar
+            </DialogTitle>
+            <DialogDescription>
+              Para contratar o {planName}, você precisa criar uma conta ou fazer login.
+              Isso permitirá que você gerencie sua assinatura futuramente.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Plan Summary */}
+            <Card className="bg-muted/30">
+              <CardContent className="pt-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Plano selecionado</span>
+                  <span className="font-semibold">{planName}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Valor</span>
+                  <span className="font-semibold text-primary">
+                    R$ {originalPrice.toFixed(2)}/mês
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="bg-primary/10 rounded-lg p-4 space-y-2">
+              <h3 className="font-semibold text-sm">Por que criar uma conta?</h3>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>✓ Gerencie sua assinatura a qualquer momento</li>
+                <li>✓ Acesse o painel de controle</li>
+                <li>✓ Receba atualizações e suporte exclusivo</li>
+                <li>✓ Seu cartão fica salvo para renovação automática</li>
+              </ul>
+            </div>
+
+            <Button
+              onClick={handleLoginRedirect}
+              className="w-full h-12 text-base"
+              size="lg"
+            >
+              <LogIn className="w-5 h-5 mr-2" />
+              Criar conta ou Fazer login
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Após o login, você será redirecionado para finalizar a contratação.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -169,9 +254,14 @@ export const CheckoutModal = ({
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Total</span>
                 <span className="text-xl font-bold text-primary">
-                  R$ {finalPrice.toFixed(2)}/mês
+                  {finalPrice === 0 ? "Grátis (1º mês)" : `R$ ${finalPrice.toFixed(2)}/mês`}
                 </span>
               </div>
+              {finalPrice === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  * Seu cartão será salvo para renovação automática após o período promocional.
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -195,7 +285,13 @@ export const CheckoutModal = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu@email.com"
+                disabled={isAuthenticated}
               />
+              {isAuthenticated && (
+                <p className="text-xs text-muted-foreground">
+                  Email vinculado à sua conta
+                </p>
+              )}
             </div>
           </div>
 
@@ -223,14 +319,9 @@ export const CheckoutModal = ({
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Processando...
               </>
-            ) : finalPrice === 0 ? (
-              <>
-                <Check className="w-5 h-5 mr-2" />
-                Ativar Assinatura Grátis
-              </>
             ) : (
               <>
-                Pagar R$ {finalPrice.toFixed(2)}/mês
+                {finalPrice === 0 ? "Ativar Plano Grátis" : `Pagar R$ ${finalPrice.toFixed(2)}/mês`}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </>
             )}

@@ -1,43 +1,65 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff, Lock, Mail, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowLeft, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoSimple from "@/assets/logo-simple.png";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+  
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
+  // Check for pending checkout data
+  const pendingCheckout = localStorage.getItem("pending_checkout");
+  const isCheckoutFlow = redirectTo === "checkout" || !!pendingCheckout;
 
   useEffect(() => {
     // Check if already logged in
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/admin");
+        handleSuccessfulAuth();
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/admin");
+        handleSuccessfulAuth();
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleSuccessfulAuth = () => {
+    if (isCheckoutFlow) {
+      // Redirect back to home with checkout intent
+      navigate("/#precos");
+      toast.success("Login realizado! Agora você pode finalizar sua compra.");
+    } else {
+      navigate("/admin");
+    }
+  };
+
   const validateInputs = () => {
     if (!email || !password) {
       toast.error("Preencha todos os campos");
+      return false;
+    }
+    if (!isLogin && !name.trim()) {
+      toast.error("Preencha seu nome");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -71,13 +93,17 @@ const Auth = () => {
           return;
         }
         toast.success("Login realizado com sucesso!");
-        navigate("/admin");
+        handleSuccessfulAuth();
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/admin`,
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: name,
+              name: name,
+            },
           },
         });
         if (error) {
@@ -88,8 +114,19 @@ const Auth = () => {
           }
           return;
         }
-        toast.success("Conta criada com sucesso! Você já pode fazer login.");
-        setIsLogin(true);
+        toast.success("Conta criada com sucesso!");
+        // Auto login after signup for checkout flow
+        if (isCheckoutFlow) {
+          const { error: loginError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (!loginError) {
+            handleSuccessfulAuth();
+          }
+        } else {
+          setIsLogin(true);
+        }
       }
     } catch (error) {
       toast.error("Erro ao processar sua solicitação");
@@ -116,16 +153,52 @@ const Auth = () => {
               <img src={logoSimple} alt="AgendaAÍ Pro" className="h-14 mx-auto" />
             </Link>
             <h1 className="text-2xl font-bold mb-2">
-              {isLogin ? "Acesso Administrativo" : "Criar Conta"}
+              {isCheckoutFlow 
+                ? (isLogin ? "Faça login para continuar" : "Crie sua conta")
+                : (isLogin ? "Acesso Administrativo" : "Criar Conta")
+              }
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isLogin
-                ? "Entre para gerenciar seus leads"
-                : "Crie sua conta de administrador"}
+              {isCheckoutFlow
+                ? (isLogin 
+                    ? "Entre com sua conta para finalizar a contratação" 
+                    : "Crie uma conta para gerenciar sua assinatura"
+                  )
+                : (isLogin
+                    ? "Entre para gerenciar seus leads"
+                    : "Crie sua conta de administrador"
+                  )
+              }
             </p>
           </div>
 
+          {isCheckoutFlow && pendingCheckout && (
+            <div className="bg-primary/10 rounded-lg p-3 mb-6 text-center">
+              <p className="text-sm text-primary">
+                Após o login, você poderá finalizar sua contratação.
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleAuth} className="space-y-4">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome completo</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Seu nome"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pl-10"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">

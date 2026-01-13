@@ -6,11 +6,30 @@ import bgBarber from "@/assets/bg-professional-barber.png";
 import bgManicure from "@/assets/bg-professional-manicure.png";
 import bgMassage from "@/assets/bg-professional-massage.png";
 import bgTrainer from "@/assets/bg-professional-trainer.png";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
+
+interface HeroContent {
+  title: string;
+  subtitle: string;
+  cta_primary: string;
+  cta_secondary: string;
+  bg_image?: string;
+  mockup_image?: string;
+}
+
+const defaultHeroContent: HeroContent = {
+  title: "Seu atendimento, seus pagamentos e suas vendas",
+  subtitle: "O AgendaAÍ Pro é o sistema de agenda digital da sua marca, com pagamentos via Pix e venda de produtos integrada.",
+  cta_primary: "Quero minha agenda profissional",
+  cta_secondary: "Falar com um especialista",
+};
 
 const HeroSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [heroContent, setHeroContent] = useState<HeroContent>(defaultHeroContent);
+  
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"]
@@ -19,6 +38,28 @@ const HeroSection = () => {
   const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+
+  useEffect(() => {
+    const fetchHeroContent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("landing_content")
+          .select("value")
+          .eq("key", "hero_content")
+          .single();
+        
+        if (!error && data?.value) {
+          setHeroContent({ ...defaultHeroContent, ...(data.value as unknown as HeroContent) });
+        }
+      } catch (error) {
+        console.error("Error fetching hero content:", error);
+      }
+    };
+    
+    fetchHeroContent();
+  }, []);
+
+  const mockupSrc = heroContent.mockup_image || heroMockup;
 
   return (
     <section ref={sectionRef} className="relative min-h-[100svh] flex items-center pt-20 md:pt-24 pb-8 md:pb-12 overflow-hidden">
@@ -112,7 +153,7 @@ const HeroSection = () => {
               transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
               className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-4 md:mb-6"
             >
-              Seu atendimento, seus pagamentos e suas vendas{" "}
+              {heroContent.title}{" "}
               <motion.span 
                 className="gradient-text inline-block"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -130,7 +171,7 @@ const HeroSection = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-sm md:text-base lg:text-lg text-muted-foreground mb-4 md:mb-8 max-w-xl mx-auto lg:mx-0 text-balance"
             >
-              O AgendaAÍ Pro é o sistema de agenda digital da sua marca, com pagamentos via Pix e venda de produtos integrada.
+              {heroContent.subtitle}
             </motion.p>
 
             {/* CTAs */}
@@ -147,7 +188,7 @@ const HeroSection = () => {
                 className="w-full sm:w-auto"
               >
                 <Button variant="hero" size="lg" className="w-full sm:w-auto group text-sm md:text-base">
-                  Quero minha agenda profissional
+                  {heroContent.cta_primary}
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </motion.a>
@@ -161,7 +202,7 @@ const HeroSection = () => {
               >
                 <Button variant="heroOutline" size="lg" className="w-full sm:w-auto group text-sm md:text-base">
                   <MessageCircle className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:scale-110" />
-                  Falar com um especialista
+                  {heroContent.cta_secondary}
                 </Button>
               </motion.a>
             </motion.div>
@@ -225,7 +266,7 @@ const HeroSection = () => {
                 }}
               />
               <motion.img 
-                src={heroMockup} 
+                src={mockupSrc} 
                 alt="AgendaAÍ Pro Dashboard - Sistema de Agendamento Profissional" 
                 className="relative z-10 w-full h-auto rounded-2xl shadow-2xl object-contain"
                 style={{ y }}

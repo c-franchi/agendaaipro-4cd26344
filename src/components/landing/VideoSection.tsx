@@ -1,16 +1,48 @@
 import { motion } from "framer-motion";
 import { Play, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface VideoSectionProps {
-  videoUrl?: string; // YouTube or Vimeo URL
+interface VideoContent {
+  video_url: string;
+  title: string;
+  subtitle: string;
 }
 
-const VideoSection = ({ videoUrl }: VideoSectionProps) => {
+const defaultVideoContent: VideoContent = {
+  video_url: "",
+  title: "Veja o AgendaAÍ Pro em ação",
+  subtitle: "Assista uma demonstração rápida de como o sistema funciona e como pode transformar seu negócio",
+};
+
+const VideoSection = () => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoContent, setVideoContent] = useState<VideoContent>(defaultVideoContent);
+
+  useEffect(() => {
+    const fetchVideoContent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("landing_content")
+          .select("value")
+          .eq("key", "video_content")
+          .single();
+        
+        if (!error && data?.value) {
+          setVideoContent({ ...defaultVideoContent, ...(data.value as unknown as VideoContent) });
+        }
+      } catch (error) {
+        console.error("Error fetching video content:", error);
+      }
+    };
+    
+    fetchVideoContent();
+  }, []);
 
   // Extract video ID and determine platform
   const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    
     // YouTube
     const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     if (youtubeMatch) {
@@ -26,7 +58,7 @@ const VideoSection = ({ videoUrl }: VideoSectionProps) => {
     return null;
   };
 
-  const embedUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
+  const embedUrl = getEmbedUrl(videoContent.video_url);
 
   return (
     <section id="video" className="py-20 md:py-32 relative overflow-hidden">
@@ -49,10 +81,16 @@ const VideoSection = ({ videoUrl }: VideoSectionProps) => {
             <span className="text-sm text-primary font-medium">Demonstração</span>
           </motion.span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Veja o <span className="gradient-text">AgendaAÍ Pro</span> em ação
+            {videoContent.title.includes("AgendaAÍ Pro") ? (
+              <>
+                Veja o <span className="gradient-text">AgendaAÍ Pro</span> em ação
+              </>
+            ) : (
+              videoContent.title
+            )}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Assista uma demonstração rápida de como o sistema funciona e como pode transformar seu negócio
+            {videoContent.subtitle}
           </p>
         </motion.div>
 
