@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import logoSimple from "@/assets/logo-simple.png";
 import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
@@ -13,6 +14,7 @@ const Header = () => {
     { label: "Como Funciona", href: "#como-funciona" },
     { label: "Planos", href: "#planos" },
     { label: "Contato", href: "#contato" },
+    { label: "Minha Assinatura", href: "/minha-assinatura", isLink: true },
   ];
 
   const whatsappLink = getWhatsAppLink(getWhatsAppMessage("hero"));
@@ -32,13 +34,24 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
-            >
-              {link.label}
-            </a>
+            'isLink' in link && link.isLink ? (
+              <Link
+                key={link.href}
+                to={link.href}
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium flex items-center gap-1"
+              >
+                <User className="w-4 h-4" />
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+              >
+                {link.label}
+              </a>
+            )
           ))}
         </nav>
 
@@ -74,14 +87,26 @@ const Header = () => {
         >
           <nav className="container py-6 flex flex-col gap-4">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </a>
+              'isLink' in link && link.isLink ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors py-2 flex items-center gap-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="w-4 h-4" />
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              )
             ))}
             <div className="flex flex-col gap-3 pt-4 border-t border-border/30">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">

@@ -83,9 +83,20 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-border/30 mt-12 pt-8 text-center">
+        <div className="border-t border-border/30 mt-12 pt-8 text-center space-y-2">
           <p className="text-muted-foreground text-sm">
             © {currentYear} AgendaAÍ Pro. Todos os direitos reservados.
+          </p>
+          <p className="text-muted-foreground text-xs">
+            Desenvolvido por{" "}
+            <a 
+              href="https://neitechweb.web.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              NeiTeck
+            </a>
           </p>
         </div>
       </div>
