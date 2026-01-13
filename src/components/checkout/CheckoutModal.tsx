@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -39,6 +40,7 @@ export const CheckoutModal = ({
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [lgpdConsent, setLgpdConsent] = useState(false);
   const [voucherData, setVoucherData] = useState<{
     code: string;
     discountAmount: number;
@@ -87,6 +89,12 @@ export const CheckoutModal = ({
 
   const handleCheckout = async () => {
     try {
+      // Validate LGPD consent
+      if (!lgpdConsent) {
+        toast.error("Você precisa concordar com os Termos de Uso e Política de Privacidade.");
+        return;
+      }
+
       // Validate form
       const validation = checkoutSchema.safeParse({ name, email });
       if (!validation.success) {
@@ -321,10 +329,31 @@ export const CheckoutModal = ({
 
           <Separator />
 
+          {/* LGPD Consent */}
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="lgpd-consent-checkout"
+              checked={lgpdConsent}
+              onCheckedChange={(checked) => setLgpdConsent(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="lgpd-consent-checkout" className="text-sm text-muted-foreground cursor-pointer">
+              Li e concordo com os{" "}
+              <Link to="/termos" className="text-primary hover:underline" target="_blank">
+                Termos de Uso
+              </Link>{" "}
+              e a{" "}
+              <Link to="/privacidade" className="text-primary hover:underline" target="_blank">
+                Política de Privacidade
+              </Link>
+              . *
+            </label>
+          </div>
+
           {/* CTA */}
           <Button
             onClick={handleCheckout}
-            disabled={loading || !name.trim() || !email.trim()}
+            disabled={loading || !name.trim() || !email.trim() || !lgpdConsent}
             className="w-full h-12 text-base"
             size="lg"
           >

@@ -4,8 +4,20 @@ import { Send, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
+import { z } from "zod";
+
+// Schema de validação para proteção contra XSS e injeção
+const leadSchema = z.object({
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo").trim(),
+  email: z.string().email("Email inválido").max(255, "Email muito longo").trim(),
+  phone: z.string().max(20, "Telefone muito longo").optional(),
+  business_type: z.string().max(100, "Tipo de negócio muito longo").optional(),
+  message: z.string().max(1000, "Mensagem muito longa").optional(),
+});
 
 interface LeadCaptureFormProps {
   source?: string;
@@ -15,6 +27,7 @@ interface LeadCaptureFormProps {
 const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptureFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [lgpdConsent, setLgpdConsent] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,16 +39,39 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar checkbox LGPD (exceto para formulário compacto que não mostra)
+    if (!compact && !lgpdConsent) {
+      toast({
+        title: "Aceite os termos",
+        description: "Você precisa concordar com os Termos de Uso e Política de Privacidade.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar dados com Zod
+    const validation = leadSchema.safeParse(formData);
+    if (!validation.success) {
+      toast({
+        title: "Dados inválidos",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Save lead to database
+      // Save lead to database with sanitized data
+      const sanitizedData = validation.data;
       const { error } = await supabase.from("leads").insert({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        business_type: formData.business_type || null,
-        message: formData.message || null,
+        name: sanitizedData.name,
+        email: sanitizedData.email,
+        phone: sanitizedData.phone || null,
+        business_type: sanitizedData.business_type || null,
+        message: sanitizedData.message || null,
         source,
       });
 
@@ -177,7 +213,28 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
         className="bg-card/50 border-border/50 min-h-[100px]"
       />
-      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading}>
+      {/* LGPD Consent Checkbox */}
+      <div className="flex items-start gap-3">
+        <Checkbox
+          id="lgpd-consent"
+          checked={lgpdConsent}
+          onCheckedChange={(checked) => setLgpdConsent(checked === true)}
+          className="mt-0.5"
+        />
+        <label htmlFor="lgpd-consent" className="text-sm text-muted-foreground cursor-pointer">
+          Li e concordo com os{" "}
+          <Link to="/termos" className="text-primary hover:underline">
+            Termos de Uso
+          </Link>{" "}
+          e a{" "}
+          <Link to="/privacidade" className="text-primary hover:underline">
+            Política de Privacidade
+          </Link>
+          . *
+        </label>
+      </div>
+
+      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading || !lgpdConsent}>
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
