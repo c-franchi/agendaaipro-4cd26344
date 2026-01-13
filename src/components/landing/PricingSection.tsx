@@ -154,12 +154,16 @@ const PricingSection = () => {
     setCheckoutOpen(true);
   };
 
-  const plansArray = Object.entries(pricingPlans).map(([key, plan]) => ({
-    ...plan,
-    planType: key,
-    bgImage: plan.bg_image || defaultBgImages[key as keyof typeof defaultBgImages],
-    branding: brandingNotes[key as keyof typeof brandingNotes],
-  }));
+  // Sort plans by price (lowest to highest) and map with additional data
+  const plansArray = Object.entries(pricingPlans)
+    .map(([key, plan]) => ({
+      ...plan,
+      planType: key,
+      bgImage: plan.bg_image || defaultBgImages[key as keyof typeof defaultBgImages],
+      branding: brandingNotes[key as keyof typeof brandingNotes],
+      effectivePrice: plan.promotional_price || plan.price,
+    }))
+    .sort((a, b) => a.effectivePrice - b.effectivePrice);
 
   return (
     <section id="planos" className="py-20 md:py-32 relative overflow-hidden">

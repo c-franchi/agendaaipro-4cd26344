@@ -10,6 +10,8 @@ import { Eye, EyeOff, Lock, Mail, ArrowLeft, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoSimple from "@/assets/logo-simple.png";
 
+type AuthMode = "login" | "signup" | "forgot-password";
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -20,7 +22,7 @@ const Auth = () => {
   const isCheckoutFlow = redirectTo === "checkout" || !!pendingCheckout;
 
   // Start with signup form when coming from checkout flow
-  const [isLogin, setIsLogin] = useState(!isCheckoutFlow);
+  const [mode, setMode] = useState<AuthMode>(isCheckoutFlow ? "signup" : "login");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -72,32 +74,74 @@ const Auth = () => {
   };
 
   const validateInputs = () => {
-    if (!email || !password) {
-      toast.error("Preencha todos os campos");
-      return false;
-    }
-    if (!isLogin && !name.trim()) {
-      toast.error("Preencha seu nome");
+    if (!email) {
+      toast.error("Preencha o email");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast.error("Email inválido");
       return false;
     }
-    if (password.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres");
+    if (mode !== "forgot-password") {
+      if (!password) {
+        toast.error("Preencha a senha");
+        return false;
+      }
+      if (password.length < 6) {
+        toast.error("A senha deve ter pelo menos 6 caracteres");
+        return false;
+      }
+    }
+    if (mode === "signup" && !name.trim()) {
+      toast.error("Preencha seu nome");
       return false;
     }
     return true;
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Preencha seu email para recuperar a senha");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Email inválido");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?mode=reset`,
+      });
+      
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      
+      toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+      setMode("login");
+    } catch (error) {
+      toast.error("Erro ao enviar email de recuperação");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === "forgot-password") {
+      await handleForgotPassword();
+      return;
+    }
+
     if (!validateInputs()) return;
 
     setLoading(true);
     try {
-      if (isLogin) {
+      if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -126,7 +170,7 @@ const Auth = () => {
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error("Este email já está cadastrado. Faça login.");
-            setIsLogin(true);
+            setMode("login");
           } else {
             toast.error(error.message);
           }
@@ -151,7 +195,7 @@ const Auth = () => {
         });
         if (loginError) {
           console.error("Auto-login error:", loginError);
-          setIsLogin(true);
+          setMode("login");
         }
       }
     } catch (error) {
@@ -159,6 +203,26 @@ const Auth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getTitle = () => {
+    if (mode === "forgot-password") return "Recuperar Senha";
+    if (isCheckoutFlow) {
+      return mode === "login" ? "Faça login para continuar" : "Crie sua conta para continuar";
+    }
+    return mode === "login" ? "Acessar minha conta" : "Criar Conta";
+  };
+
+  const getDescription = () => {
+    if (mode === "forgot-password") {
+      return "Digite seu email para receber o link de recuperação";
+    }
+    if (isCheckoutFlow) {
+      return mode === "login" 
+        ? "Entre com sua conta para finalizar a contratação" 
+        : "Crie uma conta para gerenciar sua assinatura";
+    }
+    return mode === "login" ? "Entre para acessar seu painel" : "Crie sua conta para começar";
   };
 
   return (
@@ -178,30 +242,14 @@ const Auth = () => {
             <Link to="/" className="inline-block mb-6">
               <img src={logoSimple} alt="AgendaAÍ Pro" className="h-14 mx-auto" />
             </Link>
-            <h1 className="text-2xl font-bold mb-2">
-              {isCheckoutFlow 
-                ? (isLogin ? "Faça login para continuar" : "Crie sua conta para continuar")
-                : (isLogin ? "Acessar minha conta" : "Criar Conta")
-              }
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {isCheckoutFlow
-                ? (isLogin 
-                    ? "Entre com sua conta para finalizar a contratação" 
-                    : "Crie uma conta para gerenciar sua assinatura"
-                  )
-                : (isLogin
-                    ? "Entre para acessar seu painel"
-                    : "Crie sua conta para começar"
-                  )
-              }
-            </p>
+            <h1 className="text-2xl font-bold mb-2">{getTitle()}</h1>
+            <p className="text-muted-foreground text-sm">{getDescription()}</p>
           </div>
 
-          {isCheckoutFlow && pendingCheckout && (
+          {isCheckoutFlow && pendingCheckout && mode !== "forgot-password" && (
             <div className="bg-primary/10 rounded-lg p-3 mb-6 text-center">
               <p className="text-sm text-primary">
-                {isLogin 
+                {mode === "login" 
                   ? "Após o login, você será redirecionado para finalizar sua compra."
                   : "Após criar sua conta, você finalizará sua contratação."
                 }
@@ -210,7 +258,7 @@ const Auth = () => {
           )}
 
           <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
+            {mode === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="name">Nome completo</Label>
                 <div className="relative">
@@ -244,44 +292,74 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {mode !== "forgot-password" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  {mode === "login" && (
+                    <button
+                      type="button"
+                      onClick={() => setMode("forgot-password")}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <Button type="submit" variant="hero" className="w-full" disabled={loading}>
-              {loading ? "Processando..." : isLogin ? "Entrar" : "Criar Conta"}
+              {loading 
+                ? "Processando..." 
+                : mode === "forgot-password" 
+                  ? "Enviar Link de Recuperação"
+                  : mode === "login" 
+                    ? "Entrar" 
+                    : "Criar Conta"
+              }
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isLogin
-                ? "Não tem conta? Criar agora"
-                : "Já tem conta? Fazer login"}
-            </button>
+          <div className="mt-6 text-center space-y-2">
+            {mode === "forgot-password" ? (
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                Voltar para o login
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                {mode === "login"
+                  ? "Não tem conta? Criar agora"
+                  : "Já tem conta? Fazer login"}
+              </button>
+            )}
           </div>
 
           <div className="mt-6 pt-6 border-t border-border/30">
