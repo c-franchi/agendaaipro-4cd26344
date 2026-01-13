@@ -32,6 +32,14 @@ interface HeroContent {
   subtitle: string;
   cta_primary: string;
   cta_secondary: string;
+  bg_image?: string;
+  mockup_image?: string;
+}
+
+interface VideoContent {
+  video_url: string;
+  title: string;
+  subtitle: string;
 }
 
 interface ContactInfo {
@@ -46,6 +54,7 @@ export const LandingPageEditor = () => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [pricingPlans, setPricingPlans] = useState<PricingPlans | null>(null);
   const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
+  const [videoContent, setVideoContent] = useState<VideoContent | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -64,6 +73,8 @@ export const LandingPageEditor = () => {
           setPricingPlans(item.value as unknown as PricingPlans);
         } else if (item.key === "hero_content") {
           setHeroContent(item.value as unknown as HeroContent);
+        } else if (item.key === "video_content") {
+          setVideoContent(item.value as unknown as VideoContent);
         } else if (item.key === "contact_info") {
           setContactInfo(item.value as unknown as ContactInfo);
         }
@@ -80,7 +91,7 @@ export const LandingPageEditor = () => {
     fetchContent();
   }, []);
 
-  const saveContent = async (key: string, value: PricingPlans | HeroContent | ContactInfo | null) => {
+  const saveContent = async (key: string, value: PricingPlans | HeroContent | VideoContent | ContactInfo | null) => {
     if (!value) return;
     setSaving(true);
     try {
@@ -136,6 +147,41 @@ export const LandingPageEditor = () => {
     toast.success("Imagem removida");
   };
 
+  const handleHeroImageUpload = async (imageType: "bg_image" | "mockup_image", file: File) => {
+    if (!file || !heroContent) return;
+    
+    setUploading(`hero_${imageType}`);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-${imageType}-${Date.now()}.${fileExt}`;
+      const filePath = `hero/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("landing-images")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrl } = supabase.storage
+        .from("landing-images")
+        .getPublicUrl(filePath);
+
+      setHeroContent({ ...heroContent, [imageType]: publicUrl.publicUrl });
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error) {
+      console.error("Error uploading hero image:", error);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeHeroImage = (imageType: "bg_image" | "mockup_image") => {
+    if (!heroContent) return;
+    setHeroContent({ ...heroContent, [imageType]: "" });
+    toast.success("Imagem removida");
+  };
+
   const updatePlan = (planKey: keyof PricingPlans, field: keyof PlanData, value: unknown) => {
     if (!pricingPlans) return;
     setPricingPlans({
@@ -176,9 +222,10 @@ export const LandingPageEditor = () => {
 
   return (
     <Tabs defaultValue="pricing" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-3 max-w-lg">
+      <TabsList className="grid w-full grid-cols-4 max-w-2xl">
         <TabsTrigger value="pricing">Planos e Preços</TabsTrigger>
         <TabsTrigger value="hero">Hero Section</TabsTrigger>
+        <TabsTrigger value="video">Vídeo</TabsTrigger>
         <TabsTrigger value="contact">Contato</TabsTrigger>
       </TabsList>
 
@@ -348,7 +395,7 @@ export const LandingPageEditor = () => {
             <CardTitle>Seção Hero</CardTitle>
             <CardDescription>Edite o conteúdo principal da página inicial</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             {heroContent && (
               <>
                 <div>
@@ -381,6 +428,113 @@ export const LandingPageEditor = () => {
                     />
                   </div>
                 </div>
+
+                {/* Hero Images */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
+                  {/* Background Image */}
+                  <div>
+                    <Label className="mb-2 block">Imagem de Fundo (opcional)</Label>
+                    <div className="flex items-start gap-4">
+                      {heroContent.bg_image ? (
+                        <div className="relative group">
+                          <img 
+                            src={heroContent.bg_image} 
+                            alt="Hero Background"
+                            className="w-32 h-24 object-cover rounded-lg border border-border"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeHeroImage("bg_image")}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={(el) => { fileInputRefs.current["hero_bg"] = el; }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleHeroImageUpload("bg_image", file);
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRefs.current["hero_bg"]?.click()}
+                          disabled={uploading === "hero_bg_image"}
+                        >
+                          {uploading === "hero_bg_image" ? (
+                            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <Upload className="w-4 h-4 mr-2" />
+                          )}
+                          {heroContent.bg_image ? "Trocar" : "Enviar"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mockup Image */}
+                  <div>
+                    <Label className="mb-2 block">Imagem do Mockup</Label>
+                    <div className="flex items-start gap-4">
+                      {heroContent.mockup_image ? (
+                        <div className="relative group">
+                          <img 
+                            src={heroContent.mockup_image} 
+                            alt="Hero Mockup"
+                            className="w-32 h-24 object-cover rounded-lg border border-border"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeHeroImage("mockup_image")}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={(el) => { fileInputRefs.current["hero_mockup"] = el; }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleHeroImageUpload("mockup_image", file);
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRefs.current["hero_mockup"]?.click()}
+                          disabled={uploading === "hero_mockup_image"}
+                        >
+                          {uploading === "hero_mockup_image" ? (
+                            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <Upload className="w-4 h-4 mr-2" />
+                          )}
+                          {heroContent.mockup_image ? "Trocar" : "Enviar"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </CardContent>
@@ -393,6 +547,66 @@ export const LandingPageEditor = () => {
         >
           {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
           Salvar Hero
+        </Button>
+      </TabsContent>
+
+      <TabsContent value="video" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Seção de Vídeo</CardTitle>
+            <CardDescription>Configure o vídeo de demonstração</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {videoContent ? (
+              <>
+                <div>
+                  <Label>URL do Vídeo (YouTube ou Vimeo)</Label>
+                  <Input
+                    value={videoContent.video_url}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    onChange={(e) => setVideoContent({ ...videoContent, video_url: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Formatos aceitos: YouTube (youtube.com/watch?v=...) ou Vimeo (vimeo.com/...)
+                  </p>
+                </div>
+                <div>
+                  <Label>Título da Seção</Label>
+                  <Input
+                    value={videoContent.title}
+                    onChange={(e) => setVideoContent({ ...videoContent, title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label>Subtítulo da Seção</Label>
+                  <Textarea
+                    value={videoContent.subtitle}
+                    onChange={(e) => setVideoContent({ ...videoContent, subtitle: e.target.value })}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">Configuração de vídeo não encontrada</p>
+                <Button 
+                  onClick={() => setVideoContent({ video_url: "", title: "Veja o AgendaAÍ Pro em ação", subtitle: "Assista uma demonstração rápida" })}
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar configuração de vídeo
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Button 
+          onClick={() => saveContent("video_content", videoContent)} 
+          disabled={saving || !videoContent}
+          className="w-full md:w-auto"
+        >
+          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          Salvar Vídeo
         </Button>
       </TabsContent>
 

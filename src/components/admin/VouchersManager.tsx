@@ -370,6 +370,7 @@ export const VouchersManager = () => {
                             type="date"
                             value={formData.starts_at}
                             onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })}
+                            className="[&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100"
                           />
                         </div>
 
@@ -380,6 +381,7 @@ export const VouchersManager = () => {
                             type="date"
                             value={formData.expires_at}
                             onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+                            className="[&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100"
                           />
                         </div>
                       </div>

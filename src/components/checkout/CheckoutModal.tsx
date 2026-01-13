@@ -56,6 +56,39 @@ export const CheckoutModal = ({
 
       setLoading(true);
 
+      // If 100% discount (free), handle without Stripe
+      if (finalPrice === 0 && voucherData) {
+        const { data, error } = await supabase.functions.invoke("create-free-subscription", {
+          body: {
+            planType,
+            email,
+            name,
+            voucherCode: voucherData.code,
+            voucherId: voucherData.voucherId,
+            originalAmount: originalPrice,
+            discountAmount,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data?.success) {
+          localStorage.setItem("checkout_data", JSON.stringify({
+            email,
+            name,
+            planName,
+            amount: 0,
+            isFree: true,
+          }));
+          toast.success("Assinatura gratuita ativada com sucesso!");
+          window.location.href = "/payment-success?free=true";
+          return;
+        } else {
+          throw new Error(data?.error || "Erro ao criar assinatura gratuita");
+        }
+      }
+
+      // Normal checkout with Stripe
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           planType,
@@ -189,6 +222,11 @@ export const CheckoutModal = ({
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Processando...
+              </>
+            ) : finalPrice === 0 ? (
+              <>
+                <Check className="w-5 h-5 mr-2" />
+                Ativar Assinatura Grátis
               </>
             ) : (
               <>

@@ -62,27 +62,39 @@ serve(async (req) => {
       );
     }
 
-    // Check start date
+    // Check start date - compare only the date part (ignore time)
     const now = new Date();
-    if (new Date(voucher.starts_at) > now) {
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const startsAtDate = new Date(voucher.starts_at);
+    const startsAtDay = new Date(startsAtDate.getFullYear(), startsAtDate.getMonth(), startsAtDate.getDate());
+    
+    if (startsAtDay > today) {
       return new Response(
         JSON.stringify({ valid: false, message: "Este código promocional ainda não está ativo" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
-    // Check expiration
-    if (voucher.expires_at && new Date(voucher.expires_at) < now) {
-      // Update status to expired
-      await supabaseClient
-        .from("vouchers")
-        .update({ status: "expired" })
-        .eq("id", voucher.id);
+    // Check expiration - compare only the date part and include the full expiration day
+    if (voucher.expires_at) {
+      const expiresAtDate = new Date(voucher.expires_at);
+      const expiresAtDay = new Date(expiresAtDate.getFullYear(), expiresAtDate.getMonth(), expiresAtDate.getDate());
+      // Set to end of expiration day (23:59:59)
+      expiresAtDay.setHours(23, 59, 59, 999);
+      
+      if (now > expiresAtDay) {
+        // Update status to expired
+        await supabaseClient
+          .from("vouchers")
+          .update({ status: "expired" })
+          .eq("id", voucher.id);
 
-      return new Response(
-        JSON.stringify({ valid: false, message: "Este código promocional expirou" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+        return new Response(
+          JSON.stringify({ valid: false, message: "Este código promocional expirou" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
     }
 
     // Check max uses
