@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { RefreshCw, Save, Plus, X } from "lucide-react";
+import { RefreshCw, Save, Plus, X, Upload, ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -18,6 +18,7 @@ interface PlanData {
   description: string;
   features: string[];
   popular: boolean;
+  bg_image?: string;
 }
 
 interface PricingPlans {
@@ -42,9 +43,12 @@ interface ContactInfo {
 export const LandingPageEditor = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
   const [pricingPlans, setPricingPlans] = useState<PricingPlans | null>(null);
   const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const fetchContent = async () => {
     setLoading(true);
@@ -96,6 +100,40 @@ export const LandingPageEditor = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleImageUpload = async (planKey: keyof PricingPlans, file: File) => {
+    if (!file) return;
+    
+    setUploading(planKey);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `plan-${planKey}-${Date.now()}.${fileExt}`;
+      const filePath = `plans/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("landing-images")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrl } = supabase.storage
+        .from("landing-images")
+        .getPublicUrl(filePath);
+
+      updatePlan(planKey, "bg_image", publicUrl.publicUrl);
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeImage = (planKey: keyof PricingPlans) => {
+    updatePlan(planKey, "bg_image", "");
+    toast.success("Imagem removida");
   };
 
   const updatePlan = (planKey: keyof PricingPlans, field: keyof PlanData, value: unknown) => {
@@ -196,6 +234,61 @@ export const LandingPageEditor = () => {
                   value={plan.description}
                   onChange={(e) => updatePlan(planKey as keyof PricingPlans, "description", e.target.value)}
                 />
+              </div>
+
+              {/* Image Upload Section */}
+              <div>
+                <Label className="mb-2 block">Imagem de Fundo</Label>
+                <div className="flex items-start gap-4">
+                  {plan.bg_image ? (
+                    <div className="relative group">
+                      <img 
+                        src={plan.bg_image} 
+                        alt={`Background ${plan.name}`}
+                        className="w-32 h-24 object-cover rounded-lg border border-border"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(planKey as keyof PricingPlans)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={(el) => { fileInputRefs.current[planKey] = el; }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(planKey as keyof PricingPlans, file);
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => fileInputRefs.current[planKey]?.click()}
+                      disabled={uploading === planKey}
+                    >
+                      {uploading === planKey ? (
+                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Upload className="w-4 h-4 mr-2" />
+                      )}
+                      {plan.bg_image ? "Trocar imagem" : "Enviar imagem"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Recomendado: 800x600px, JPG ou PNG
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">

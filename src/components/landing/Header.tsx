@@ -1,13 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import logoSimple from "@/assets/logo-simple.png";
 import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
+
+const ADMIN_EMAIL = "neifranchi@gmail.com";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAdmin(user?.email === ADMIN_EMAIL);
+    };
+    
+    checkAdmin();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      checkAdmin();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const navLinks = [
     { label: "Funcionalidades", href: "#funcionalidades" },
@@ -53,6 +72,15 @@ const Header = () => {
               </a>
             )
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-primary hover:text-primary/80 transition-colors text-sm font-medium flex items-center gap-1"
+            >
+              <Settings className="w-4 h-4" />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
@@ -108,6 +136,16 @@ const Header = () => {
                 </a>
               )
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="text-primary hover:text-primary/80 transition-colors py-2 flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Settings className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
             <div className="flex flex-col gap-3 pt-4 border-t border-border/30">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <Button variant="heroOutline" className="w-full">
