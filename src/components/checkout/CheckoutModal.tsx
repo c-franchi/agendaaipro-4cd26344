@@ -95,7 +95,6 @@ export const CheckoutModal = ({
       }
 
       setLoading(true);
-      console.log("[CHECKOUT] Starting checkout process...", { planType, email, name, voucherData, originalPrice, discountAmount, finalPrice });
 
       // Always use Stripe checkout - even for 100% discount (to collect card for renewal)
       const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -110,10 +109,7 @@ export const CheckoutModal = ({
         },
       });
 
-      console.log("[CHECKOUT] Response:", { data, error });
-
       if (error) {
-        console.error("[CHECKOUT] Function error:", error);
         throw error;
       }
 
@@ -134,23 +130,18 @@ export const CheckoutModal = ({
           voucherValidityMonths: validityMonths,
         }));
         
-        console.log("[CHECKOUT] Opening Stripe URL:", data.url);
-        
         // Try to open in new tab, fallback to redirect
         const newWindow = window.open(data.url, "_blank");
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          console.log("[CHECKOUT] Popup blocked, redirecting...");
           window.location.href = data.url;
         } else {
           toast.success("Redirecionando para o pagamento...");
           onOpenChange(false);
         }
       } else {
-        console.error("[CHECKOUT] No URL returned:", data);
         throw new Error("URL de checkout não retornada");
       }
     } catch (err: any) {
-      console.error("[CHECKOUT] Error:", err);
       toast.error(err.message || "Erro ao processar checkout. Tente novamente.");
     } finally {
       setLoading(false);

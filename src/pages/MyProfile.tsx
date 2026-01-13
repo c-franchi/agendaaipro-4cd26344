@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,15 +21,18 @@ import {
   Mail,
   LogOut,
   Crown,
-  Settings
+  Settings,
+  Rocket
 } from "lucide-react";
 import logoSimple from "@/assets/logo-simple.png";
+import { SubscriptionExpirationWarning } from "@/components/subscription/SubscriptionExpirationWarning";
+import { APP_URL } from "@/lib/constants";
 
 interface SubscriptionData {
   id: string;
   status: string;
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   planName: string;
   planPrice: number;
@@ -54,7 +57,6 @@ const MyProfile = () => {
       setUser(session.user);
       setLoading(false);
       
-      // Check subscription
       checkSubscription(session.user.email!);
     };
 
@@ -84,7 +86,7 @@ const MyProfile = () => {
         setSubscription(data.subscription);
       }
     } catch (error: any) {
-      console.error("Error checking subscription:", error);
+      // Silent fail - just don't show subscription
     } finally {
       setSubscriptionLoading(false);
     }
@@ -105,8 +107,7 @@ const MyProfile = () => {
         window.open(data.url, "_blank");
       }
     } catch (error: any) {
-      console.error("Error opening portal:", error);
-      toast.error("Erro ao abrir portal: " + error.message);
+      toast.error("Erro ao abrir portal. Tente novamente.");
     } finally {
       setPortalLoading(false);
     }
@@ -118,7 +119,8 @@ const MyProfile = () => {
     toast.success("Você saiu da sua conta");
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "long",
@@ -183,6 +185,48 @@ const MyProfile = () => {
               Gerencie sua conta e assinatura do AgendaAÍ Pro
             </p>
           </div>
+
+          {/* Expiration Warning */}
+          {subscription && (
+            <SubscriptionExpirationWarning
+              endDate={subscription.currentPeriodEnd}
+              planPrice={subscription.planPrice}
+              planName={subscription.planName}
+            />
+          )}
+
+          {/* Access App Button - for subscribers */}
+          {subscription && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <Card className="bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30">
+                <CardContent className="py-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                        <Rocket className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="text-center sm:text-left">
+                        <h3 className="font-semibold text-lg">Pronto para usar!</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Acesse o AgendaAÍ Pro e comece a gerenciar seus agendamentos
+                        </p>
+                      </div>
+                    </div>
+                    <Button asChild size="lg" className="w-full sm:w-auto">
+                      <a href={APP_URL} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-5 h-5 mr-2" />
+                        Acessar o Aplicativo
+                      </a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           <div className="grid gap-6 md:grid-cols-2">
             {/* Profile Card */}
