@@ -57,7 +57,7 @@ serve(async (req) => {
 
     logStep("Request data received", { planType, email, voucherCode, originalAmount, finalAmount });
 
-    if (!email || !planType || !finalAmount) {
+    if (!email || !planType || finalAmount === undefined || finalAmount === null) {
       throw new Error("Email, plano e valor são obrigatórios");
     }
 
