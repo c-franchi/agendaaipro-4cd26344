@@ -1,11 +1,8 @@
 import { MessageCircle, Mail, Instagram } from "lucide-react";
 import logoDetailed from "@/assets/logo-detailed.png";
-
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  return (
-    <footer className="border-t border-border/30 bg-card/30">
+  return <footer className="border-t border-border/30 bg-card/30">
       <div className="container py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo and description */}
@@ -16,22 +13,13 @@ const Footer = () => {
               Agendamentos, pagamentos e vendas em um só lugar.
             </p>
             <div className="flex items-center gap-4">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-              >
+              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <MessageCircle className="w-5 h-5" />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-              >
+              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-              >
+              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <Mail className="w-5 h-5" />
               </a>
             </div>
@@ -89,19 +77,12 @@ const Footer = () => {
           </p>
           <p className="text-muted-foreground text-xs">
             Desenvolvido por{" "}
-            <a 
-              href="https://neitechweb.web.app/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
-            >
-              NeiTeck
+            <a href="https://neitechweb.web.app/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+              NeiTech
             </a>
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
