@@ -283,7 +283,7 @@ export const LandingPageEditor = () => {
                 />
               </div>
 
-              {/* Image Upload Section */}
+              {/* Image Upload Section with Preview */}
               <div>
                 <Label className="mb-2 block">Imagem de Fundo</Label>
                 <div className="flex items-start gap-4">
@@ -292,7 +292,7 @@ export const LandingPageEditor = () => {
                       <img 
                         src={plan.bg_image} 
                         alt={`Background ${plan.name}`}
-                        className="w-32 h-24 object-cover rounded-lg border border-border"
+                        className="w-40 h-32 object-cover rounded-lg border border-border shadow-lg"
                       />
                       <Button
                         variant="destructive"
@@ -302,9 +302,12 @@ export const LandingPageEditor = () => {
                       >
                         <Trash2 className="w-3 h-3" />
                       </Button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 rounded-b-lg text-center">
+                        Preview
+                      </div>
                     </div>
                   ) : (
-                    <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                    <div className="w-40 h-32 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
                       <ImageIcon className="w-8 h-8 text-muted-foreground" />
                     </div>
                   )}
@@ -429,7 +432,7 @@ export const LandingPageEditor = () => {
                   </div>
                 </div>
 
-                {/* Hero Images */}
+                {/* Hero Images with Preview */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                   {/* Background Image */}
                   <div>
@@ -440,7 +443,7 @@ export const LandingPageEditor = () => {
                           <img 
                             src={heroContent.bg_image} 
                             alt="Hero Background"
-                            className="w-32 h-24 object-cover rounded-lg border border-border"
+                            className="w-40 h-32 object-cover rounded-lg border border-border shadow-lg"
                           />
                           <Button
                             variant="destructive"
@@ -450,9 +453,12 @@ export const LandingPageEditor = () => {
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 rounded-b-lg text-center">
+                            Preview
+                          </div>
                         </div>
                       ) : (
-                        <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                        <div className="w-40 h-32 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
                           <ImageIcon className="w-8 h-8 text-muted-foreground" />
                         </div>
                       )}
@@ -483,7 +489,7 @@ export const LandingPageEditor = () => {
                     </div>
                   </div>
 
-                  {/* Mockup Image */}
+                  {/* Mockup Image with Preview */}
                   <div>
                     <Label className="mb-2 block">Imagem do Mockup</Label>
                     <div className="flex items-start gap-4">
@@ -492,7 +498,7 @@ export const LandingPageEditor = () => {
                           <img 
                             src={heroContent.mockup_image} 
                             alt="Hero Mockup"
-                            className="w-32 h-24 object-cover rounded-lg border border-border"
+                            className="w-40 h-32 object-contain rounded-lg border border-border shadow-lg bg-card"
                           />
                           <Button
                             variant="destructive"
@@ -502,9 +508,12 @@ export const LandingPageEditor = () => {
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 rounded-b-lg text-center">
+                            Preview
+                          </div>
                         </div>
                       ) : (
-                        <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                        <div className="w-40 h-32 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
                           <ImageIcon className="w-8 h-8 text-muted-foreground" />
                         </div>
                       )}
