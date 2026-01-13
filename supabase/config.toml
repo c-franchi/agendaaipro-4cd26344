@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.create-checkout]
 verify_jwt = false
 
+[functions.create-free-subscription]
+verify_jwt = false
+
 [functions.send-subscription-email]
 verify_jwt = false
 
