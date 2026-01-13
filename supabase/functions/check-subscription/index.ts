@@ -82,11 +82,19 @@ serve(async (req) => {
     const priceId = subscription.items.data[0]?.price?.id;
     const planInfo = priceId ? PRICE_TO_PLAN[priceId] : null;
 
+    // Safely convert timestamps, handling null/undefined values
+    const currentPeriodStart = subscription.current_period_start 
+      ? new Date(subscription.current_period_start * 1000).toISOString() 
+      : null;
+    const currentPeriodEnd = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000).toISOString() 
+      : null;
+
     const subscriptionData = {
       id: subscription.id,
       status: subscription.status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000).toISOString(),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+      currentPeriodStart,
+      currentPeriodEnd,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       planName: planInfo?.name || "Desconhecido",
       planPrice: planInfo?.price || 0,
