@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Search, RefreshCw, ArrowLeft, Trash2, Building2, LogOut, BarChart3, Gift, Settings } from "lucide-react";
+import { Users, UserCheck, Mail, Phone, Search, RefreshCw, ArrowLeft, Trash2, Building2, LogOut, BarChart3, Gift, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -16,6 +16,7 @@ import type { User } from "@supabase/supabase-js";
 import { LeadsDashboard } from "@/components/admin/LeadsDashboard";
 import { VouchersManager } from "@/components/admin/VouchersManager";
 import { LandingPageEditor } from "@/components/admin/LandingPageEditor";
+import { UsersManager } from "@/components/admin/UsersManager";
 
 interface Lead {
   id: string;
@@ -166,10 +167,14 @@ const Admin = () => {
 
       <main className="container py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-xl">
+          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <UserCheck className="w-4 h-4" />
+              <span className="hidden sm:inline">Usuários</span>
             </TabsTrigger>
             <TabsTrigger value="leads" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -181,12 +186,16 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="landing" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Landing Page</span>
+              <span className="hidden sm:inline">Landing</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
             <LeadsDashboard leads={leads} />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UsersManager />
           </TabsContent>
 
           <TabsContent value="leads">

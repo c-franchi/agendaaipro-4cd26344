@@ -342,7 +342,7 @@ const MyProfile = () => {
                       </p>
                     </div>
                     <Button asChild className="w-full">
-                      <Link to="/#precos">
+                      <Link to="/#planos">
                         <Crown className="w-4 h-4 mr-2" />
                         Ver planos
                       </Link>
@@ -361,7 +361,7 @@ const MyProfile = () => {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button variant="outline" asChild className="h-auto py-4 flex-col gap-2">
-                  <Link to="/#precos">
+                  <Link to="/#planos">
                     <CreditCard className="w-5 h-5" />
                     <span className="text-xs">Ver Planos</span>
                   </Link>
