@@ -131,6 +131,18 @@ export const VouchersManager = () => {
     }
 
     try {
+      // Determine validity_months from validity_period
+      let validityMonths = 1;
+      if (formData.validity_period && formData.validity_period !== "custom") {
+        validityMonths = parseInt(formData.validity_period);
+      } else if (formData.expires_at && formData.starts_at) {
+        // Calculate months from dates
+        const start = new Date(formData.starts_at);
+        const end = new Date(formData.expires_at);
+        const diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        validityMonths = Math.max(1, diffMonths);
+      }
+
       const voucherData = {
         code: formData.code.toUpperCase(),
         discount_type: formData.discount_type,
@@ -140,6 +152,7 @@ export const VouchersManager = () => {
         expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
         max_uses: formData.max_uses ? Number(formData.max_uses) : null,
         max_uses_per_user: formData.max_uses_per_user ? Number(formData.max_uses_per_user) : 1,
+        validity_months: validityMonths,
       };
 
       if (editingVoucher) {

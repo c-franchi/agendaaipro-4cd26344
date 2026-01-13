@@ -149,6 +149,7 @@ serve(async (req) => {
           discount_type: voucher.discount_type,
           discount_value: voucher.discount_value,
           applies_to: voucher.applies_to,
+          validity_months: voucher.validity_months || 1,
         },
         discount_amount: discountAmount,
         final_amount: finalAmount,

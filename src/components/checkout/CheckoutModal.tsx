@@ -44,6 +44,7 @@ export const CheckoutModal = ({
     discountAmount: number;
     finalAmount: number;
     voucherId: string;
+    validityMonths: number;
   } | null>(null);
 
   const finalPrice = voucherData ? voucherData.finalAmount : originalPrice;
@@ -94,6 +95,7 @@ export const CheckoutModal = ({
       }
 
       setLoading(true);
+      console.log("[CHECKOUT] Starting checkout process...", { planType, email, name, voucherData, originalPrice, discountAmount, finalPrice });
 
       // Always use Stripe checkout - even for 100% discount (to collect card for renewal)
       const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -108,9 +110,17 @@ export const CheckoutModal = ({
         },
       });
 
-      if (error) throw error;
+      console.log("[CHECKOUT] Response:", { data, error });
+
+      if (error) {
+        console.error("[CHECKOUT] Function error:", error);
+        throw error;
+      }
 
       if (data?.url) {
+        // Get validity months from voucher data
+        const validityMonths = voucherData?.validityMonths || 1;
+        
         // Save checkout data for confirmation page
         localStorage.setItem("checkout_data", JSON.stringify({
           email,
@@ -121,15 +131,26 @@ export const CheckoutModal = ({
           discountAmount,
           finalAmount: finalPrice,
           voucherCode: voucherData?.code || null,
+          voucherValidityMonths: validityMonths,
         }));
-        window.open(data.url, "_blank");
-        toast.success("Redirecionando para o pagamento...");
-        onOpenChange(false);
+        
+        console.log("[CHECKOUT] Opening Stripe URL:", data.url);
+        
+        // Try to open in new tab, fallback to redirect
+        const newWindow = window.open(data.url, "_blank");
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          console.log("[CHECKOUT] Popup blocked, redirecting...");
+          window.location.href = data.url;
+        } else {
+          toast.success("Redirecionando para o pagamento...");
+          onOpenChange(false);
+        }
       } else {
+        console.error("[CHECKOUT] No URL returned:", data);
         throw new Error("URL de checkout não retornada");
       }
     } catch (err: any) {
-      console.error("Checkout error:", err);
+      console.error("[CHECKOUT] Error:", err);
       toast.error(err.message || "Erro ao processar checkout. Tente novamente.");
     } finally {
       setLoading(false);
@@ -254,7 +275,9 @@ export const CheckoutModal = ({
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Total</span>
                 <span className="text-xl font-bold text-primary">
-                  {finalPrice === 0 ? "Grátis (1º mês)" : `R$ ${finalPrice.toFixed(2)}/mês`}
+                  {finalPrice === 0 
+                    ? `Grátis (${voucherData?.validityMonths === 1 ? "1º mês" : `${voucherData?.validityMonths || 1} meses`})` 
+                    : `R$ ${finalPrice.toFixed(2)}/mês`}
                 </span>
               </div>
               {finalPrice === 0 && (

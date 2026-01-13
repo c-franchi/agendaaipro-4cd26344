@@ -137,6 +137,7 @@ export type Database = {
           starts_at: string
           status: string
           updated_at: string
+          validity_months: number | null
         }
         Insert: {
           applies_to?: string
@@ -153,6 +154,7 @@ export type Database = {
           starts_at?: string
           status?: string
           updated_at?: string
+          validity_months?: number | null
         }
         Update: {
           applies_to?: string
@@ -169,6 +171,7 @@ export type Database = {
           starts_at?: string
           status?: string
           updated_at?: string
+          validity_months?: number | null
         }
         Relationships: []
       }
