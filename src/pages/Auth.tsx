@@ -59,14 +59,14 @@ const Auth = () => {
         // Clear pending checkout
         localStorage.removeItem("pending_checkout");
         // Navigate to home with checkout intent
-        navigate("/#precos");
+        navigate("/#planos");
         toast.success("Conta criada! Finalizando sua compra...");
       } catch {
-        navigate("/#precos");
+        navigate("/#planos");
         toast.success("Login realizado! Agora você pode finalizar sua compra.");
       }
     } else if (isCheckoutFlow) {
-      navigate("/#precos");
+      navigate("/#planos");
       toast.success("Login realizado! Agora você pode finalizar sua compra.");
     } else {
       navigate("/meu-perfil");

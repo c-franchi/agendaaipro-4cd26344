@@ -204,7 +204,7 @@ const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
           {plansArray.map((plan, index) => (
             <motion.div
               key={plan.planType}
@@ -212,18 +212,18 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className={`glass-card p-8 relative overflow-hidden ${
+              className={`glass-card p-8 relative overflow-visible flex flex-col ${
                 plan.popular
-                  ? "border-primary/50 shadow-lg shadow-primary/10 scale-105"
+                  ? "border-primary/50 shadow-lg shadow-primary/10 md:scale-105"
                   : ""
               }`}
             >
               {/* Background image for each card */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-[0.05]"
+                className="absolute inset-0 bg-cover bg-center opacity-[0.05] rounded-2xl"
                 style={{ backgroundImage: `url(${plan.bgImage})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/95 to-card/80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/95 to-card/80 rounded-2xl" />
               
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
@@ -233,7 +233,7 @@ const PricingSection = () => {
                 </div>
               )}
 
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col h-full">
                 <div className="text-center mb-6">
                   <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
                   <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
@@ -261,7 +261,7 @@ const PricingSection = () => {
                   )}
                 </div>
 
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-3 mb-6 flex-1">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -270,35 +270,37 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                {/* Branding info */}
-                <div className={`p-3 rounded-lg mb-6 ${plan.branding.included ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/50 border border-border/30'}`}>
-                  <div className="flex items-start gap-2">
-                    {plan.branding.included ? (
-                      <Star className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    ) : (
-                      <Palette className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    )}
-                    <div>
-                      <p className={`text-xs ${plan.branding.included ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                        {plan.branding.note}
-                      </p>
-                      {!plan.branding.included && (
-                        <p className="text-xs text-muted-foreground/70 mt-1">
-                          Não tem logo? Criamos para você!
-                        </p>
+                {/* Branding info + Button pushed to bottom */}
+                <div className="mt-auto">
+                  <div className={`p-3 rounded-lg mb-6 ${plan.branding.included ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/50 border border-border/30'}`}>
+                    <div className="flex items-start gap-2">
+                      {plan.branding.included ? (
+                        <Star className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <Palette className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                       )}
+                      <div>
+                        <p className={`text-xs ${plan.branding.included ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                          {plan.branding.note}
+                        </p>
+                        {!plan.branding.included && (
+                          <p className="text-xs text-muted-foreground/70 mt-1">
+                            Não tem logo? Criamos para você!
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <Button
-                  variant={plan.popular ? "hero" : "heroOutline"}
-                  className="w-full"
-                  onClick={() => handleContractClick(plan.planType, plan)}
-                >
-                  Contratar agora
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                  <Button
+                    variant={plan.popular ? "hero" : "heroOutline"}
+                    className="w-full"
+                    onClick={() => handleContractClick(plan.planType, plan)}
+                  >
+                    Contratar agora
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           ))}
