@@ -11,6 +11,7 @@ import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import MySubscription from "./pages/MySubscription";
+import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/privacidade" element={<Privacy />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/minha-assinatura" element={<MySubscription />} />
+          <Route path="/meu-perfil" element={<MyProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

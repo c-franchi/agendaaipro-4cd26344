@@ -15,22 +15,26 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect");
   
-  const [isLogin, setIsLogin] = useState(true);
+  // Check for pending checkout data
+  const pendingCheckout = localStorage.getItem("pending_checkout");
+  const isCheckoutFlow = redirectTo === "checkout" || !!pendingCheckout;
+
+  // Start with signup form when coming from checkout flow
+  const [isLogin, setIsLogin] = useState(!isCheckoutFlow);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  // Check for pending checkout data
-  const pendingCheckout = localStorage.getItem("pending_checkout");
-  const isCheckoutFlow = redirectTo === "checkout" || !!pendingCheckout;
-
   useEffect(() => {
     // Check if already logged in
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        handleSuccessfulAuth();
+      if (session?.user && event === "SIGNED_IN") {
+        // Defer navigation to avoid deadlock
+        setTimeout(() => {
+          handleSuccessfulAuth();
+        }, 0);
       }
     });
 
@@ -41,15 +45,29 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
-  const handleSuccessfulAuth = () => {
-    if (isCheckoutFlow) {
-      // Redirect back to home with checkout intent
+  const handleSuccessfulAuth = async () => {
+    if (isCheckoutFlow && pendingCheckout) {
+      // Parse pending checkout data and open checkout modal
+      try {
+        const checkoutData = JSON.parse(pendingCheckout);
+        // Store flag to auto-open checkout
+        localStorage.setItem("auto_open_checkout", JSON.stringify(checkoutData));
+        // Clear pending checkout
+        localStorage.removeItem("pending_checkout");
+        // Navigate to home with checkout intent
+        navigate("/#precos");
+        toast.success("Conta criada! Finalizando sua compra...");
+      } catch {
+        navigate("/#precos");
+        toast.success("Login realizado! Agora você pode finalizar sua compra.");
+      }
+    } else if (isCheckoutFlow) {
       navigate("/#precos");
       toast.success("Login realizado! Agora você pode finalizar sua compra.");
     } else {
-      navigate("/admin");
+      navigate("/meu-perfil");
     }
   };
 
@@ -93,9 +111,8 @@ const Auth = () => {
           return;
         }
         toast.success("Login realizado com sucesso!");
-        handleSuccessfulAuth();
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -108,23 +125,32 @@ const Auth = () => {
         });
         if (error) {
           if (error.message.includes("already registered")) {
-            toast.error("Este email já está cadastrado");
+            toast.error("Este email já está cadastrado. Faça login.");
+            setIsLogin(true);
           } else {
             toast.error(error.message);
           }
           return;
         }
-        toast.success("Conta criada com sucesso!");
-        // Auto login after signup for checkout flow
-        if (isCheckoutFlow) {
-          const { error: loginError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
+
+        // Send welcome email
+        try {
+          await supabase.functions.invoke("send-welcome-email", {
+            body: { name, email },
           });
-          if (!loginError) {
-            handleSuccessfulAuth();
-          }
-        } else {
+        } catch (emailError) {
+          console.error("Welcome email error:", emailError);
+        }
+
+        toast.success("Conta criada com sucesso!");
+        
+        // Auto login after signup
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (loginError) {
+          console.error("Auto-login error:", loginError);
           setIsLogin(true);
         }
       }
@@ -154,8 +180,8 @@ const Auth = () => {
             </Link>
             <h1 className="text-2xl font-bold mb-2">
               {isCheckoutFlow 
-                ? (isLogin ? "Faça login para continuar" : "Crie sua conta")
-                : (isLogin ? "Acesso Administrativo" : "Criar Conta")
+                ? (isLogin ? "Faça login para continuar" : "Crie sua conta para continuar")
+                : (isLogin ? "Acessar minha conta" : "Criar Conta")
               }
             </h1>
             <p className="text-muted-foreground text-sm">
@@ -165,8 +191,8 @@ const Auth = () => {
                     : "Crie uma conta para gerenciar sua assinatura"
                   )
                 : (isLogin
-                    ? "Entre para gerenciar seus leads"
-                    : "Crie sua conta de administrador"
+                    ? "Entre para acessar seu painel"
+                    : "Crie sua conta para começar"
                   )
               }
             </p>
@@ -175,7 +201,10 @@ const Auth = () => {
           {isCheckoutFlow && pendingCheckout && (
             <div className="bg-primary/10 rounded-lg p-3 mb-6 text-center">
               <p className="text-sm text-primary">
-                Após o login, você poderá finalizar sua contratação.
+                {isLogin 
+                  ? "Após o login, você será redirecionado para finalizar sua compra."
+                  : "Após criar sua conta, você finalizará sua contratação."
+                }
               </p>
             </div>
           )}
