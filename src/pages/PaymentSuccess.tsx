@@ -17,6 +17,7 @@ interface CheckoutData {
   discountAmount: number;
   finalAmount: number;
   voucherCode: string | null;
+  voucherValidityMonths?: number;
 }
 
 const PaymentSuccess = () => {
@@ -152,7 +153,7 @@ const PaymentSuccess = () => {
                     <span className="font-semibold">Total</span>
                     <span className="text-xl font-bold text-primary">
                       {checkoutData.finalAmount === 0 
-                        ? "Grátis (1º mês)" 
+                        ? `Grátis (${checkoutData.voucherValidityMonths === 1 ? "1º mês" : `${checkoutData.voucherValidityMonths || 1} meses`})` 
                         : `${formatCurrency(checkoutData.finalAmount)}/mês`
                       }
                     </span>

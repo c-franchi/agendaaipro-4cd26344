@@ -15,6 +15,7 @@ interface VoucherInputProps {
     discountAmount: number;
     finalAmount: number;
     voucherId: string;
+    validityMonths: number;
   } | null) => void;
 }
 
@@ -27,6 +28,7 @@ export const VoucherInput = ({ email, planType, originalAmount, onVoucherApplied
     code: string;
     discountAmount: number;
     finalAmount: number;
+    validityMonths: number;
   } | null>(null);
 
   const validateVoucher = async () => {
@@ -53,16 +55,19 @@ export const VoucherInput = ({ email, planType, originalAmount, onVoucherApplied
 
       if (data.valid) {
         setSuccess(data.message);
+        const validityMonths = data.voucher.validity_months || 1;
         setAppliedVoucher({
           code: data.voucher.code,
           discountAmount: data.discount_amount,
           finalAmount: data.final_amount,
+          validityMonths,
         });
         onVoucherApplied({
           code: data.voucher.code,
           discountAmount: data.discount_amount,
           finalAmount: data.final_amount,
           voucherId: data.voucher.id,
+          validityMonths,
         });
       } else {
         setError(data.message);
