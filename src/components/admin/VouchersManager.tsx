@@ -58,9 +58,31 @@ export const VouchersManager = () => {
     applies_to: "first_payment",
     starts_at: new Date().toISOString().split("T")[0],
     expires_at: "",
+    validity_period: "" as "" | "1" | "3" | "6" | "12" | "custom",
     max_uses: "",
     max_uses_per_user: "1",
   });
+
+  // Helper to calculate expiration date from validity period
+  const calculateExpirationDate = (months: number) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + months);
+    return date.toISOString().split("T")[0];
+  };
+
+  const handleValidityPeriodChange = (value: string) => {
+    setFormData(prev => {
+      const newData = { ...prev, validity_period: value as typeof prev.validity_period };
+      if (value && value !== "custom") {
+        newData.expires_at = calculateExpirationDate(parseInt(value));
+      } else if (value === "custom") {
+        // Keep existing expires_at for custom
+      } else {
+        newData.expires_at = "";
+      }
+      return newData;
+    });
+  };
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -152,6 +174,7 @@ export const VouchersManager = () => {
       applies_to: "first_payment",
       starts_at: new Date().toISOString().split("T")[0],
       expires_at: "",
+      validity_period: "",
       max_uses: "",
       max_uses_per_user: "1",
     });
@@ -167,6 +190,7 @@ export const VouchersManager = () => {
       applies_to: voucher.applies_to,
       starts_at: voucher.starts_at.split("T")[0],
       expires_at: voucher.expires_at ? voucher.expires_at.split("T")[0] : "",
+      validity_period: "custom",
       max_uses: voucher.max_uses?.toString() || "",
       max_uses_per_user: voucher.max_uses_per_user?.toString() || "1",
     });
@@ -362,9 +386,28 @@ export const VouchersManager = () => {
                         </Select>
                       </div>
 
+                      <div className="space-y-2">
+                        <Label>Período de Validade</Label>
+                        <Select
+                          value={formData.validity_period}
+                          onValueChange={handleValidityPeriodChange}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o período" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 mês</SelectItem>
+                            <SelectItem value="3">3 meses</SelectItem>
+                            <SelectItem value="6">6 meses</SelectItem>
+                            <SelectItem value="12">12 meses (1 ano)</SelectItem>
+                            <SelectItem value="custom">Data personalizada</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="starts_at">Início</Label>
+                          <Label htmlFor="starts_at">Data de Início</Label>
                           <Input
                             id="starts_at"
                             type="date"
@@ -375,14 +418,20 @@ export const VouchersManager = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="expires_at">Expiração</Label>
+                          <Label htmlFor="expires_at">Data de Expiração</Label>
                           <Input
                             id="expires_at"
                             type="date"
                             value={formData.expires_at}
-                            onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, expires_at: e.target.value, validity_period: "custom" })}
+                            disabled={formData.validity_period !== "custom" && formData.validity_period !== ""}
                             className="[&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100"
                           />
+                          {formData.validity_period && formData.validity_period !== "custom" && (
+                            <p className="text-xs text-muted-foreground">
+                              Calculada automaticamente
+                            </p>
+                          )}
                         </div>
                       </div>
 
