@@ -27,6 +27,8 @@ interface Lead {
   created_at: string;
 }
 
+const ADMIN_EMAIL = "neifranchi@gmail.com";
+
 const Admin = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -36,20 +38,36 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  const isAuthorizedAdmin = (email: string | undefined) => {
+    return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setAuthLoading(false);
-      if (!session?.user) {
+      
+      if (!currentUser) {
         navigate("/auth");
+      } else if (!isAuthorizedAdmin(currentUser.email)) {
+        toast.error("Acesso não autorizado");
+        supabase.auth.signOut();
+        navigate("/");
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setAuthLoading(false);
-      if (!session?.user) {
+      
+      if (!currentUser) {
         navigate("/auth");
+      } else if (!isAuthorizedAdmin(currentUser.email)) {
+        toast.error("Acesso não autorizado");
+        supabase.auth.signOut();
+        navigate("/");
       }
     });
 
