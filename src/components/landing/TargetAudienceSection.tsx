@@ -1,44 +1,98 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Scissors, Sparkles, HandMetal, Heart } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-// Background images
+// Background images for each professional type
+import bgBarber from "@/assets/bg-professional-barber.png";
 import bgSpa from "@/assets/bg-professional-spa.png";
-import bgFitness from "@/assets/bg-professional-fitness.png";
+import bgManicure from "@/assets/bg-professional-manicure.png";
+import bgMassage from "@/assets/bg-professional-massage.png";
 
-const audiences = [
+interface AudienceItem {
+  icon: typeof Scissors;
+  title: string;
+  description: string;
+  gradient: string;
+  backgroundImage: string;
+}
+
+const defaultAudiences: AudienceItem[] = [
   {
     icon: Scissors,
     title: "Barbeiros e Barbearias",
     description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada",
-    gradient: "from-cyan-500/20 to-blue-500/20"
+    gradient: "from-cyan-500/20 to-blue-500/20",
+    backgroundImage: bgBarber
   },
   {
     icon: Sparkles,
     title: "Cabeleireiros e Salões",
     description: "Organize sua equipe e maximize o faturamento com vendas integradas",
-    gradient: "from-purple-500/20 to-pink-500/20"
+    gradient: "from-purple-500/20 to-pink-500/20",
+    backgroundImage: bgSpa
   },
   {
     icon: HandMetal,
     title: "Manicures e Esteticistas",
     description: "Receba antecipado via Pix e venda produtos junto ao agendamento",
-    gradient: "from-pink-500/20 to-rose-500/20"
+    gradient: "from-pink-500/20 to-rose-500/20",
+    backgroundImage: bgManicure
   },
   {
     icon: Heart,
     title: "Profissionais Autônomos",
     description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado",
-    gradient: "from-emerald-500/20 to-teal-500/20"
+    gradient: "from-emerald-500/20 to-teal-500/20",
+    backgroundImage: bgMassage
   },
 ];
 
 const TargetAudienceSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [audiences, setAudiences] = useState(defaultAudiences);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"]
   });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      const { data } = await supabase
+        .from("landing_content")
+        .select("value")
+        .eq("key", "target_audiences")
+        .maybeSingle();
+      
+      if (data?.value) {
+        const savedAudiences = data.value as any[];
+        // Map saved data with icons and default images
+        const iconMap: Record<string, typeof Scissors> = {
+          "Scissors": Scissors,
+          "Sparkles": Sparkles,
+          "HandMetal": HandMetal,
+          "Heart": Heart
+        };
+        const imageMap: Record<number, string> = {
+          0: bgBarber,
+          1: bgSpa,
+          2: bgManicure,
+          3: bgMassage
+        };
+        
+        const mappedAudiences = savedAudiences.map((item, index) => ({
+          ...defaultAudiences[index],
+          title: item.title || defaultAudiences[index].title,
+          description: item.description || defaultAudiences[index].description,
+          icon: iconMap[item.icon] || defaultAudiences[index].icon,
+          backgroundImage: item.backgroundImage || imageMap[index] || defaultAudiences[index].backgroundImage
+        }));
+        setAudiences(mappedAudiences);
+      }
+    };
+    
+    fetchContent();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -67,20 +121,6 @@ const TargetAudienceSection = () => {
 
   return (
     <section ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background professional images */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.18]"
-          style={{ backgroundImage: `url(${bgSpa})` }}
-        />
-        <div 
-          className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.18]"
-          style={{ backgroundImage: `url(${bgFitness})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
-      </div>
-      
       {/* Parallax background elements */}
       <motion.div 
         style={{ y: useTransform(scrollYProgress, [0, 1], [100, -100]) }}
@@ -141,9 +181,18 @@ const TargetAudienceSection = () => {
                 scale: 1.03,
                 transition: { type: "spring", stiffness: 400, damping: 15 }
               }}
-              className="glass-card p-6 card-hover group relative overflow-hidden"
+              className="glass-card p-6 card-hover group relative overflow-hidden rounded-xl"
             >
-              {/* Animated gradient background */}
+              {/* Background image with transparency */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity duration-500"
+                style={{ backgroundImage: `url(${item.backgroundImage})` }}
+              />
+              
+              {/* Overlay gradient for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/70 to-background/50" />
+              
+              {/* Animated gradient background on hover */}
               <motion.div 
                 className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
               />
@@ -166,7 +215,7 @@ const TargetAudienceSection = () => {
               
               <div className="relative z-10">
                 <motion.div 
-                  className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors"
+                  className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors backdrop-blur-sm"
                   whileHover={{ 
                     rotate: [0, -10, 10, -5, 5, 0],
                     transition: { duration: 0.6 }

@@ -48,6 +48,12 @@ interface ContactInfo {
   instagram: string;
 }
 
+interface TargetAudienceItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
 export const LandingPageEditor = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -56,6 +62,7 @@ export const LandingPageEditor = () => {
   const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
   const [videoContent, setVideoContent] = useState<VideoContent | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  const [targetAudiences, setTargetAudiences] = useState<TargetAudienceItem[] | null>(null);
   
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -77,8 +84,20 @@ export const LandingPageEditor = () => {
           setVideoContent(item.value as unknown as VideoContent);
         } else if (item.key === "contact_info") {
           setContactInfo(item.value as unknown as ContactInfo);
+        } else if (item.key === "target_audiences") {
+          setTargetAudiences(item.value as unknown as TargetAudienceItem[]);
         }
       });
+      
+      // Set default target audiences if not found
+      if (!data?.find(item => item.key === "target_audiences")) {
+        setTargetAudiences([
+          { icon: "Scissors", title: "Barbeiros e Barbearias", description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada" },
+          { icon: "Sparkles", title: "Cabeleireiros e Salões", description: "Organize sua equipe e maximize o faturamento com vendas integradas" },
+          { icon: "HandMetal", title: "Manicures e Esteticistas", description: "Receba antecipado via Pix e venda produtos junto ao agendamento" },
+          { icon: "Heart", title: "Profissionais Autônomos", description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado" }
+        ]);
+      }
     } catch (error) {
       console.error("Error fetching content:", error);
       toast.error("Erro ao carregar conteúdo");
@@ -91,19 +110,40 @@ export const LandingPageEditor = () => {
     fetchContent();
   }, []);
 
-  const saveContent = async (key: string, value: PricingPlans | HeroContent | VideoContent | ContactInfo | null) => {
+  const saveContent = async (key: string, value: PricingPlans | HeroContent | VideoContent | ContactInfo | TargetAudienceItem[] | null) => {
     if (!value) return;
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Try update first
+      const { data: existingData } = await supabase
         .from("landing_content")
-        .update({ 
-          value: JSON.parse(JSON.stringify(value)) as Json, 
-          updated_at: new Date().toISOString() 
-        })
-        .eq("key", key);
+        .select("id")
+        .eq("key", key)
+        .maybeSingle();
+      
+      if (existingData) {
+        const { error } = await supabase
+          .from("landing_content")
+          .update({ 
+            value: JSON.parse(JSON.stringify(value)) as Json, 
+            updated_at: new Date().toISOString() 
+          })
+          .eq("key", key);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Insert if not exists
+        const { error } = await supabase
+          .from("landing_content")
+          .insert({ 
+            key,
+            value: JSON.parse(JSON.stringify(value)) as Json, 
+            updated_at: new Date().toISOString() 
+          });
+
+        if (error) throw error;
+      }
+      
       toast.success("Conteúdo salvo com sucesso!");
     } catch (error) {
       console.error("Error saving content:", error);
@@ -111,6 +151,13 @@ export const LandingPageEditor = () => {
     } finally {
       setSaving(false);
     }
+  };
+  
+  const updateTargetAudience = (index: number, field: keyof TargetAudienceItem, value: string) => {
+    if (!targetAudiences) return;
+    const updated = [...targetAudiences];
+    updated[index] = { ...updated[index], [field]: value };
+    setTargetAudiences(updated);
   };
 
   const handleImageUpload = async (planKey: keyof PricingPlans, file: File) => {
@@ -222,9 +269,10 @@ export const LandingPageEditor = () => {
 
   return (
     <Tabs defaultValue="pricing" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4 max-w-2xl">
-        <TabsTrigger value="pricing">Planos e Preços</TabsTrigger>
-        <TabsTrigger value="hero">Hero Section</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-5 max-w-3xl">
+        <TabsTrigger value="pricing">Planos</TabsTrigger>
+        <TabsTrigger value="hero">Hero</TabsTrigger>
+        <TabsTrigger value="audience">Público</TabsTrigger>
         <TabsTrigger value="video">Vídeo</TabsTrigger>
         <TabsTrigger value="contact">Contato</TabsTrigger>
       </TabsList>
@@ -556,6 +604,62 @@ export const LandingPageEditor = () => {
         >
           {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
           Salvar Hero
+        </Button>
+      </TabsContent>
+
+      <TabsContent value="audience" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Público-Alvo</CardTitle>
+            <CardDescription>Edite os cards de público-alvo da seção "Para quem é o AgendaAÍ Pro"</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {targetAudiences && targetAudiences.map((audience, index) => (
+              <div key={index} className="p-4 border border-border rounded-lg space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-muted-foreground">Card {index + 1}</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Ícone</Label>
+                    <select
+                      className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={audience.icon}
+                      onChange={(e) => updateTargetAudience(index, "icon", e.target.value)}
+                    >
+                      <option value="Scissors">Tesoura (Barbeiros)</option>
+                      <option value="Sparkles">Brilhos (Cabeleireiros)</option>
+                      <option value="HandMetal">Mão (Manicures)</option>
+                      <option value="Heart">Coração (Autônomos)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label>Título</Label>
+                    <Input
+                      value={audience.title}
+                      onChange={(e) => updateTargetAudience(index, "title", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={audience.description}
+                    onChange={(e) => updateTargetAudience(index, "description", e.target.value)}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Button 
+          onClick={() => saveContent("target_audiences", targetAudiences)} 
+          disabled={saving}
+          className="w-full md:w-auto"
+        >
+          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          Salvar Público-Alvo
         </Button>
       </TabsContent>
 

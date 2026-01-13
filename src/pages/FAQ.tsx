@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -70,7 +71,7 @@ const faqData = [
       },
       {
         question: "Quanto tempo leva para personalizar meu sistema?",
-        answer: "Após a contratação, seu sistema personalizado fica pronto em até 48 horas úteis. Nossa equipe cuida de toda a configuração e você recebe tudo pronto para usar."
+        answer: "Após a contratação e envio de todos os dados necessários (logo, cores, informações do negócio), seu sistema personalizado fica pronto em até 5 dias úteis. O prazo pode variar conforme a complexidade da personalização e a rapidez no envio das informações solicitadas. Nossa equipe cuida de toda a configuração e você recebe tudo pronto para usar."
       }
     ]
   },
@@ -115,6 +116,11 @@ const faqData = [
 ];
 
 const FAQ = () => {
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -223,11 +229,21 @@ const FAQ = () => {
                   <MessageCircle className="w-5 h-5" />
                   Falar no WhatsApp
                 </Button>
-                <Button variant="heroOutline" size="lg" asChild>
-                  <a href="/#planos">
-                    Ver Planos
-                    <ArrowRight className="w-5 h-5" />
-                  </a>
+                <Button 
+                  variant="heroOutline" 
+                  size="lg" 
+                  onClick={() => {
+                    window.location.href = "/#planos";
+                    setTimeout(() => {
+                      const element = document.getElementById("planos");
+                      if (element) {
+                        element.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }, 100);
+                  }}
+                >
+                  Ver Planos
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
             </motion.div>
