@@ -21,9 +21,9 @@ interface HeroContent {
 
 const defaultHeroContent: HeroContent = {
   title: "Seu atendimento, seus pagamentos e suas vendas",
-  subtitle: "O AgendaAÍ Pro é o sistema de agenda digital da sua marca, com pagamentos via Pix e venda de produtos integrada.",
-  cta_primary: "Quero minha agenda profissional",
-  cta_secondary: "Falar com um especialista",
+  subtitle: "Agenda digital profissional da sua marca, com pagamentos via Pix e venda de produtos integrada.",
+  cta_primary: "Quero meu sistema profissional",
+  cta_secondary: "Falar com especialista",
 };
 
 const HeroSection = () => {
@@ -73,44 +73,44 @@ const HeroSection = () => {
           animate={{ y: [0, -20, 0] }}
           transition={{ duration: 10, repeat: Infinity }}
         >
-          <img 
-            src={bgBarber} 
-            alt="" 
-            className="w-40 xl:w-52 h-auto rounded-2xl"
-          />
+              <img 
+                src={bgBarber} 
+                alt="Barbeiro profissional atendendo cliente" 
+                className="w-40 xl:w-52 h-auto rounded-2xl"
+              />
         </motion.div>
         <motion.div 
           className="absolute bottom-[15%] left-[5%] opacity-[0.15] hidden lg:block"
           animate={{ y: [0, 15, 0] }}
           transition={{ duration: 8, repeat: Infinity, delay: 1 }}
         >
-          <img 
-            src={bgManicure} 
-            alt="" 
-            className="w-36 xl:w-44 h-auto rounded-2xl"
-          />
+              <img 
+                src={bgManicure} 
+                alt="Profissional de manicure trabalhando" 
+                className="w-36 xl:w-44 h-auto rounded-2xl"
+              />
         </motion.div>
         <motion.div 
           className="absolute top-[20%] right-[2%] opacity-[0.18] hidden lg:block"
           animate={{ y: [0, -15, 0] }}
           transition={{ duration: 9, repeat: Infinity, delay: 0.5 }}
         >
-          <img 
-            src={bgMassage} 
-            alt="" 
-            className="w-36 xl:w-48 h-auto rounded-2xl"
-          />
+              <img 
+                src={bgMassage} 
+                alt="Massoterapeuta em sessão de massagem" 
+                className="w-36 xl:w-48 h-auto rounded-2xl"
+              />
         </motion.div>
         <motion.div 
           className="absolute bottom-[20%] right-[3%] opacity-[0.15] hidden lg:block"
           animate={{ y: [0, 20, 0] }}
           transition={{ duration: 7, repeat: Infinity, delay: 2 }}
         >
-          <img 
-            src={bgTrainer} 
-            alt="" 
-            className="w-32 xl:w-40 h-auto rounded-2xl"
-          />
+              <img 
+                src={bgTrainer} 
+                alt="Personal trainer em atendimento" 
+                className="w-32 xl:w-40 h-auto rounded-2xl"
+              />
         </motion.div>
       </div>
       

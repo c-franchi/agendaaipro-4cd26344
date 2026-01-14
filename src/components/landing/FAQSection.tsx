@@ -52,7 +52,7 @@ const FAQSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             Perguntas <span className="gradient-text">Frequentes</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Tire suas dúvidas sobre o AgendaAÍ Pro
           </p>
         </motion.div>

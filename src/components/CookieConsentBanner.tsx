@@ -94,7 +94,13 @@ const CookieConsentBanner = () => {
                       e{" "}
                       <Link to="/termos" className="text-primary hover:underline">
                         Termos de Uso
-                      </Link>.
+                      </Link>.{" "}
+                      <button
+                        onClick={() => setShowSettings(true)}
+                        className="text-primary hover:underline"
+                      >
+                        Saiba mais sobre cookies
+                      </button>
                     </p>
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button onClick={handleAcceptAll} className="flex-1 sm:flex-initial">

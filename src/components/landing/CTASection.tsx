@@ -38,7 +38,7 @@ const CTASection = () => {
             <span className="gradient-text">aumentar seu faturamento?</span>
           </h2>
           
-          <p className="text-muted-foreground text-base sm:text-lg mb-4 max-w-xl mx-auto">
+          <p className="text-muted-foreground text-base sm:text-lg mb-4 max-w-xl mx-auto leading-relaxed">
             Tenha agora o sistema da sua marca — não um app genérico.
           </p>
           
@@ -47,16 +47,16 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#contato">
-              <Button variant="hero" size="xl" className="w-full sm:w-auto">
-                Quero meu AgendaAÍ Pro
+            <a href="#planos">
+              <Button variant="hero" size="xl" className="w-full sm:w-auto min-h-[52px]">
+                Quero meu sistema profissional
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </a>
             <a href={getWhatsAppLink(getWhatsAppMessage("cta"))} target="_blank" rel="noopener noreferrer">
-              <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
+              <Button variant="heroOutline" size="xl" className="w-full sm:w-auto min-h-[52px]">
                 <MessageCircle className="w-5 h-5" />
-                Falar no WhatsApp
+                Falar com especialista
               </Button>
             </a>
           </div>

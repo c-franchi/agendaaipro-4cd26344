@@ -45,7 +45,7 @@ const DifferentialsSection = () => {
               Não é um aplicativo genérico.{" "}
               <span className="gradient-text">É o sistema da sua marca.</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
               O AgendaAÍ Pro entrega um sistema completo e personalizado para o seu negócio
             </p>
           </motion.div>

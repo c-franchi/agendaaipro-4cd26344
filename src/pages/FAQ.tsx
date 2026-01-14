@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, ArrowRight } from "lucide-react";
+import { getWhatsAppLink, getWhatsAppMessage } from "@/lib/whatsapp";
 
 const faqData = [
   {
@@ -160,7 +161,7 @@ const FAQ = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Perguntas <span className="gradient-text">Frequentes</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground text-balance">
+              <p className="text-base md:text-lg text-muted-foreground text-balance leading-relaxed">
                 Encontre respostas para as dúvidas mais comuns sobre o AgendaAÍ Pro. 
                 Não encontrou o que procura? Fale com nossa equipe!
               </p>
@@ -220,18 +221,21 @@ const FAQ = () => {
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
                 Ainda tem dúvidas?
               </h2>
-              <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-                Nossa equipe está pronta para ajudar você a transformar seu negócio 
+              <p className="text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed">
+                Nossa equipe está pronta para ajudar você a transformar o seu negócio 
                 com o AgendaAÍ Pro.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button variant="hero" size="lg">
-                  <MessageCircle className="w-5 h-5" />
-                  Falar no WhatsApp
+                <Button variant="hero" size="lg" className="min-h-[48px]" asChild>
+                  <a href={getWhatsAppLink(getWhatsAppMessage("faq"))} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="w-5 h-5" />
+                    Falar com especialista
+                  </a>
                 </Button>
                 <Button 
                   variant="heroOutline" 
-                  size="lg" 
+                  size="lg"
+                  className="min-h-[48px]"
                   onClick={() => {
                     window.location.href = "/#planos";
                     setTimeout(() => {

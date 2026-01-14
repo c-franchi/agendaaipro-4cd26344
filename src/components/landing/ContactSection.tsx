@@ -21,11 +21,11 @@ const ContactSection = () => {
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance">
               Pronto para transformar{" "}
-              <span className="gradient-text">seu negócio?</span>
+              <span className="gradient-text">o seu negócio?</span>
             </h2>
             
-            <p className="text-muted-foreground text-base sm:text-lg mb-8 max-w-lg">
-              Preencha o formulário e nossa equipe entrará em contato para apresentar uma proposta personalizada para seu negócio.
+            <p className="text-muted-foreground text-base sm:text-lg mb-8 max-w-lg leading-relaxed">
+              Preencha o formulário e nossa equipe entrará em contato para apresentar uma proposta personalizada para o seu negócio.
             </p>
 
             <div className="space-y-4 mb-8">
@@ -50,9 +50,9 @@ const ContactSection = () => {
             </div>
 
             <a href={getWhatsAppLink(getWhatsAppMessage("hero"))} target="_blank" rel="noopener noreferrer">
-              <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
+              <Button variant="heroOutline" size="lg" className="w-full sm:w-auto min-h-[48px]">
                 <MessageCircle className="w-5 h-5" />
-                Falar no WhatsApp
+                Falar com especialista
               </Button>
             </a>
           </motion.div>

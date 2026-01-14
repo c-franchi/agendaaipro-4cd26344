@@ -41,7 +41,7 @@ const ProblemsSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Problemas que o <span className="gradient-text">sistema resolve</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Chega de dor de cabeça! O AgendaAÍ Pro resolve tudo isso para você.
           </p>
         </motion.div>
