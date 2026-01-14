@@ -105,8 +105,8 @@ const HowItWorksSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Como <span className="gradient-text">funciona?</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Um fluxo simples e eficiente do agendamento ao atendimento
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Um fluxo simples e eficiente, do agendamento ao atendimento
           </p>
         </motion.div>
 
@@ -119,7 +119,7 @@ const HowItWorksSection = () => {
             />
           </div>
 
-          <div className="space-y-8 md:space-y-16">
+          <div className="space-y-10 md:space-y-16">
             {steps.map((item, index) => (
               <motion.div
                 key={item.step}

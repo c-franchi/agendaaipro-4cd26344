@@ -49,7 +49,7 @@ const Header = () => {
       className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30"
     >
       <div className="container mx-auto flex items-center justify-between py-3">
-        <a href="/" className="flex items-center">
+        <a href="/" className="flex items-center" aria-label="AgendaAÍ Pro - Ir para página inicial">
           <img src={logoSimple} alt="AgendaAÍ Pro" className="h-12 md:h-14 w-auto" />
         </a>
 
@@ -95,12 +95,12 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-3">
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
             <Button variant="heroOutline" size="sm">
-              Falar no WhatsApp
+              Falar com especialista
             </Button>
           </a>
-          <a href="#contato">
+          <a href="#planos">
             <Button variant="hero" size="sm">
-              Começar Agora
+              Ver Planos
             </Button>
           </a>
         </div>
@@ -109,6 +109,8 @@ const Header = () => {
         <button
           className="md:hidden text-foreground p-2"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu de navegação"}
+          aria-expanded={isMenuOpen}
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -164,13 +166,13 @@ const Header = () => {
             )}
             <div className="flex flex-col gap-3 pt-4 border-t border-border/30">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <Button variant="heroOutline" className="w-full">
-                  Falar no WhatsApp
+                <Button variant="heroOutline" className="w-full min-h-[48px]">
+                  Falar com especialista
                 </Button>
               </a>
-              <a href="#contato">
-                <Button variant="hero" className="w-full">
-                  Começar Agora
+              <a href="#planos" onClick={() => setIsMenuOpen(false)}>
+                <Button variant="hero" className="w-full min-h-[48px]">
+                  Ver Planos
                 </Button>
               </a>
             </div>

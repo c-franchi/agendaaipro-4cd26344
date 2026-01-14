@@ -8,19 +8,19 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo and description */}
           <div className="md:col-span-2">
-            <img src={logoDetailed} alt="AgendaAÍ Pro" className="h-20 md:h-24 w-auto mb-4" />
-            <p className="text-muted-foreground text-sm max-w-sm mb-6">
+            <img src={logoDetailed} alt="AgendaAÍ Pro - Sistema de Agenda Digital Profissional" className="h-20 md:h-24 w-auto mb-4" />
+            <p className="text-muted-foreground text-sm max-w-sm mb-6 leading-relaxed">
               O sistema de agenda digital profissional que transforma a gestão do seu negócio. 
-              Agendamentos, pagamentos e vendas em um só lugar.
+              Agendamentos, pagamentos via Pix e vendas em um só lugar — com total segurança.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="https://wa.me/5516997813038" target="_blank" rel="noopener noreferrer" aria-label="Fale conosco pelo WhatsApp" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <MessageCircle className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="https://instagram.com/agendaaipro" target="_blank" rel="noopener noreferrer" aria-label="Siga-nos no Instagram" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="mailto:contato@agendaai.pro" aria-label="Envie um e-mail para contato" className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <Mail className="w-5 h-5" />
               </a>
             </div>

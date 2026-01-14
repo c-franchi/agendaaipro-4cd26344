@@ -38,7 +38,7 @@ const defaultAudiences: AudienceItem[] = [
   {
     icon: HandMetal,
     title: "Manicures e Esteticistas",
-    description: "Receba antecipado via Pix e venda produtos junto ao agendamento",
+    description: "Receba antecipadamente via Pix e venda produtos junto ao agendamento",
     gradient: "from-pink-500/20 to-rose-500/20",
     backgroundImage: bgManicure,
     opacity: 40
@@ -46,7 +46,7 @@ const defaultAudiences: AudienceItem[] = [
   {
     icon: Heart,
     title: "Profissionais Autônomos",
-    description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado",
+    description: "Profissionalize-se e aumente sua credibilidade no mercado",
     gradient: "from-emerald-500/20 to-teal-500/20",
     backgroundImage: bgMassage,
     opacity: 40
@@ -166,8 +166,8 @@ const TargetAudienceSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Para quem é o <span className="gradient-text">AgendaAÍ Pro?</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Sistema personalizado para cada tipo de negócio
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Sistema personalizado para cada tipo de profissional
           </p>
         </motion.div>
 

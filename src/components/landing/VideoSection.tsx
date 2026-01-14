@@ -12,7 +12,7 @@ interface VideoContent {
 const defaultVideoContent: VideoContent = {
   video_url: "",
   title: "Veja o AgendaAÍ Pro em ação",
-  subtitle: "Assista uma demonstração rápida de como o sistema funciona e como pode transformar seu negócio",
+  subtitle: "Assista a uma demonstração rápida de como o sistema funciona e como pode transformar o seu negócio",
 };
 
 const VideoSection = () => {
