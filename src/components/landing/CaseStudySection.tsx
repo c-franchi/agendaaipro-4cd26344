@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, CalendarCheck, Globe, Smartphone, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import caseHero from "@/assets/case-eric-hero.jpg.asset.json";
-import caseServicos from "@/assets/case-eric-servicos.jpg.asset.json";
-import caseMobile from "@/assets/case-eric-mobile.jpg.asset.json";
+import caseHero from "@/assets/case-eric-hero.jpg";
+import caseServicos from "@/assets/case-eric-servicos.jpg";
+import caseMobile from "@/assets/case-eric-mobile.jpg";
 
 const CASE_URL = "https://ericzambonini.com.br";
 
@@ -65,7 +65,7 @@ const CaseStudySection = () => {
           >
             <div className="relative rounded-2xl overflow-hidden border border-border/40 shadow-2xl">
               <img
-                src={caseHero.url}
+                src={caseHero}
                 alt="Página inicial do site de agendamentos de Eric Zambonini"
                 loading="lazy"
                 className="w-full h-auto"
@@ -81,7 +81,7 @@ const CaseStudySection = () => {
               className="absolute -bottom-8 -right-2 sm:right-4 w-24 sm:w-32 md:w-40 rounded-2xl overflow-hidden border-2 border-border/60 shadow-2xl hidden sm:block"
             >
               <img
-                src={caseMobile.url}
+                src={caseMobile}
                 alt="Site de agendamentos de Eric Zambonini visto no celular"
                 loading="lazy"
                 className="w-full h-auto"
@@ -142,7 +142,7 @@ const CaseStudySection = () => {
           </p>
           <div className="rounded-2xl overflow-hidden border border-border/40 shadow-2xl">
             <img
-              src={caseServicos.url}
+              src={caseServicos}
               alt="Lista de serviços com duração e valores no site de Eric Zambonini"
               loading="lazy"
               className="w-full h-auto"
