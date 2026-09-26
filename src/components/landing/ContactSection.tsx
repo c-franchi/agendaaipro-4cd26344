@@ -44,7 +44,7 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">E-mail</p>
-                  <p className="text-sm">contato@agendaai.pro</p>
+                  <p className="text-sm">contato@agendaaipro.com.br</p>
                 </div>
               </div>
             </div>

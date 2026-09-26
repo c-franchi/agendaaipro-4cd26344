@@ -77,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
             
             <p>Abraços,<br><span class="highlight">Equipe AgendaAÍ Pro</span></p>
             
-            <a href="https://agendaai.pro/meu-perfil" class="cta">Acessar minha conta</a>
+            <a href="https://agendaaipro.com.br/meu-perfil" class="cta">Acessar minha conta</a>
           </div>
           <div class="footer">
             <p>© 2026 AgendaAÍ Pro - Sistema de Agenda Digital Profissional</p>
@@ -95,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "AgendaAÍ Pro <onboarding@resend.dev>",
+        from: (Deno.env.get("EMAIL_FROM") ?? "AgendaAÍ Pro <onboarding@resend.dev>"),
         to: [email],
         subject: "Bem-vindo(a) ao AgendaAÍ Pro! 🎉",
         html: welcomeHtml,
@@ -159,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "AgendaAÍ Pro <onboarding@resend.dev>",
+          from: (Deno.env.get("EMAIL_FROM") ?? "AgendaAÍ Pro <onboarding@resend.dev>"),
           to: [adminEmail],
           subject: `🆕 Novo cadastro: ${name}`,
           html: adminHtml,

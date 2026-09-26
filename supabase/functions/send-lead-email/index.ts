@@ -24,7 +24,7 @@ const sendEmail = async (to: string[], subject: string, html: string) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "AgendaAÍ Pro <onboarding@resend.dev>",
+      from: (Deno.env.get("EMAIL_FROM") ?? "AgendaAÍ Pro <onboarding@resend.dev>"),
       to,
       subject,
       html,
@@ -87,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
             ${business_type ? `<p>Vimos que você atua na área de <span class="highlight">${business_type}</span>. Temos soluções específicas para esse segmento!</p>` : ''}
             <p>Enquanto isso, fique à vontade para responder este email caso tenha alguma dúvida.</p>
             <p>Até breve! 🚀</p>
-            <a href="https://agendaai.pro" class="cta">Conhecer mais sobre o AgendaAÍ Pro</a>
+            <a href="https://agendaaipro.com.br" class="cta">Conhecer mais sobre o AgendaAÍ Pro</a>
           </div>
           <div class="footer">
             <p>© 2026 AgendaAÍ Pro - Sistema de Agenda Digital Profissional</p>
@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               ` : ''}
             </div>
-            <a href="https://agendaai.pro/admin" class="cta">Ver no Painel Admin</a>
+            <a href="https://agendaaipro.com.br/admin" class="cta">Ver no Painel Admin</a>
           </div>
         </body>
         </html>
