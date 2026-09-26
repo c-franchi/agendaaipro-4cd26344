@@ -131,7 +131,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "AgendaAÍ Pro <onboarding@resend.dev>",
+        from: (Deno.env.get("EMAIL_FROM") ?? "AgendaAÍ Pro <onboarding@resend.dev>"),
         to: [email],
         subject: "🎉 Bem-vindo ao AgendaAÍ Pro! Sua assinatura foi confirmada",
         html: htmlContent,
