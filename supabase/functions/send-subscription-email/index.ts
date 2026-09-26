@@ -104,7 +104,7 @@ serve(async (req) => {
             
             <!-- CTA Button -->
             <div style="text-align: center;">
-              <a href="https://wa.me/5511999999999" style="display: inline-block; background: linear-gradient(135deg, #00e5cc 0%, #00b3a0 100%); color: #000000; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px;">
+              <a href="https://wa.me/5516997813038" style="display: inline-block; background: linear-gradient(135deg, #00e5cc 0%, #00b3a0 100%); color: #000000; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px;">
                 Falar com nossa equipe
               </a>
             </div>
