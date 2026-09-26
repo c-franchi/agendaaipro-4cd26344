@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 
-const partners = [
+const partners: { name: string; initials: string; url?: string }[] = [
+  { name: "Eric Zambonini", initials: "EZ", url: "https://ericzambonini.com.br" },
   { name: "Barbearia Premium", initials: "BP" },
   { name: "Studio Hair", initials: "SH" },
   { name: "Nail Art Center", initials: "NA" },
   { name: "Estética Bella", initials: "EB" },
-  { name: "Salão VIP", initials: "SV" },
   { name: "Beauty Pro", initials: "BPr" },
 ];
 
