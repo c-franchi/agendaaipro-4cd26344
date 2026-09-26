@@ -33,10 +33,11 @@ const Header = () => {
   }, []);
 
   const navLinks = [
+    { label: "Exemplo", href: "#exemplo" },
     { label: "Funcionalidades", href: "#funcionalidades" },
     { label: "Como Funciona", href: "#como-funciona" },
     { label: "Planos", href: "#planos" },
-    { label: "Contato", href: "#contato" },
+    { label: "Contato", href: "#contato-form" },
   ];
 
   const whatsappLink = getWhatsAppLink(getWhatsAppMessage("hero"));
