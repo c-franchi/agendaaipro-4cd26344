@@ -83,9 +83,9 @@ const PartnersSection = () => {
           className="mt-8 md:mt-10 flex items-center justify-center gap-6 sm:gap-8 md:gap-16 text-center"
         >
           {[
-            { value: "500+", label: "Parceiros ativos" },
-            { value: "98%", label: "Satisfação" },
-            { value: "24/7", label: "Suporte" },
+            { value: "100%", label: "Personalizado" },
+            { value: "24/7", label: "Agendamentos online" },
+            { value: "Domínio", label: "Próprio do profissional" },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-lg sm:text-xl md:text-2xl font-bold gradient-text">{stat.value}</div>
