@@ -160,7 +160,7 @@ const VideoSection = () => {
             {[
               { label: "Fácil de usar", desc: "Interface intuitiva" },
               { label: "100% Online", desc: "Acesse de qualquer lugar" },
-              { label: "Suporte 24h", desc: "Sempre disponível" },
+              { label: "Orientação inicial", desc: "Suporte conforme o plano" },
             ].map((item, index) => (
               <motion.div
                 key={item.label}
