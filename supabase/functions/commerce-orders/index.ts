@@ -9,7 +9,8 @@ serve(async req=>{
   const body=await req.json();const admin=administrator(user);
   if(body.action==='list'){
    let query=db.from('business_orders').select('*').order('created_at',{ascending:false}).limit(100);
-   if(!admin)query=query.eq('user_id',user.id);
+   if(body.admin===true&&!admin)return reply(req,{error:'Acesso administrativo necessário.'},403);
+   if(body.admin!==true)query=query.eq('user_id',user.id);
    const {data,error}=await query;if(error)throw error;return reply(req,{orders:data});
   }
   if(body.action==='request'){
@@ -18,7 +19,7 @@ serve(async req=>{
    const {data:previous}=await db.from('business_orders').select('*').eq('request_key',body.requestKey).maybeSingle();
    if(previous){if(previous.user_id!==user.id||previous.plan_type!==body.planType)return reply(req,{error:'Solicitação já utilizada.'},409);return reply(req,{order:previous});}
    const p=catalog[body.planType as keyof typeof catalog];
-   const {data,error}=await db.from('business_orders').insert({request_key:body.requestKey,user_id:user.id,name,email:user.email.toLowerCase(),plan_type:body.planType,module_plan:p.modulePlan,setup_cents:p.setupCents,monthly_cents:p.monthlyCents,scope_note:`Condições ${BILLING_VERSION} aceitas; confirmação de escopo pendente.`}).select('*').single();
+   const {data,error}=await db.from('business_orders').insert({request_key:body.requestKey,user_id:user.id,name,email:user.email.toLowerCase(),plan_type:body.planType,module_plan:p.modulePlan,setup_cents:p.setupCents,monthly_cents:p.monthlyCents,terms_version:BILLING_VERSION,scope_note:`Condições ${BILLING_VERSION} aceitas; confirmação de escopo pendente.`}).select('*').single();
    if(error){if(error.code==='23505')return reply(req,{error:'Solicitação em processamento. Consulte Meus pedidos.'},409);throw error}
    return reply(req,{order:data},201);
   }
