@@ -11,10 +11,10 @@ export default function PasswordRecoveryGate({children}:{children:ReactNode}) {
  const [invalid,setInvalid]=useState(initialRecovery.invalid&&initialRecovery.requested);
  useEffect(()=>{
   const {data:{subscription}}=supabase.auth.onAuthStateChange(event=>{
-   if(event==='PASSWORD_RECOVERY') {setInvalid(false);setRecovering(true);}
+   if(event==='PASSWORD_RECOVERY') {setInvalid(false);setRecovering(true);navigate('/auth?mode=reset',{replace:true});}
   });
   return()=>subscription.unsubscribe();
- },[]);
+ },[navigate]);
  const exit=()=>{setRecovering(false);setInvalid(false);navigate('/auth',{replace:true})};
  // Keep normal login/checkout/profile routes unmounted while recovery is active.
  if(recovering||intent.requested)return <ResetPassword invalidLink={invalid||intent.invalid} onExit={exit}/>;
