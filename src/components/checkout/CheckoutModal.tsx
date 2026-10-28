@@ -1,3 +1,4 @@
+import CardOrderRequest from "./CardOrderRequest";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,7 @@ export const CheckoutModal = ({
           {DELIVERY_NOTE} Limites de profissionais e armazenamento, suporte e
           custos externos serão detalhados na proposta.
         </p>
+        <CardOrderRequest plan={planType}/>
         <Button variant="hero" asChild>
           <a
             href={getWhatsAppLink(summary)}

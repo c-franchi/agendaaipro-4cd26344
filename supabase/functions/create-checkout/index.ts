@@ -1,182 +1,34 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-interface CheckoutRequest {
-  planType: string;
-  email: string;
-  name: string;
-  voucherCode?: string;
-  originalAmount: number;
-  discountAmount?: number;
-  finalAmount: number;
-}
-
-// Stripe price IDs for each plan
-const PLAN_PRICE_IDS: Record<string, string> = {
-  essencial: "price_1SooiSENKykBJoOzvGAD2WyQ",
-  pro: "price_1SooikENKykBJoOzLOBA5dVR",
-  premium: "price_1SoojEENKykBJoOzQBTKmCaK",
-};
-
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-  );
-
-  try {
-    logStep("Function started");
-
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const {
-      planType,
-      email,
-      name,
-      voucherCode,
-      originalAmount,
-      discountAmount = 0,
-      finalAmount,
-    }: CheckoutRequest = await req.json();
-
-    logStep("Request data received", { planType, email, voucherCode, originalAmount, finalAmount });
-
-    if (!email || !planType || finalAmount === undefined || finalAmount === null) {
-      throw new Error("Email, plano e valor são obrigatórios");
-    }
-
-    const priceId = PLAN_PRICE_IDS[planType.toLowerCase()];
-    if (!priceId) {
-      throw new Error(`Plano inválido: ${planType}`);
-    }
-    logStep("Price ID resolved", { planType, priceId });
-
-    // If voucher code is provided, validate it again on the server side
-    let validatedVoucher = null;
-    if (voucherCode) {
-      const { data: voucher, error } = await supabaseClient
-        .from("vouchers")
-        .select("*")
-        .eq("code", voucherCode.toUpperCase())
-        .eq("status", "active")
-        .single();
-
-      if (!error && voucher) {
-        validatedVoucher = voucher;
-        logStep("Voucher validated", { voucherId: voucher.id });
-      }
-    }
-
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Check for existing customer
-    const customers = await stripe.customers.list({ email: email, limit: 1 });
-    let customerId: string | undefined;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Existing customer found", { customerId });
-    }
-
-    // Create coupon if voucher has discount
-    let stripeCouponId: string | undefined;
-    if (validatedVoucher && discountAmount > 0) {
-      const couponParams: Stripe.CouponCreateParams = {
-        duration: "once",
-        name: `Voucher ${voucherCode}`,
-      };
-
-      if (validatedVoucher.discount_type === "percentage") {
-        couponParams.percent_off = validatedVoucher.discount_value;
-      } else {
-        couponParams.amount_off = Math.round(discountAmount * 100);
-        couponParams.currency = "brl";
-      }
-
-      const coupon = await stripe.coupons.create(couponParams);
-      stripeCouponId = coupon.id;
-      logStep("Stripe coupon created", { couponId: coupon.id });
-    }
-
-    // Create Stripe Checkout Session with real price_id
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      customer: customerId,
-      customer_email: customerId ? undefined : email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: "subscription",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/?payment=cancelled`,
-      metadata: {
-        plan_type: planType,
-        voucher_code: voucherCode || "",
-        voucher_id: validatedVoucher?.id || "",
-        original_amount: originalAmount.toString(),
-        discount_amount: discountAmount.toString(),
-        final_amount: finalAmount.toString(),
-        customer_name: name,
-        customer_email: email,
-      },
-    };
-
-    // Add discount if coupon was created
-    if (stripeCouponId) {
-      sessionParams.discounts = [{ coupon: stripeCouponId }];
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
-
-    // If voucher was used, increment usage and record
-    if (validatedVoucher) {
-      // Increment voucher uses
-      await supabaseClient.rpc("increment_voucher_uses", { voucher_code: voucherCode?.toUpperCase() });
-
-      // Record voucher use
-      await supabaseClient.from("voucher_uses").insert({
-        voucher_id: validatedVoucher.id,
-        user_email: email.toLowerCase(),
-        user_name: name,
-        plan_type: planType,
-        original_amount: originalAmount,
-        discount_amount: discountAmount,
-        final_amount: finalAmount,
-        stripe_checkout_session_id: session.id,
-      });
-
-      logStep("Voucher usage recorded");
-    }
-
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
-  }
+import {serve} from 'https://deno.land/std@0.190.0/http/server.ts';
+import Stripe from 'https://esm.sh/stripe@18.5.0';
+import {isUuid,checkoutParams} from '../_shared/commerce.ts';
+import {allowed,cors,reply,database,identity} from '../_shared/commerce-runtime.ts';
+serve(async req=>{
+ if(req.method==='OPTIONS')return new Response(null,{headers:cors(req)});
+ if(req.method!=='POST'||!allowed(req))return reply(req,{error:'Origem ou método inválido.'},403);
+ try{
+  const body=await req.json();
+  const enabled=Deno.env.get('STRIPE_CHECKOUT_ENABLED')==='true';
+  const key=Deno.env.get('STRIPE_SECRET_KEY'),webhook=Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  if(body.action==='status')return reply(req,{enabled:Boolean(enabled&&key&&webhook),recurringEnabled:Boolean(enabled&&key&&webhook&&Deno.env.get('STRIPE_RECURRING_ENABLED')==='true'),message:enabled&&key&&webhook?'Disponível após aprovação do pedido.':'Cartão em preparação. Aguardamos a liberação da Stripe e a configuração final.'});
+  const db=database(),user=await identity(req,db);if(!user)return reply(req,{error:'Entre na sua conta para pagar.'},401);
+  if(!enabled||!key||!webhook)return reply(req,{error:'O pagamento por cartão ainda não está liberado. Seu pedido pode ser acompanhado normalmente.'},503);
+  if(!isUuid(body.orderId)||!['setup','subscription'].includes(body.kind))return reply(req,{error:'Pedido ou cobrança inválidos.'},400);
+  const {data:order,error}=await db.from('business_orders').select('*').eq('id',body.orderId).eq('user_id',user.id).single();
+  if(error||!order)return reply(req,{error:'Pedido não encontrado.'},404);
+  const kind=body.kind as 'setup'|'subscription';
+  if(kind==='setup'&&(order.stage!=='awaiting_payment'||order.payment_status!=='pending'))return reply(req,{error:'O pedido precisa ter o escopo aprovado antes do pagamento.'},409);
+  if(kind==='subscription'&&(Deno.env.get('STRIPE_RECURRING_ENABLED')!=='true'||order.stage!=='ready'||order.payment_status!=='paid'||order.stripe_subscription_id))return reply(req,{error:'A mensalidade só pode ser iniciada após a disponibilização da plataforma.'},409);
+  const stripe=new Stripe(key,{apiVersion:'2025-08-27.basil'});
+  const account=await stripe.accounts.retrieve();
+  const live=key.startsWith('sk_live_')||key.startsWith('rk_live_');
+  if(live&&(!account.charges_enabled||!Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')||account.id!==Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')))return reply(req,{error:'A conta Stripe ainda precisa ser validada para receber pagamentos.'},503);
+  const column=kind==='setup'?'setup_session_id':'subscription_session_id';
+  const previousId=order[column];
+  if(previousId){const existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url)return reply(req,{url:existing.url});if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);}
+  const params=checkoutParams(order,kind,req.headers.get('origin')!);
+  const session=await stripe.checkout.sessions.create(params,{idempotencyKey:`commerce-v3:${order.id}:${kind}:${previousId||'first'}`});
+  const {error:saveError}=await db.from('business_orders').update({[column]:session.id,livemode:session.livemode,updated_at:new Date().toISOString()}).eq('id',order.id).eq('user_id',user.id).eq('stage',order.stage).select('id').single();
+  if(saveError){await stripe.checkout.sessions.expire(session.id).catch(()=>{});throw saveError;}
+  return reply(req,{url:session.url});
+ }catch{return reply(req,{error:'Não foi possível abrir o pagamento. Nenhuma confirmação foi registrada. Tente novamente.'},503)}
 });
