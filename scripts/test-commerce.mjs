@@ -49,5 +49,11 @@ assert.equal((await db.query('SELECT stage FROM business_orders')).rows[0].stage
 await db.query("SELECT commerce_refund('pi_fixture','evt_partial',false)");assert.equal((await db.query('SELECT payment_status FROM business_orders')).rows[0].payment_status,'paid');
 await db.query("SELECT commerce_refund('pi_fixture','evt_refund',true)");
 await payment('evt_late_setup');const final=(await db.query('SELECT stage,payment_status FROM business_orders')).rows[0];assert.deepEqual(final,{stage:'cancelled',payment_status:'refunded'});
+// Refund received before the first checkout confirmation cannot be queued later.
+const early='55555555-5555-4555-8555-555555555555';
+await db.query("INSERT INTO business_orders(id,request_key,user_id,name,email,plan_type,module_plan,setup_cents,monthly_cents,stage,setup_session_id,livemode) VALUES($1,$1,$2,'Fixture','fixture@example.com','essencial','agenda',25000,3990,'awaiting_payment','cs_early',false)",[early,owner]);
+await db.query("SELECT commerce_refund('pi_early','evt_refund_first',true,$1)",[early]);
+await db.query("SELECT commerce_record_payment($1,'evt_late_confirmation','setup','cs_early',25000,'brl',false,'cus_fixture','pi_early',NULL)",[early]);
+assert.deepEqual((await db.query('SELECT stage,payment_status FROM business_orders WHERE id=$1',[early])).rows[0],{stage:'cancelled',payment_status:'refunded'});
 await db.close();
 console.log('PASS: authoritative BRL prices; separate one-time/card and monthly checkout; raw signature integrity; owner/admin RLS; no client write/fulfillment; order transitions; payment amount/environment checks; rollback and retry protection; subscription only after delivery; refund cannot be reactivated by a delayed event. No live payments.');
