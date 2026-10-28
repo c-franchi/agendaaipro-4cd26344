@@ -1,5 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, CalendarCheck, Globe, Smartphone, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  CalendarCheck,
+  Globe,
+  Smartphone,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import caseHero from "@/assets/case-eric-hero.jpg";
 import caseServicos from "@/assets/case-eric-servicos.jpg";
@@ -11,17 +17,20 @@ const highlights = [
   {
     icon: Globe,
     title: "Domínio próprio",
-    description: "ericzambonini.com.br com identidade visual exclusiva do profissional.",
+    description:
+      "ericzambonini.com.br com identidade visual exclusiva do profissional.",
   },
   {
     icon: CalendarCheck,
     title: "Agenda online 24 horas",
-    description: "O cliente escolhe o serviço e o horário sem precisar de mensagens.",
+    description:
+      "O cliente escolhe o serviço e o horário sem precisar de mensagens.",
   },
   {
     icon: Sparkles,
     title: "Catálogo de serviços",
-    description: "Cada serviço com duração e valor definidos pelo profissional.",
+    description:
+      "Cada serviço com duração e valor definidos pelo profissional.",
   },
   {
     icon: Smartphone,
@@ -44,14 +53,21 @@ const CaseStudySection = () => {
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">Projeto no ar</span>
+            <span className="text-sm text-primary font-medium">
+              Projeto no ar
+            </span>
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-balance">
-            Veja um sistema <span className="gradient-text">já em funcionamento</span>
+            Veja um sistema{" "}
+            <span className="gradient-text">já em funcionamento</span>
           </h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Eric Zambonini, profissional de beleza masculina e feminina com mais de 25 anos de
-            experiência, recebe agendamentos pelo próprio site — criado com o AgendaAÍ Pro.
+            Eric Zambonini, profissional de beleza masculina e feminina com mais
+            de 25 anos de experiência, recebe agendamentos pelo próprio site —
+            criado com o AgendaAÍ Pro. Esta é uma aplicação da estrutura: seu
+            negócio recebe sua própria marca, seus dados e as ferramentas do
+            plano contratado. As telas do exemplo não representam todos os
+            planos.
           </p>
         </motion.div>
 
@@ -110,7 +126,9 @@ const CaseStudySection = () => {
                 </div>
                 <div>
                   <p className="font-semibold mb-1">{item.title}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -138,7 +156,8 @@ const CaseStudySection = () => {
           className="max-w-4xl mx-auto mt-20 md:mt-24"
         >
           <p className="text-center text-muted-foreground text-sm md:text-base mb-6">
-            A lista de serviços com duração e valores, do jeito que o cliente vê antes de agendar.
+            A lista de serviços com duração e valores, do jeito que o cliente vê
+            antes de agendar.
           </p>
           <div className="rounded-2xl overflow-hidden border border-border/40 shadow-2xl">
             <img

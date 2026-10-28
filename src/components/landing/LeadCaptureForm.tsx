@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { motion } from "framer-motion";
 import { Send, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,16 @@ import { z } from "zod";
 
 // Schema de validação para proteção contra XSS e injeção
 const leadSchema = z.object({
-  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo").trim(),
-  email: z.string().email("Email inválido").max(255, "Email muito longo").trim(),
+  name: z
+    .string()
+    .min(2, "Nome deve ter pelo menos 2 caracteres")
+    .max(100, "Nome muito longo")
+    .trim(),
+  email: z
+    .string()
+    .email("Email inválido")
+    .max(255, "Email muito longo")
+    .trim(),
   phone: z.string().max(20, "Telefone muito longo").optional(),
   business_type: z.string().max(100, "Tipo de negócio muito longo").optional(),
   message: z.string().max(1000, "Mensagem muito longa").optional(),
@@ -22,9 +30,15 @@ const leadSchema = z.object({
 interface LeadCaptureFormProps {
   source?: string;
   compact?: boolean;
+  initialMessage?: string;
 }
 
-const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptureFormProps) => {
+const LeadCaptureForm = ({
+  source = "landing_page",
+  compact = false,
+  initialMessage = "",
+}: LeadCaptureFormProps) => {
+  const consentId = useId();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [lgpdConsent, setLgpdConsent] = useState(false);
@@ -33,18 +47,19 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
     email: "",
     phone: "",
     business_type: "",
-    message: "",
+    message: initialMessage,
   });
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validar checkbox LGPD (exceto para formulário compacto que não mostra)
     if (!compact && !lgpdConsent) {
       toast({
         title: "Aceite os termos",
-        description: "Você precisa concordar com os Termos de Uso e Política de Privacidade.",
+        description:
+          "Você precisa concordar com os Termos de Uso e Política de Privacidade.",
         variant: "destructive",
       });
       return;
@@ -105,7 +120,7 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         email: "",
         phone: "",
         business_type: "",
-        message: "",
+        message: initialMessage,
       });
 
       // Reset success state after 3 seconds
@@ -114,7 +129,8 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
       console.error("Error submitting lead:", error);
       toast({
         title: "Erro ao enviar",
-        description: "Por favor, tente novamente ou entre em contato pelo WhatsApp.",
+        description:
+          "Por favor, tente novamente ou entre em contato pelo WhatsApp.",
         variant: "destructive",
       });
     } finally {
@@ -157,7 +173,12 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
           required
           className="bg-card/50 border-border/50"
         />
-        <Button type="submit" variant="hero" disabled={isLoading} className="shrink-0">
+        <Button
+          type="submit"
+          variant="hero"
+          disabled={isLoading}
+          className="shrink-0"
+        >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
@@ -177,6 +198,7 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         <Input
           type="text"
           placeholder="Seu nome *"
+          aria-label="Seu nome"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
@@ -185,6 +207,7 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         <Input
           type="email"
           placeholder="Seu e-mail *"
+          aria-label="Seu e-mail"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
@@ -195,6 +218,7 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         <Input
           type="tel"
           placeholder="WhatsApp (opcional)"
+          aria-label="WhatsApp"
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           className="bg-card/50 border-border/50"
@@ -202,13 +226,17 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         <Input
           type="text"
           placeholder="Tipo de negócio (ex: Barbearia)"
+          aria-label="Tipo de negócio"
           value={formData.business_type}
-          onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, business_type: e.target.value })
+          }
           className="bg-card/50 border-border/50"
         />
       </div>
       <Textarea
         placeholder="Conte-nos um pouco sobre seu negócio (opcional)"
+        aria-label="Mensagem"
         value={formData.message}
         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
         className="bg-card/50 border-border/50 min-h-[100px]"
@@ -216,12 +244,15 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
       {/* LGPD Consent Checkbox */}
       <div className="flex items-start gap-3">
         <Checkbox
-          id="lgpd-consent"
+          id={consentId}
           checked={lgpdConsent}
           onCheckedChange={(checked) => setLgpdConsent(checked === true)}
           className="mt-0.5"
         />
-        <label htmlFor="lgpd-consent" className="text-sm text-muted-foreground cursor-pointer">
+        <label
+          htmlFor={consentId}
+          className="text-sm text-muted-foreground cursor-pointer"
+        >
           Li e concordo com os{" "}
           <Link to="/termos" className="text-primary hover:underline">
             Termos de Uso
@@ -234,7 +265,13 @@ const LeadCaptureForm = ({ source = "landing_page", compact = false }: LeadCaptu
         </label>
       </div>
 
-      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading || !lgpdConsent}>
+      <Button
+        type="submit"
+        variant="hero"
+        size="lg"
+        className="w-full"
+        disabled={isLoading || !lgpdConsent}
+      >
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />

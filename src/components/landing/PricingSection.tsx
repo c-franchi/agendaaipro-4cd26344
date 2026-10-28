@@ -1,349 +1,287 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Star, Palette, Image } from "lucide-react";
+import { Check, ArrowRight, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CheckoutModal } from "@/components/checkout/CheckoutModal";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  PLANS,
+  PLAN_KEYS,
+  PlanKey,
+  formatCurrency,
+  PREMIUM_CONTENT_NOTE,
+  DELIVERY_NOTE,
+} from "@/lib/constants";
 
-// Default background images (fallback)
+import { supabase } from "@/integrations/supabase/client";
 import bgBarber from "@/assets/bg-professional-barber.png";
 import bgManicure from "@/assets/bg-professional-manicure.png";
 import bgMassage from "@/assets/bg-professional-massage.png";
 
-interface PlanData {
-  name: string;
-  price: number;
-  promotional_price: number | null;
-  description: string;
-  features: string[];
-  popular: boolean;
-  bg_image?: string;
-}
-
-interface PricingPlans {
-  essencial: PlanData;
-  pro: PlanData;
-  premium: PlanData;
-}
-
-const defaultPlans: PricingPlans = {
-  essencial: {
-    name: "Essencial",
-    price: 97,
-    promotional_price: null,
-    description: "Ideal para começar",
-    features: [
-      "Agenda online profissional",
-      "Pagamento via Pix integrado",
-      "Confirmação automática",
-      "Painel básico de controle",
-      "Suporte por email",
-    ],
-    popular: false,
-  },
-  pro: {
-    name: "Pro",
-    price: 197,
-    promotional_price: null,
-    description: "Mais vendido",
-    features: [
-      "Tudo do Essencial",
-      "Venda de produtos integrada",
-      "Controle financeiro completo",
-      "Relatórios detalhados",
-      "Personalização da marca",
-      "Suporte prioritário",
-    ],
-    popular: true,
-  },
-  premium: {
-    name: "Premium",
-    price: 397,
-    promotional_price: null,
-    description: "Para quem quer tudo",
-    features: [
-      "Tudo do Pro",
-      "Personalização completa",
-      "Domínio próprio incluso",
-      "Integrações avançadas",
-      "Gerente de conta dedicado",
-    ],
-    popular: false,
-  },
-};
-
-const defaultBgImages = {
+const defaultImages: Record<PlanKey, string> = {
   essencial: bgBarber,
   pro: bgManicure,
   premium: bgMassage,
 };
-
-const brandingNotes = {
-  essencial: { note: "Banners e logos: serviço avulso*", included: false },
-  pro: { note: "Banners e logos: serviço avulso*", included: false },
-  premium: { note: "Criação de banners e logos inclusos", included: true },
-};
+const comparison = [
+  [
+    "Site com sua marca e configuração inicial",
+    "Incluído",
+    "Incluído",
+    "Incluído",
+  ],
+  [
+    "Agenda, clientes, serviços e horários editáveis",
+    "Incluído",
+    "Incluído",
+    "Incluído",
+  ],
+  ["Vendas, estoque de produtos e financeiro", "—", "Previsto*", "Previsto*"],
+  ["Insumos por serviço e margem estimada", "—", "—", "Previsto*"],
+  [
+    "Preparação de imagens, portfólio e vídeo",
+    "Avulso",
+    "Avulso",
+    "Entrega inicial",
+  ],
+];
 
 const PricingSection = () => {
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<{
-    planType: string;
-    name: string;
-    price: number;
-    promotional_price: number | null;
-  } | null>(null);
-  const [pricingPlans, setPricingPlans] = useState<PricingPlans>(defaultPlans);
-  const [loading, setLoading] = useState(true);
-
+  const [images, setImages] = useState(defaultImages);
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("landing_content")
-          .select("value")
-          .eq("key", "pricing_plans")
-          .maybeSingle();
-
-        if (error) throw error;
-        if (data?.value) {
-          setPricingPlans(data.value as unknown as PricingPlans);
-        }
-      } catch (error) {
-        console.error("Error fetching pricing plans:", error);
-      } finally {
-        setLoading(false);
-      }
+    let active = true;
+    supabase
+      .from("landing_content")
+      .select("key, value")
+      .in("key", ["pricing_plans", "pricing_images_v2"])
+      .then(({ data }) => {
+        if (!active || !data) return;
+        const legacy = data.find((item) => item.key === "pricing_plans")
+          ?.value as Record<string, { bg_image?: string }> | undefined;
+        const current = data.find((item) => item.key === "pricing_images_v2")
+          ?.value as Record<string, string> | undefined;
+        setImages(
+          Object.fromEntries(
+            PLAN_KEYS.map((key) => [
+              key,
+              current?.[key] !== undefined
+                ? current[key] || defaultImages[key]
+                : legacy?.[key]?.bg_image || defaultImages[key],
+            ]),
+          ) as Record<PlanKey, string>,
+        );
+      });
+    return () => {
+      active = false;
     };
-
-    fetchPlans();
-
-    // Check for auto-open checkout after login
-    const autoOpenCheckout = localStorage.getItem("auto_open_checkout");
-    if (autoOpenCheckout) {
-      try {
-        const checkoutData = JSON.parse(autoOpenCheckout);
-        // Wait a bit for plans to load, then open checkout
-        setTimeout(() => {
-          const planKey = checkoutData.planType?.toLowerCase();
-          if (planKey && pricingPlans[planKey as keyof PricingPlans]) {
-            const plan = pricingPlans[planKey as keyof PricingPlans];
-            setSelectedPlan({
-              planType: planKey,
-              name: plan.name,
-              price: checkoutData.originalPrice || plan.promotional_price || plan.price,
-              promotional_price: plan.promotional_price,
-            });
-            setCheckoutOpen(true);
-          }
-          localStorage.removeItem("auto_open_checkout");
-        }, 500);
-      } catch {
-        localStorage.removeItem("auto_open_checkout");
-      }
+  }, []);
+  // Resume only the plan choice. Never reuse a browser-stored payment amount.
+  useEffect(() => {
+    const stored = localStorage.getItem("auto_open_checkout");
+    localStorage.removeItem("auto_open_checkout");
+    if (!stored) return;
+    try {
+      const key = JSON.parse(stored).planType;
+      if (PLAN_KEYS.includes(key)) setSelectedPlan(key);
+    } catch {
+      /* An invalid previous selection can be discarded. */
     }
-  }, [pricingPlans]);
-
-  const handleContractClick = (planKey: string, plan: PlanData) => {
-    setSelectedPlan({
-      planType: planKey,
-      name: plan.name,
-      price: plan.promotional_price || plan.price,
-      promotional_price: plan.promotional_price,
-    });
-    setCheckoutOpen(true);
-  };
-
-  // Sort plans by price (lowest to highest) and map with additional data
-  const plansArray = Object.entries(pricingPlans)
-    .map(([key, plan]) => ({
-      ...plan,
-      planType: key,
-      bgImage: plan.bg_image || defaultBgImages[key as keyof typeof defaultBgImages],
-      branding: brandingNotes[key as keyof typeof brandingNotes],
-      effectivePrice: plan.promotional_price || plan.price,
-    }))
-    .sort((a, b) => a.effectivePrice - b.effectivePrice);
+  }, []);
 
   return (
-    <section id="planos" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background professional images with transparency */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute top-0 left-0 w-1/3 h-full bg-cover bg-center opacity-[0.18]"
-          style={{ backgroundImage: `url(${plansArray[0]?.bgImage || bgBarber})` }}
-        />
-        <div 
-          className="absolute top-0 right-0 w-1/3 h-full bg-cover bg-center opacity-[0.18]"
-          style={{ backgroundImage: `url(${plansArray[2]?.bgImage || bgMassage})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
-      </div>
-
+    <section id="planos" className="py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
       <div className="container relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <motion.span 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-sm text-primary font-medium">Planos e Preços</span>
-          </motion.span>
+        <div className="text-center mb-12 max-w-3xl mx-auto">
+          <span className="inline-block text-sm text-primary font-medium bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mb-5">
+            Planos e valores
+          </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Planos <span className="gradient-text">a partir de</span>
+            Sua marca em todos os planos.
+            <br />
+            <span className="gradient-text">Escolha suas ferramentas.</span>
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Solicite uma proposta personalizada para o seu negócio
+          <p className="text-muted-foreground leading-relaxed">
+            Configuramos seu site com logo, cores, contatos e serviços. Depois,
+            você administra os campos disponíveis no painel. A implementação é
+            paga uma vez; a mensalidade mantém o sistema e seus recursos.
           </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
-          {plansArray.map((plan, index) => (
-            <motion.div
-              key={plan.planType}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className={`glass-card p-8 relative overflow-visible flex flex-col ${
-                plan.popular
-                  ? "border-primary/50 shadow-lg shadow-primary/10 md:scale-105"
-                  : ""
-              }`}
-            >
-              {/* Background image for each card */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-[0.05] rounded-2xl"
-                style={{ backgroundImage: `url(${plan.bgImage})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/95 to-card/80 rounded-2xl" />
-              
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                  <span className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-1.5 rounded-full">
-                    Mais Popular
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
+          {PLAN_KEYS.map((key, index) => {
+            const plan = PLANS[key];
+            return (
+              <motion.article
+                key={key}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+                className={`glass-card p-6 md:p-8 relative flex flex-col ${plan.popular ? "border-primary/60" : ""}`}
+                style={{
+                  backgroundImage: `linear-gradient(hsl(var(--card) / .95), hsl(var(--card) / .95)), url("${images[key]}")`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-3 left-6 text-xs text-primary bg-card border border-primary/40 rounded-full px-3 py-1">
+                    Agenda + gestão
                   </span>
-                </div>
-              )}
-
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-                  <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
-                  <div className="flex items-baseline justify-center gap-1">
-                    {plan.promotional_price ? (
-                      <>
-                        <span className="text-lg text-muted-foreground line-through mr-2">
-                          R$ {plan.price}
-                        </span>
-                        <span className="text-4xl font-bold gradient-text">
-                          R$ {plan.promotional_price}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-4xl font-bold gradient-text">
-                        R$ {plan.price}
-                      </span>
-                    )}
-                    <span className="text-muted-foreground">/mês</span>
-                  </div>
-                  {plan.promotional_price && (
-                    <span className="inline-block mt-2 text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded-full">
-                      Promoção ativa!
-                    </span>
-                  )}
-                </div>
-
-                <ul className="space-y-3 mb-6 flex-1">
+                )}
+                <h3 className="text-2xl font-bold">{plan.name}</h3>
+                <p className="text-sm text-muted-foreground mt-2 min-h-10">
+                  {plan.description}
+                </p>
+                <p className="mt-5">
+                  <span className="text-4xl font-bold gradient-text">
+                    {formatCurrency(plan.price)}
+                  </span>
+                  <span className="text-muted-foreground">/mês</span>
+                </p>
+                <p className="mt-3 text-sm border-y border-border/50 py-3">
+                  <strong>{formatCurrency(plan.setupPrice)}</strong> de
+                  implementação única
+                </p>
+                <ul className="space-y-3 my-6">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-foreground">{feature}</span>
+                    <li key={feature} className="flex gap-3 text-sm">
+                      <Check className="h-5 w-5 text-primary shrink-0" />
+                      <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-
-                {/* Branding info + Button pushed to bottom */}
-                <div className="mt-auto">
-                  <div className={`p-3 rounded-lg mb-6 ${plan.branding.included ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/50 border border-border/30'}`}>
-                    <div className="flex items-start gap-2">
-                      {plan.branding.included ? (
-                        <Star className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <Palette className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      )}
-                      <div>
-                        <p className={`text-xs ${plan.branding.included ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                          {plan.branding.note}
-                        </p>
-                        {!plan.branding.included && (
-                          <p className="text-xs text-muted-foreground/70 mt-1">
-                            Não tem logo? Criamos para você!
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                {plan.plannedFeatures.length > 0 && (
+                  <div className="rounded-lg bg-secondary/50 p-4 mb-6 text-sm">
+                    <p className="font-semibold mb-2">
+                      Recursos previstos · em preparação
+                    </p>
+                    <ul className="list-disc pl-4 space-y-2 text-muted-foreground">
+                      {plan.plannedFeatures.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
                   </div>
-
+                )}
+                <div className="mt-auto">
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {key === "premium"
+                      ? "Imagens e vídeo somente na entrega inicial. A mensalidade é pelas ferramentas, sem conteúdo novo todo mês."
+                      : "Você fornece logo, imagens e textos prontos; nós configuramos seu site."}
+                  </p>
                   <Button
                     variant={plan.popular ? "hero" : "heroOutline"}
                     className="w-full"
-                    onClick={() => handleContractClick(plan.planType, plan)}
+                    onClick={() => setSelectedPlan(key)}
                   >
-                    Contratar agora
+                    Quero o {plan.name}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.article>
+            );
+          })}
         </div>
-
-        {/* Branding services info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 max-w-3xl mx-auto"
+        <p className="max-w-4xl mx-auto text-sm text-muted-foreground mt-6 text-center">
+          * Estoque, financeiro ampliado e consumo de insumos serão
+          implementados e validados no sistema. A disponibilidade e os prazos
+          são confirmados antes da contratação e da cobrança.
+        </p>
+        <div
+          className="max-w-6xl mx-auto mt-12 overflow-x-auto rounded-xl border border-border/50"
+          tabIndex={0}
+          role="region"
+          aria-label="Comparação dos planos, role horizontalmente para ver todas as colunas"
         >
-          <div className="glass-card p-6 text-center border border-primary/20">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Image className="w-5 h-5 text-primary" />
-              <Palette className="w-5 h-5 text-primary" />
-            </div>
-            <h4 className="font-semibold mb-2">Serviço de Criação de Identidade Visual</h4>
-            <p className="text-sm text-muted-foreground">
-              <span className="text-foreground font-medium">Não possui banners, logotipo ou cartão de visita digital?</span> Nossa equipe pode criar para você! 
-              Nos planos <span className="text-primary font-medium">Essencial</span> e <span className="text-primary font-medium">Pro</span>, 
-              este serviço é oferecido de forma avulsa. No plano <span className="text-primary font-medium">Premium</span>, 
-              a criação de toda identidade visual já está <span className="text-primary font-medium">inclusa no valor</span>.
+          <table className="w-full min-w-[640px] text-sm text-left">
+            <caption className="text-left p-5 font-semibold text-lg">
+              Compare o que você recebe
+            </caption>
+            <thead className="bg-secondary/50">
+              <tr>
+                <th scope="col" className="p-4">
+                  Recurso
+                </th>
+                {PLAN_KEYS.map((key) => (
+                  <th scope="col" className="p-4" key={key}>
+                    {PLANS[key].name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {comparison.map(([label, ...values]) => (
+                <tr key={label} className="border-t border-border/40">
+                  <th scope="row" className="p-4 font-normal">
+                    {label}
+                  </th>
+                  {values.map((value, i) => (
+                    <td key={i} className="p-4 text-muted-foreground">
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="max-w-6xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
+          <div className="glass-card p-6">
+            <Palette className="w-6 h-6 text-primary mb-3" />
+            <h3 className="font-semibold text-xl mb-3">
+              Premium: preparação visual inicial
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Até 10 imagens fornecidas por você, organização de até 10 itens do
+              portfólio, 1 vídeo curto e 2 rodadas de revisão. Criação de logo
+              nova e produção adicional são serviços avulsos.
             </p>
-            <p className="text-xs text-muted-foreground/70 mt-3">
-              * Valores de criação avulsa: Logo a partir de R$ 150 | Banners a partir de R$ 80 | Cartão de visita digital a partir de R$ 50
+            <p className="text-sm mt-4 leading-relaxed">
+              {PREMIUM_CONTENT_NOTE}
             </p>
           </div>
-        </motion.div>
+          <div className="glass-card p-6">
+            <h3 className="font-semibold text-xl mb-3">
+              Uma cobrança sem dúvidas
+            </h3>
+            <ul className="text-sm text-muted-foreground space-y-3">
+              <li>
+                <strong className="text-foreground">Implementação:</strong>{" "}
+                configuração, orientação inicial e primeiro ano de domínio
+                .com.br, sujeito à disponibilidade.
+              </li>
+              <li>
+                <strong className="text-foreground">Mensalidade:</strong> começa
+                na disponibilização do sistema. Inclui ferramentas contratadas,
+                hospedagem, manutenção técnica e suporte de uso.
+              </li>
+              <li>
+                <strong className="text-foreground">À parte:</strong> renovação
+                do domínio, taxas de pagamento, mensagens pagas, serviços
+                externos e conteúdo adicional.
+              </li>
+              <li>
+                Quantidade de profissionais, armazenamento e condições do
+                suporte são definidos na proposta antes do pagamento.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p className="max-w-4xl mx-auto mt-6 text-sm text-muted-foreground text-center">
+          {DELIVERY_NOTE}
+        </p>
       </div>
-
-      {/* Checkout Modal */}
       {selectedPlan && (
         <CheckoutModal
-          open={checkoutOpen}
-          onOpenChange={setCheckoutOpen}
-          planType={selectedPlan.planType}
-          planName={selectedPlan.name}
-          originalPrice={selectedPlan.price}
+          key={selectedPlan}
+          open
+          onOpenChange={(open) => {
+            if (!open) setSelectedPlan(null);
+          }}
+          planType={selectedPlan}
         />
       )}
     </section>
   );
 };
-
 export default PricingSection;
