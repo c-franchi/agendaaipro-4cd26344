@@ -67,16 +67,16 @@ END; $$;
 REVOKE ALL ON FUNCTION public.commerce_transition(uuid,uuid,text,text,text,text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.commerce_transition(uuid,uuid,text,text,text,text) TO service_role;
 
-CREATE FUNCTION public.commerce_refund(p_intent text,p_event text,p_full boolean)
+CREATE FUNCTION public.commerce_refund(p_intent text,p_event text,p_full boolean,p_order uuid DEFAULT NULL)
 RETURNS void LANGUAGE plpgsql SECURITY INVOKER SET search_path=public AS $$
 DECLARE o public.business_orders; inserted integer;
 BEGIN
- SELECT * INTO o FROM public.business_orders WHERE stripe_payment_intent_id=p_intent FOR UPDATE;
+ SELECT * INTO o FROM public.business_orders WHERE stripe_payment_intent_id=p_intent OR (id=p_order AND stripe_payment_intent_id IS NULL) FOR UPDATE;
  IF NOT FOUND THEN RETURN; END IF;
  INSERT INTO public.business_order_events VALUES(p_event,o.id,'refund',now()) ON CONFLICT DO NOTHING;
  GET DIAGNOSTICS inserted=ROW_COUNT; IF inserted=0 THEN RETURN; END IF;
- IF p_full THEN UPDATE public.business_orders SET payment_status='refunded',stage='cancelled',updated_at=now() WHERE id=o.id; END IF;
+ IF p_full THEN UPDATE public.business_orders SET payment_status='refunded',stage='cancelled',stripe_payment_intent_id=p_intent,updated_at=now() WHERE id=o.id; END IF;
  INSERT INTO public.business_order_audit(order_id,event,details) VALUES(o.id,'refund',jsonb_build_object('full',p_full,'requires_operator_review',true));
 END; $$;
-REVOKE ALL ON FUNCTION public.commerce_refund(text,text,boolean) FROM PUBLIC,anon,authenticated;
-GRANT EXECUTE ON FUNCTION public.commerce_refund(text,text,boolean) TO service_role;
+REVOKE ALL ON FUNCTION public.commerce_refund(text,text,boolean,uuid) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.commerce_refund(text,text,boolean,uuid) TO service_role;
