@@ -4,6 +4,7 @@ CREATE TABLE public.business_orders (
  plan_type text NOT NULL CHECK(plan_type IN ('essencial','pro','premium')),
  module_plan text NOT NULL CHECK(module_plan IN ('agenda','gestao','premium')),
  setup_cents integer NOT NULL CHECK(setup_cents>0), monthly_cents integer NOT NULL CHECK(monthly_cents>0),
+ terms_version text NOT NULL DEFAULT '2026-10-28-v3', terms_accepted_at timestamptz NOT NULL DEFAULT now(), approved_scope text,
  currency text NOT NULL DEFAULT 'brl' CHECK(currency='brl'),
  stage text NOT NULL DEFAULT 'requested' CHECK(stage IN ('requested','awaiting_payment','queued','in_progress','ready','active','cancelled')),
  payment_status text NOT NULL DEFAULT 'pending' CHECK(payment_status IN ('pending','paid','refunded')),
@@ -61,7 +62,7 @@ BEGIN
  ELSIF p_action='start' AND o.stage='queued' AND o.payment_status='paid' THEN target='in_progress';
  ELSIF p_action='ready' AND o.stage='in_progress' AND o.payment_status='paid' AND p_url LIKE 'https://%' AND length(p_installation) BETWEEN 3 AND 80 THEN target='ready';
  ELSE RAISE EXCEPTION 'Invalid transition'; END IF;
- UPDATE public.business_orders SET stage=target,scope_note=p_note,website_url=CASE WHEN target='ready' THEN p_url ELSE website_url END,installation_id=CASE WHEN target='ready' THEN p_installation ELSE installation_id END,ready_at=CASE WHEN target='ready' THEN now() ELSE ready_at END,updated_at=now() WHERE id=p_order;
+ UPDATE public.business_orders SET stage=target,scope_note=p_note,approved_scope=CASE WHEN target='awaiting_payment' THEN p_note ELSE approved_scope END,website_url=CASE WHEN target='ready' THEN p_url ELSE website_url END,installation_id=CASE WHEN target='ready' THEN p_installation ELSE installation_id END,ready_at=CASE WHEN target='ready' THEN now() ELSE ready_at END,updated_at=now() WHERE id=p_order;
  INSERT INTO public.business_order_audit(order_id,actor_id,event,details) VALUES(p_order,p_actor,p_action,jsonb_build_object('from',o.stage,'to',target,'note',p_note));
 END; $$;
 REVOKE ALL ON FUNCTION public.commerce_transition(uuid,uuid,text,text,text,text) FROM PUBLIC,anon,authenticated;
