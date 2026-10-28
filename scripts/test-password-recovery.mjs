@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('../src/lib/password-recovery.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const module={exports:{}};new Function('exports','module',js)(module.exports,module);
+const {recoveryLocation,passwordProblem,completePasswordReset}=module.exports;
+assert.deepEqual(recoveryLocation({search:'?mode=reset',hash:''}),{requested:true,invalid:false});
+assert.deepEqual(recoveryLocation({search:'',hash:'#type=recovery&access_token=TEST_TOKEN'}),{requested:true,invalid:false});
+assert.deepEqual(recoveryLocation({search:'?mode=reset',hash:'#error=access_denied&error_code=otp_expired'}),{requested:true,invalid:true});
+assert.deepEqual(recoveryLocation({search:'?redirect=checkout',hash:''}),{requested:false,invalid:false});
+assert.equal(passwordProblem('short','short')!==null,true);assert.equal(passwordProblem('password-A','password-B')!==null,true);
+let updates=0,signouts=0;
+const auth={async getUser(){return {data:{user:{id:'fixture'}},error:null}},async updateUser({password}){assert.equal(password,'fixture-password-123');updates++;return {error:null}},async signOut(options){assert.equal(options.scope,'local');signouts++;return {error:null}}};
+await assert.rejects(completePasswordReset(auth,'short','short'));assert.equal(updates,0);
+await assert.rejects(completePasswordReset(auth,'fixture-password-123','different'));assert.equal(updates,0);
+await assert.rejects(completePasswordReset({...auth,getUser:async()=>({data:{user:null},error:Error('expired')})},'fixture-password-123','fixture-password-123'));assert.equal(updates,0);
+await assert.rejects(completePasswordReset({...auth,updateUser:async()=>({error:Error('password rejected')})},'fixture-password-123','fixture-password-123'));assert.equal(signouts,0);
+assert.deepEqual(await completePasswordReset(auth,'fixture-password-123','fixture-password-123'),{signedOut:true});assert.equal(updates,1);assert.equal(signouts,1);
+assert.deepEqual(await completePasswordReset({...auth,signOut:async()=>({error:Error('network')})},'fixture-password-123','fixture-password-123'),{signedOut:false});
+// Recovery must bypass mounting normal auth routes (and their automatic redirect).
+const app=readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');assert.match(app,/<PasswordRecoveryGate>\s*<Routes>/);
+const gate=readFileSync(new URL('../src/components/auth/PasswordRecoveryGate.tsx',import.meta.url),'utf8');assert.match(gate,/event==='PASSWORD_RECOVERY'/);assert.match(gate,/if\(recovering\|\|intent.requested\)return <ResetPassword/);
+console.log('PASS: recovery links/events, invalid links, password confirmation, session validation, update failures, save/logout and normal-route isolation. No real accounts or passwords changed.');
