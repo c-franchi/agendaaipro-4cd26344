@@ -1,3 +1,4 @@
+import MyOrders from "./pages/MyOrders";
 import PasswordRecoveryGate from "./components/auth/PasswordRecoveryGate";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/privacidade" element={<Privacy />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/minha-assinatura" element={<MySubscription />} />
+          <Route path="/meus-pedidos" element={<MyOrders />} />
           <Route path="/meu-perfil" element={<MyProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
