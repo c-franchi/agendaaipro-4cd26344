@@ -1,3 +1,4 @@
+import {catalog} from "../../supabase/functions/_shared/commerce";
 export const APP_URL = "https://app.agendaaipro.com.br";
 
 // Historical keys are preserved for existing customer records.
@@ -5,8 +6,8 @@ export const APP_URL = "https://app.agendaaipro.com.br";
 export const PLANS = {
   essencial: {
     name: "Agenda",
-    price: 39.9,
-    setupPrice: 250,
+    price: catalog.essencial.monthlyCents / 100,
+    setupPrice: catalog.essencial.setupCents / 100,
     description: "Para organizar seus atendimentos",
     features: [
       "Site com sua logo, cores e informações",
@@ -20,8 +21,8 @@ export const PLANS = {
   },
   pro: {
     name: "Gestão",
-    price: 69.9,
-    setupPrice: 350,
+    price: catalog.pro.monthlyCents / 100,
+    setupPrice: catalog.pro.setupCents / 100,
     description: "Para acompanhar a operação do negócio",
     features: [
       "Tudo do Agenda",
@@ -37,8 +38,8 @@ export const PLANS = {
   },
   premium: {
     name: "Premium",
-    price: 99.9,
-    setupPrice: 690,
+    price: catalog.premium.monthlyCents / 100,
+    setupPrice: catalog.premium.setupCents / 100,
     description: "Mais ferramentas e preparação visual inicial",
     features: [
       "Tudo do Gestão",
