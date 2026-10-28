@@ -23,6 +23,20 @@ serve(async req=>{
    if(!isUuid(orderId)||!['setup','subscription'].includes(kind))throw Error('Invalid metadata');
    const {data:order,error}=await db.from('business_orders').select('*').eq('id',orderId).single();
    if(error||!order||!paymentMatches(order,session,kind as 'setup'|'subscription'))throw Error('Payment mismatch');
+   // Stripe can deliver a refund event before the checkout event. Read current
+   // payment truth before fulfillment so an already-refunded order is never queued.
+   if(kind==='setup'){
+    const intentId=id(session.payment_intent);if(!intentId)throw Error('Missing payment intent');
+    const intent=await stripe.paymentIntents.retrieve(intentId,{expand:['latest_charge']});
+    if(intent.status!=='succeeded'||intent.amount_received!==order.setup_cents||intent.currency!=='brl')throw Error('Payment intent mismatch');
+    const charge=typeof intent.latest_charge==='string'?await stripe.charges.retrieve(intent.latest_charge):intent.latest_charge;
+    if(!charge||charge.amount!==order.setup_cents||charge.currency!=='brl')throw Error('Missing charge');
+    if(charge.amount_refunded>=charge.amount){
+     const {error:refundError}=await db.rpc('commerce_refund',{p_intent:intentId,p_event:event.id,p_full:true,p_order:order.id});
+     if(refundError)throw refundError;
+     return Response.json({received:true,refunded:true});
+    }
+   }
    const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:session.amount_total,p_currency:session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
    if(recordError)throw recordError;
   }else if(event.type==='charge.refunded'){
