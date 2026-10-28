@@ -1,3 +1,4 @@
+import OrdersList from "@/components/checkout/OrdersList";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -167,7 +168,7 @@ const Admin = () => {
 
       <main className="container py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 max-w-3xl">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -188,12 +189,14 @@ const Admin = () => {
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">Landing</span>
             </TabsTrigger>
+            <TabsTrigger value="orders" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
             <LeadsDashboard leads={leads} />
           </TabsContent>
 
+          <TabsContent value="orders"><OrdersList admin/></TabsContent>
           <TabsContent value="users">
             <UsersManager />
           </TabsContent>
