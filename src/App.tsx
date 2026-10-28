@@ -1,3 +1,4 @@
+import PasswordRecoveryGate from "./components/auth/PasswordRecoveryGate";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +24,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PasswordRecoveryGate>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/faq" element={<FAQ />} />
@@ -36,6 +38,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </PasswordRecoveryGate>
         {/* LGPD Cookie Consent Banner */}
         <CookieConsentBanner />
       </BrowserRouter>
