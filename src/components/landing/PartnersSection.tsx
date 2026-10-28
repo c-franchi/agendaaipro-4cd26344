@@ -1,12 +1,11 @@
 import { motion } from "framer-motion";
 
 const partners: { name: string; initials: string; url?: string }[] = [
-  { name: "Eric Zambonini", initials: "EZ", url: "https://ericzambonini.com.br" },
-  { name: "Barbearia Premium", initials: "BP" },
-  { name: "Studio Hair", initials: "SH" },
-  { name: "Nail Art Center", initials: "NA" },
-  { name: "Estética Bella", initials: "EB" },
-  { name: "Beauty Pro", initials: "BPr" },
+  {
+    name: "Eric Zambonini",
+    initials: "EZ",
+    url: "https://ericzambonini.com.br",
+  },
 ];
 
 const PartnersSection = () => {
@@ -14,7 +13,7 @@ const PartnersSection = () => {
     <section className="py-12 md:py-16 relative overflow-hidden border-y border-border/20">
       {/* Subtle background */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-card/30 to-background" />
-      
+
       <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -23,7 +22,7 @@ const PartnersSection = () => {
           className="text-center mb-8 md:mb-10"
         >
           <p className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider">
-            Confiado por profissionais em todo Brasil
+            Conheça uma aplicação real da nossa estrutura
           </p>
         </motion.div>
 
@@ -32,8 +31,8 @@ const PartnersSection = () => {
           {/* Fade edges - only on larger screens */}
           <div className="absolute left-0 top-0 bottom-0 w-10 md:w-20 bg-gradient-to-r from-background to-transparent z-10 hidden md:block" />
           <div className="absolute right-0 top-0 bottom-0 w-10 md:w-20 bg-gradient-to-l from-background to-transparent z-10 hidden md:block" />
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+
+          <div className="flex justify-center gap-3 md:gap-4">
             {partners.map((partner, index) => {
               const Wrapper = partner.url ? motion.a : motion.div;
               return (
@@ -59,7 +58,9 @@ const PartnersSection = () => {
                   }`}
                 >
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold text-xs md:text-sm">{partner.initials}</span>
+                    <span className="text-primary font-bold text-xs md:text-sm">
+                      {partner.initials}
+                    </span>
                   </div>
                   <span
                     className={`text-xs md:text-sm font-medium truncate ${
@@ -88,8 +89,12 @@ const PartnersSection = () => {
             { value: "Domínio", label: "Próprio do profissional" },
           ].map((stat) => (
             <div key={stat.label}>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold gradient-text">{stat.value}</div>
-              <div className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold gradient-text">
+                {stat.value}
+              </div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">
+                {stat.label}
+              </div>
             </div>
           ))}
         </motion.div>

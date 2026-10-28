@@ -22,26 +22,29 @@ const defaultAudiences: AudienceItem[] = [
   {
     icon: Scissors,
     title: "Barbeiros e Barbearias",
-    description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada",
+    description:
+      "Organize serviços, horários e clientes em um site com a sua marca",
     gradient: "from-cyan-500/20 to-blue-500/20",
     backgroundImage: bgBarber,
-    opacity: 40
+    opacity: 40,
   },
   {
     icon: Sparkles,
     title: "Cabeleireiros e Salões",
-    description: "Organize sua equipe e maximize o faturamento com vendas integradas",
+    description:
+      "Apresente seus serviços e escolha as ferramentas para sua operação",
     gradient: "from-purple-500/20 to-pink-500/20",
     backgroundImage: bgSpa,
-    opacity: 40
+    opacity: 40,
   },
   {
     icon: HandMetal,
     title: "Manicures e Esteticistas",
-    description: "Receba antecipadamente via Pix e venda produtos junto ao agendamento",
+    description:
+      "Facilite a escolha de serviços e horários pelos seus clientes",
     gradient: "from-pink-500/20 to-rose-500/20",
     backgroundImage: bgManicure,
-    opacity: 40
+    opacity: 40,
   },
   {
     icon: Heart,
@@ -49,7 +52,7 @@ const defaultAudiences: AudienceItem[] = [
     description: "Profissionalize-se e aumente sua credibilidade no mercado",
     gradient: "from-emerald-500/20 to-teal-500/20",
     backgroundImage: bgMassage,
-    opacity: 40
+    opacity: 40,
   },
 ];
 
@@ -58,46 +61,64 @@ const TargetAudienceSection = () => {
   const [audiences, setAudiences] = useState(defaultAudiences);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"]
+    offset: ["start end", "end start"],
   });
 
   useEffect(() => {
+    let active = true;
     const fetchContent = async () => {
       const { data } = await supabase
         .from("landing_content")
-        .select("value")
-        .eq("key", "target_audiences")
-        .maybeSingle();
-      
-      if (data?.value) {
-        const savedAudiences = data.value as any[];
-        // Map saved data with icons and default images
-        const iconMap: Record<string, typeof Scissors> = {
-          "Scissors": Scissors,
-          "Sparkles": Sparkles,
-          "HandMetal": HandMetal,
-          "Heart": Heart
-        };
-        const imageMap: Record<number, string> = {
-          0: bgBarber,
-          1: bgSpa,
-          2: bgManicure,
-          3: bgMassage
-        };
-        
-        const mappedAudiences = savedAudiences.map((item, index) => ({
-          ...defaultAudiences[index],
-          title: item.title || defaultAudiences[index].title,
-          description: item.description || defaultAudiences[index].description,
-          icon: iconMap[item.icon] || defaultAudiences[index].icon,
-          backgroundImage: item.backgroundImage || imageMap[index] || defaultAudiences[index].backgroundImage,
-          opacity: item.opacity !== undefined ? item.opacity : (defaultAudiences[index]?.opacity || 40)
-        }));
-        setAudiences(mappedAudiences);
-      }
+        .select("key, value")
+        .in("key", ["target_audiences", "target_audiences_v2"]);
+      if (!active || !data) return;
+      type SavedAudience = {
+        title?: string;
+        description?: string;
+        icon?: string;
+        backgroundImage?: string;
+        opacity?: number;
+      };
+      const legacyValue = data.find(
+        (item) => item.key === "target_audiences",
+      )?.value;
+      const currentValue = data.find(
+        (item) => item.key === "target_audiences_v2",
+      )?.value;
+      const legacy = Array.isArray(legacyValue)
+        ? (legacyValue as SavedAudience[])
+        : [];
+      const current = Array.isArray(currentValue)
+        ? (currentValue as SavedAudience[])
+        : [];
+      const iconMap: Record<string, typeof Scissors> = {
+        Scissors,
+        Sparkles,
+        HandMetal,
+        Heart,
+      };
+      setAudiences(
+        defaultAudiences.map((fallback, index) => {
+          const saved = current[index];
+          return {
+            ...fallback,
+            title: saved?.title || fallback.title,
+            description: saved?.description || fallback.description,
+            icon: iconMap[saved?.icon] || fallback.icon,
+            backgroundImage:
+              saved?.backgroundImage ||
+              legacy[index]?.backgroundImage ||
+              fallback.backgroundImage,
+            opacity:
+              saved?.opacity ?? legacy[index]?.opacity ?? fallback.opacity,
+          };
+        }),
+      );
     };
-    
     fetchContent();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const containerVariants = {
@@ -106,47 +127,50 @@ const TargetAudienceSection = () => {
       opacity: 1,
       transition: {
         staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 60, rotateX: -15 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       rotateX: 0,
       transition: {
         type: "spring" as const,
         stiffness: 100,
-        damping: 15
-      }
-    }
+        damping: 15,
+      },
+    },
   };
 
   return (
-    <section ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-20 md:py-32 relative overflow-hidden"
+    >
       {/* Parallax background elements */}
-      <motion.div 
+      <motion.div
         style={{ y: useTransform(scrollYProgress, [0, 1], [100, -100]) }}
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" 
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent"
       />
-      <motion.div 
-        style={{ 
+      <motion.div
+        style={{
           y: useTransform(scrollYProgress, [0, 1], [0, -150]),
-          rotate: useTransform(scrollYProgress, [0, 1], [0, 45])
+          rotate: useTransform(scrollYProgress, [0, 1], [0, 45]),
         }}
         className="absolute -top-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
       />
-      <motion.div 
-        style={{ 
+      <motion.div
+        style={{
           y: useTransform(scrollYProgress, [0, 1], [0, 100]),
-          rotate: useTransform(scrollYProgress, [0, 1], [0, -30])
+          rotate: useTransform(scrollYProgress, [0, 1], [0, -30]),
         }}
         className="absolute -bottom-20 -left-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl"
       />
-      
+
       <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -155,13 +179,15 @@ const TargetAudienceSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <motion.span 
+          <motion.span
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="text-sm text-primary font-medium">Feito Para Você</span>
+            <span className="text-sm text-primary font-medium">
+              Feito Para Você
+            </span>
           </motion.span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Para quem é o <span className="gradient-text">AgendaAÍ Pro?</span>
@@ -171,7 +197,7 @@ const TargetAudienceSection = () => {
           </p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           variants={containerVariants}
           initial="hidden"
@@ -182,52 +208,53 @@ const TargetAudienceSection = () => {
             <motion.div
               key={item.title}
               variants={cardVariants}
-              whileHover={{ 
-                y: -12, 
+              whileHover={{
+                y: -12,
                 scale: 1.03,
-                transition: { type: "spring", stiffness: 400, damping: 15 }
+                transition: { type: "spring", stiffness: 400, damping: 15 },
               }}
               className="glass-card p-6 card-hover group relative overflow-hidden rounded-xl"
             >
               {/* Background image with transparency */}
-              <div 
+              <div
                 className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
-                style={{ 
+                style={{
                   backgroundImage: `url(${item.backgroundImage})`,
-                  opacity: (item.opacity || 40) / 100
+                  opacity: (item.opacity || 40) / 100,
                 }}
               />
-              
+
               {/* Overlay gradient for better text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/70 to-background/50" />
-              
+
               {/* Animated gradient background on hover */}
-              <motion.div 
+              <motion.div
                 className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
               />
-              
+
               {/* Shimmer effect on hover */}
-              <motion.div 
+              <motion.div
                 className="absolute inset-0 opacity-0 group-hover:opacity-30"
                 style={{
-                  background: "linear-gradient(90deg, transparent, hsla(180, 85%, 50%, 0.2), transparent)",
+                  background:
+                    "linear-gradient(90deg, transparent, hsla(180, 85%, 50%, 0.2), transparent)",
                 }}
                 animate={{
-                  x: ["-100%", "100%"]
+                  x: ["-100%", "100%"],
                 }}
                 transition={{
                   duration: 1.5,
                   repeat: Infinity,
-                  repeatDelay: 1
+                  repeatDelay: 1,
                 }}
               />
-              
+
               <div className="relative z-10">
-                <motion.div 
+                <motion.div
                   className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors backdrop-blur-sm"
-                  whileHover={{ 
+                  whileHover={{
                     rotate: [0, -10, 10, -5, 5, 0],
-                    transition: { duration: 0.6 }
+                    transition: { duration: 0.6 },
                   }}
                 >
                   <item.icon className="w-7 h-7 text-primary" />
@@ -235,7 +262,9 @@ const TargetAudienceSection = () => {
                 <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-sm">{item.description}</p>
+                <p className="text-muted-foreground text-sm">
+                  {item.description}
+                </p>
               </div>
             </motion.div>
           ))}

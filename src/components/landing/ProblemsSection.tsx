@@ -6,12 +6,30 @@ import bgMassage from "@/assets/bg-professional-massage.png";
 import bgTrainer from "@/assets/bg-professional-trainer.png";
 
 const problems = [
-  { problem: "Conflito de horários", solution: "Agenda inteligente sem sobreposição" },
-  { problem: "Falta de confirmação de clientes", solution: "Confirmação automática" },
-  { problem: "Pagamentos esquecidos", solution: "Cobrança via Pix integrada" },
-  { problem: "Perda de vendas de produtos", solution: "Venda vinculada ao agendamento" },
-  { problem: "Falta de controle financeiro", solution: "Dashboard completo de vendas" },
-  { problem: "Agenda desorganizada", solution: "Visualização clara e profissional" },
+  {
+    problem: "Conflito de horários",
+    solution: "Agenda inteligente sem sobreposição",
+  },
+  {
+    problem: "Informações espalhadas",
+    solution: "Clientes e serviços organizados no painel",
+  },
+  {
+    problem: "Dependência para mudar preços",
+    solution: "Serviços e preços editáveis pelo profissional",
+  },
+  {
+    problem: "Estoque sem acompanhamento",
+    solution: "Estoque de produtos previsto no Gestão e Premium*",
+  },
+  {
+    problem: "Falta de controle financeiro",
+    solution: "Financeiro e relatórios previstos no Gestão e Premium*",
+  },
+  {
+    problem: "Agenda desorganizada",
+    solution: "Visualização clara e profissional",
+  },
 ];
 
 const ProblemsSection = () => {
@@ -19,18 +37,18 @@ const ProblemsSection = () => {
     <section className="py-20 md:py-32 relative overflow-hidden">
       {/* Background professional images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
+        <div
           className="absolute top-0 left-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
           style={{ backgroundImage: `url(${bgMassage})` }}
         />
-        <div 
+        <div
           className="absolute top-0 right-0 w-1/2 h-full bg-cover bg-center opacity-[0.15]"
           style={{ backgroundImage: `url(${bgTrainer})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-background" />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
       </div>
-      
+
       <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,10 +57,13 @@ const ProblemsSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Problemas que o <span className="gradient-text">sistema resolve</span>
+            Problemas que o{" "}
+            <span className="gradient-text">sistema resolve</span>
           </h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Chega de dor de cabeça! O AgendaAÍ Pro resolve tudo isso para você.
+            Escolha os recursos adequados à sua rotina. * Módulos de estoque e
+            financeiro em preparação, com disponibilidade confirmada antes da
+            contratação.
           </p>
         </motion.div>
 
@@ -61,10 +82,14 @@ const ProblemsSection = () => {
                   <X className="w-5 h-5 text-destructive" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-muted-foreground line-through text-sm mb-2">{item.problem}</p>
+                  <p className="text-muted-foreground line-through text-sm mb-2">
+                    {item.problem}
+                  </p>
                   <div className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                    <p className="font-medium text-foreground">{item.solution}</p>
+                    <p className="font-medium text-foreground">
+                      {item.solution}
+                    </p>
                   </div>
                 </div>
               </div>

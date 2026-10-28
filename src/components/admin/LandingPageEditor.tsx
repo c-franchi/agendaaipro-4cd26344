@@ -1,32 +1,40 @@
+import {
+  PLANS,
+  PLAN_KEYS,
+  formatCurrency,
+  PREMIUM_CONTENT_NOTE,
+  DEFAULT_HERO,
+  PlanKey,
+} from "@/lib/constants";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { RefreshCw, Save, Plus, X, Upload, ImageIcon, Trash2, Scissors, Sparkles, Heart } from "lucide-react";
+import {
+  RefreshCw,
+  Save,
+  Plus,
+  X,
+  Upload,
+  ImageIcon,
+  Trash2,
+  Scissors,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
-
-interface PlanData {
-  name: string;
-  price: number;
-  promotional_price: number | null;
-  description: string;
-  features: string[];
-  popular: boolean;
-  bg_image?: string;
-}
-
-interface PricingPlans {
-  essencial: PlanData;
-  pro: PlanData;
-  premium: PlanData;
-}
 
 interface HeroContent {
   title: string;
@@ -61,12 +69,18 @@ export const LandingPageEditor = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
-  const [pricingPlans, setPricingPlans] = useState<PricingPlans | null>(null);
-  const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
+  const [pricingImages, setPricingImages] = useState<Record<string, string>>(
+    {},
+  );
+  const [heroContent, setHeroContent] = useState<HeroContent | null>(
+    DEFAULT_HERO,
+  );
   const [videoContent, setVideoContent] = useState<VideoContent | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
-  const [targetAudiences, setTargetAudiences] = useState<TargetAudienceItem[] | null>(null);
-  
+  const [targetAudiences, setTargetAudiences] = useState<
+    TargetAudienceItem[] | null
+  >(null);
+
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const fetchContent = async () => {
@@ -78,28 +92,80 @@ export const LandingPageEditor = () => {
 
       if (error) throw error;
 
+      const legacyPlans = data?.find((item) => item.key === "pricing_plans")
+        ?.value as Record<string, { bg_image?: string }> | undefined;
+      const savedImages = data?.find((item) => item.key === "pricing_images_v2")
+        ?.value as Record<string, string> | undefined;
+      setPricingImages(
+        Object.fromEntries(
+          PLAN_KEYS.map((key) => [
+            key,
+            savedImages?.[key] ?? legacyPlans?.[key]?.bg_image ?? "",
+          ]),
+        ),
+      );
+      const previousHero = data?.find((item) => item.key === "hero_content")
+        ?.value as unknown as HeroContent | undefined;
+      const currentHero = data?.find((item) => item.key === "hero_content_v2")
+        ?.value as unknown as HeroContent | undefined;
+      setHeroContent({
+        ...DEFAULT_HERO,
+        bg_image: previousHero?.bg_image,
+        mockup_image: previousHero?.mockup_image,
+        ...currentHero,
+      });
       data?.forEach((item) => {
-        if (item.key === "pricing_plans") {
-          setPricingPlans(item.value as unknown as PricingPlans);
-        } else if (item.key === "hero_content") {
-          setHeroContent(item.value as unknown as HeroContent);
-        } else if (item.key === "video_content") {
+        if (item.key === "video_content") {
           setVideoContent(item.value as unknown as VideoContent);
         } else if (item.key === "contact_info") {
           setContactInfo(item.value as unknown as ContactInfo);
-        } else if (item.key === "target_audiences") {
+        } else if (item.key === "target_audiences_v2") {
           setTargetAudiences(item.value as unknown as TargetAudienceItem[]);
         }
       });
-      
+
+      const legacyAudiences = data?.find(
+        (item) => item.key === "target_audiences",
+      )?.value as unknown as TargetAudienceItem[] | undefined;
+      // Preserve existing images while replacing the outdated commercial copy.
       // Set default target audiences if not found
-      if (!data?.find(item => item.key === "target_audiences")) {
-        setTargetAudiences([
-          { icon: "Scissors", title: "Barbeiros e Barbearias", description: "Reduza faltas e aumente seus horários ocupados com confirmação antecipada", opacity: 40 },
-          { icon: "Sparkles", title: "Cabeleireiros e Salões", description: "Organize sua equipe e maximize o faturamento com vendas integradas", opacity: 40 },
-          { icon: "HandMetal", title: "Manicures e Esteticistas", description: "Receba antecipado via Pix e venda produtos junto ao agendamento", opacity: 40 },
-          { icon: "Heart", title: "Profissionais Autônomos", description: "Profissionalize seu atendimento e aumente sua credibilidade no mercado", opacity: 40 }
-        ]);
+      if (!data?.find((item) => item.key === "target_audiences_v2")) {
+        setTargetAudiences(
+          [
+            {
+              icon: "Scissors",
+              title: "Barbeiros e Barbearias",
+              description:
+                "Organize serviços, horários e clientes em um site com a sua marca",
+              opacity: 40,
+            },
+            {
+              icon: "Sparkles",
+              title: "Cabeleireiros e Salões",
+              description:
+                "Apresente seus serviços e escolha as ferramentas para sua operação",
+              opacity: 40,
+            },
+            {
+              icon: "HandMetal",
+              title: "Manicures e Esteticistas",
+              description:
+                "Facilite a escolha de serviços e horários pelos seus clientes",
+              opacity: 40,
+            },
+            {
+              icon: "Heart",
+              title: "Profissionais Autônomos",
+              description:
+                "Profissionalize seu atendimento e aumente sua credibilidade no mercado",
+              opacity: 40,
+            },
+          ].map((item, index) => ({
+            ...item,
+            backgroundImage: legacyAudiences?.[index]?.backgroundImage,
+            opacity: legacyAudiences?.[index]?.opacity ?? item.opacity,
+          })),
+        );
       }
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -113,7 +179,16 @@ export const LandingPageEditor = () => {
     fetchContent();
   }, []);
 
-  const saveContent = async (key: string, value: PricingPlans | HeroContent | VideoContent | ContactInfo | TargetAudienceItem[] | null) => {
+  const saveContent = async (
+    key: string,
+    value:
+      | HeroContent
+      | VideoContent
+      | ContactInfo
+      | TargetAudienceItem[]
+      | Record<string, string>
+      | null,
+  ) => {
     if (!value) return;
     setSaving(true);
     try {
@@ -123,30 +198,28 @@ export const LandingPageEditor = () => {
         .select("id")
         .eq("key", key)
         .maybeSingle();
-      
+
       if (existingData) {
         const { error } = await supabase
           .from("landing_content")
-          .update({ 
-            value: JSON.parse(JSON.stringify(value)) as Json, 
-            updated_at: new Date().toISOString() 
+          .update({
+            value: JSON.parse(JSON.stringify(value)) as Json,
+            updated_at: new Date().toISOString(),
           })
           .eq("key", key);
 
         if (error) throw error;
       } else {
         // Insert if not exists
-        const { error } = await supabase
-          .from("landing_content")
-          .insert({ 
-            key,
-            value: JSON.parse(JSON.stringify(value)) as Json, 
-            updated_at: new Date().toISOString() 
-          });
+        const { error } = await supabase.from("landing_content").insert({
+          key,
+          value: JSON.parse(JSON.stringify(value)) as Json,
+          updated_at: new Date().toISOString(),
+        });
 
         if (error) throw error;
       }
-      
+
       toast.success("Conteúdo salvo com sucesso!");
     } catch (error) {
       console.error("Error saving content:", error);
@@ -155,8 +228,12 @@ export const LandingPageEditor = () => {
       setSaving(false);
     }
   };
-  
-  const updateTargetAudience = (index: number, field: keyof TargetAudienceItem, value: string | number) => {
+
+  const updateTargetAudience = (
+    index: number,
+    field: keyof TargetAudienceItem,
+    value: string | number,
+  ) => {
     if (!targetAudiences) return;
     const updated = [...targetAudiences];
     updated[index] = { ...updated[index], [field]: value };
@@ -165,10 +242,10 @@ export const LandingPageEditor = () => {
 
   const handleAudienceImageUpload = async (index: number, file: File) => {
     if (!file || !targetAudiences) return;
-    
+
     setUploading(`audience_${index}`);
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `audience-${index}-${Date.now()}.${fileExt}`;
       const filePath = `audience/${fileName}`;
 
@@ -197,46 +274,37 @@ export const LandingPageEditor = () => {
     toast.success("Imagem removida");
   };
 
-  const handleImageUpload = async (planKey: keyof PricingPlans, file: File) => {
-    if (!file) return;
-    
-    setUploading(planKey);
+  const handlePlanImageUpload = async (key: PlanKey, file: File) => {
+    setUploading(key);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `plan-${planKey}-${Date.now()}.${fileExt}`;
-      const filePath = `plans/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
+      const path = `plans/${key}-${Date.now()}.${file.name.split(".").pop()}`;
+      const { error } = await supabase.storage
         .from("landing-images")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrl } = supabase.storage
+        .upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage
         .from("landing-images")
-        .getPublicUrl(filePath);
-
-      updatePlan(planKey, "bg_image", publicUrl.publicUrl);
-      toast.success("Imagem enviada com sucesso!");
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Erro ao enviar imagem");
+        .getPublicUrl(path);
+      setPricingImages((previous) => ({ ...previous, [key]: data.publicUrl }));
+      toast.success(
+        "Imagem enviada. Salve as imagens dos planos para aplicar.",
+      );
+    } catch {
+      toast.error("Não foi possível enviar a imagem.");
     } finally {
       setUploading(null);
     }
   };
 
-  const removeImage = (planKey: keyof PricingPlans) => {
-    updatePlan(planKey, "bg_image", "");
-    toast.success("Imagem removida");
-  };
-
-  const handleHeroImageUpload = async (imageType: "bg_image" | "mockup_image", file: File) => {
+  const handleHeroImageUpload = async (
+    imageType: "bg_image" | "mockup_image",
+    file: File,
+  ) => {
     if (!file || !heroContent) return;
-    
+
     setUploading(`hero_${imageType}`);
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `hero-${imageType}-${Date.now()}.${fileExt}`;
       const filePath = `hero/${fileName}`;
 
@@ -266,36 +334,6 @@ export const LandingPageEditor = () => {
     toast.success("Imagem removida");
   };
 
-  const updatePlan = (planKey: keyof PricingPlans, field: keyof PlanData, value: unknown) => {
-    if (!pricingPlans) return;
-    setPricingPlans({
-      ...pricingPlans,
-      [planKey]: {
-        ...pricingPlans[planKey],
-        [field]: value,
-      },
-    });
-  };
-
-  const addFeature = (planKey: keyof PricingPlans) => {
-    if (!pricingPlans) return;
-    const newFeatures = [...pricingPlans[planKey].features, "Nova funcionalidade"];
-    updatePlan(planKey, "features", newFeatures);
-  };
-
-  const removeFeature = (planKey: keyof PricingPlans, index: number) => {
-    if (!pricingPlans) return;
-    const newFeatures = pricingPlans[planKey].features.filter((_, i) => i !== index);
-    updatePlan(planKey, "features", newFeatures);
-  };
-
-  const updateFeature = (planKey: keyof PricingPlans, index: number, value: string) => {
-    if (!pricingPlans) return;
-    const newFeatures = [...pricingPlans[planKey].features];
-    newFeatures[index] = value;
-    updatePlan(planKey, "features", newFeatures);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -315,173 +353,82 @@ export const LandingPageEditor = () => {
       </TabsList>
 
       <TabsContent value="pricing" className="space-y-6">
-        {pricingPlans && Object.entries(pricingPlans).map(([planKey, plan]) => (
-          <Card key={planKey}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Plano {plan.name}
-                {plan.popular && (
-                  <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                    Mais Popular
-                  </span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Oferta comercial vigente</CardTitle>
+            <CardDescription>
+              Valores e escopo da nova oferta são centralizados no catálogo do
+              código. Os preços e promoções antigos do banco não são usados na
+              nova contratação. Assinaturas existentes mantêm suas condições.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {PLAN_KEYS.map((key) => (
+              <div key={key} className="rounded-lg border p-4">
+                <h3 className="font-semibold">{PLANS[key].name}</h3>
+                <p>
+                  {formatCurrency(PLANS[key].price)}/mês +{" "}
+                  {formatCurrency(PLANS[key].setupPrice)} de implementação única
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {PLANS[key].description}
+                </p>
+                <Label className="mt-4 block" htmlFor={`plan-image-${key}`}>
+                  Imagem de fundo do plano
+                </Label>
+                {pricingImages[key] && (
+                  <img
+                    src={pricingImages[key]}
+                    alt={`Fundo do plano ${PLANS[key].name}`}
+                    className="h-24 rounded-lg my-2"
+                  />
                 )}
-              </CardTitle>
-              <CardDescription>{plan.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label>Nome do Plano</Label>
-                  <Input
-                    value={plan.name}
-                    onChange={(e) => updatePlan(planKey as keyof PricingPlans, "name", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Preço Original (R$)</Label>
-                  <Input
-                    type="number"
-                    value={plan.price}
-                    onChange={(e) => updatePlan(planKey as keyof PricingPlans, "price", Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <Label>Preço Promocional (R$)</Label>
-                  <Input
-                    type="number"
-                    value={plan.promotional_price || ""}
-                    placeholder="Deixe vazio se não houver promoção"
-                    onChange={(e) => updatePlan(
-                      planKey as keyof PricingPlans, 
-                      "promotional_price", 
-                      e.target.value ? Number(e.target.value) : null
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Descrição</Label>
-                <Textarea
-                  value={plan.description}
-                  onChange={(e) => updatePlan(planKey as keyof PricingPlans, "description", e.target.value)}
+                <Input
+                  id={`plan-image-${key}`}
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading !== null}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) handlePlanImageUpload(key, file);
+                  }}
                 />
+                <Button
+                  className="mt-2"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setPricingImages((previous) => ({ ...previous, [key]: "" }))
+                  }
+                >
+                  Usar imagem padrão
+                </Button>
               </div>
-
-              {/* Image Upload Section with Preview */}
-              <div>
-                <Label className="mb-2 block">Imagem de Fundo</Label>
-                <div className="flex items-start gap-4">
-                  {plan.bg_image ? (
-                    <div className="relative group">
-                      <img 
-                        src={plan.bg_image} 
-                        alt={`Background ${plan.name}`}
-                        className="w-40 h-32 object-cover rounded-lg border border-border shadow-lg"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeImage(planKey as keyof PricingPlans)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 rounded-b-lg text-center">
-                        Preview
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-40 h-32 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      ref={(el) => { fileInputRefs.current[planKey] = el; }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(planKey as keyof PricingPlans, file);
-                      }}
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRefs.current[planKey]?.click()}
-                      disabled={uploading === planKey}
-                    >
-                      {uploading === planKey ? (
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Upload className="w-4 h-4 mr-2" />
-                      )}
-                      {plan.bg_image ? "Trocar imagem" : "Enviar imagem"}
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Recomendado: 800x600px, JPG ou PNG
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={plan.popular}
-                  onCheckedChange={(checked) => updatePlan(planKey as keyof PricingPlans, "popular", checked)}
-                />
-                <Label>Marcar como mais popular</Label>
-              </div>
-
-              <div>
-                <Label className="mb-2 block">Funcionalidades</Label>
-                <div className="space-y-2">
-                  {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        value={feature}
-                        onChange={(e) => updateFeature(planKey as keyof PricingPlans, index, e.target.value)}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeFeature(planKey as keyof PricingPlans, index)}
-                        className="text-destructive"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addFeature(planKey as keyof PricingPlans)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adicionar funcionalidade
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        <Button 
-          onClick={() => saveContent("pricing_plans", pricingPlans)} 
-          disabled={saving}
-          className="w-full md:w-auto"
-        >
-          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-          Salvar Planos
-        </Button>
+            ))}
+            <Button
+              onClick={() => saveContent("pricing_images_v2", pricingImages)}
+              disabled={saving || uploading !== null}
+            >
+              Salvar imagens dos planos
+            </Button>
+            <p className="text-sm">{PREMIUM_CONTENT_NOTE}</p>
+            <p className="text-sm text-muted-foreground">
+              Contratação assistida, sem cobrança automática. Estoque e gestão
+              ampliada aguardam implementação e validação no sistema entregue. A
+              edição de preços neste painel será reativada junto da nova
+              cobrança, para manter oferta e pagamento sincronizados.
+            </p>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="hero" className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Seção Hero</CardTitle>
-            <CardDescription>Edite o conteúdo principal da página inicial</CardDescription>
+            <CardDescription>
+              Edite o conteúdo principal da página inicial
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {heroContent && (
@@ -490,14 +437,21 @@ export const LandingPageEditor = () => {
                   <Label>Título Principal</Label>
                   <Input
                     value={heroContent.title}
-                    onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
+                    onChange={(e) =>
+                      setHeroContent({ ...heroContent, title: e.target.value })
+                    }
                   />
                 </div>
                 <div>
                   <Label>Subtítulo</Label>
                   <Textarea
                     value={heroContent.subtitle}
-                    onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
+                    onChange={(e) =>
+                      setHeroContent({
+                        ...heroContent,
+                        subtitle: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -505,14 +459,24 @@ export const LandingPageEditor = () => {
                     <Label>Botão Principal (CTA)</Label>
                     <Input
                       value={heroContent.cta_primary}
-                      onChange={(e) => setHeroContent({ ...heroContent, cta_primary: e.target.value })}
+                      onChange={(e) =>
+                        setHeroContent({
+                          ...heroContent,
+                          cta_primary: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
                     <Label>Botão Secundário</Label>
                     <Input
                       value={heroContent.cta_secondary}
-                      onChange={(e) => setHeroContent({ ...heroContent, cta_secondary: e.target.value })}
+                      onChange={(e) =>
+                        setHeroContent({
+                          ...heroContent,
+                          cta_secondary: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -521,12 +485,14 @@ export const LandingPageEditor = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                   {/* Background Image */}
                   <div>
-                    <Label className="mb-2 block">Imagem de Fundo (opcional)</Label>
+                    <Label className="mb-2 block">
+                      Imagem de Fundo (opcional)
+                    </Label>
                     <div className="flex items-start gap-4">
                       {heroContent.bg_image ? (
                         <div className="relative group">
-                          <img 
-                            src={heroContent.bg_image} 
+                          <img
+                            src={heroContent.bg_image}
                             alt="Hero Background"
                             className="w-40 h-32 object-cover rounded-lg border border-border shadow-lg"
                           />
@@ -552,7 +518,9 @@ export const LandingPageEditor = () => {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          ref={(el) => { fileInputRefs.current["hero_bg"] = el; }}
+                          ref={(el) => {
+                            fileInputRefs.current["hero_bg"] = el;
+                          }}
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) handleHeroImageUpload("bg_image", file);
@@ -560,7 +528,9 @@ export const LandingPageEditor = () => {
                         />
                         <Button
                           variant="outline"
-                          onClick={() => fileInputRefs.current["hero_bg"]?.click()}
+                          onClick={() =>
+                            fileInputRefs.current["hero_bg"]?.click()
+                          }
                           disabled={uploading === "hero_bg_image"}
                         >
                           {uploading === "hero_bg_image" ? (
@@ -580,8 +550,8 @@ export const LandingPageEditor = () => {
                     <div className="flex items-start gap-4">
                       {heroContent.mockup_image ? (
                         <div className="relative group">
-                          <img 
-                            src={heroContent.mockup_image} 
+                          <img
+                            src={heroContent.mockup_image}
                             alt="Hero Mockup"
                             className="w-40 h-32 object-contain rounded-lg border border-border shadow-lg bg-card"
                           />
@@ -607,15 +577,20 @@ export const LandingPageEditor = () => {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          ref={(el) => { fileInputRefs.current["hero_mockup"] = el; }}
+                          ref={(el) => {
+                            fileInputRefs.current["hero_mockup"] = el;
+                          }}
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) handleHeroImageUpload("mockup_image", file);
+                            if (file)
+                              handleHeroImageUpload("mockup_image", file);
                           }}
                         />
                         <Button
                           variant="outline"
-                          onClick={() => fileInputRefs.current["hero_mockup"]?.click()}
+                          onClick={() =>
+                            fileInputRefs.current["hero_mockup"]?.click()
+                          }
                           disabled={uploading === "hero_mockup_image"}
                         >
                           {uploading === "hero_mockup_image" ? (
@@ -634,12 +609,16 @@ export const LandingPageEditor = () => {
           </CardContent>
         </Card>
 
-        <Button 
-          onClick={() => saveContent("hero_content", heroContent)} 
+        <Button
+          onClick={() => saveContent("hero_content_v2", heroContent)}
           disabled={saving}
           className="w-full md:w-auto"
         >
-          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          {saving ? (
+            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
           Salvar Hero
         </Button>
       </TabsContent>
@@ -648,130 +627,165 @@ export const LandingPageEditor = () => {
         <Card>
           <CardHeader>
             <CardTitle>Público-Alvo</CardTitle>
-            <CardDescription>Edite os cards de público-alvo da seção "Para quem é o AgendaAÍ Pro"</CardDescription>
+            <CardDescription>
+              Edite os cards de público-alvo da seção "Para quem é o AgendaAÍ
+              Pro"
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {targetAudiences && targetAudiences.map((audience, index) => (
-              <div key={index} className="p-4 border border-border rounded-lg space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium text-muted-foreground">Card {index + 1}</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Ícone</Label>
-                    <select
-                      className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={audience.icon}
-                      onChange={(e) => updateTargetAudience(index, "icon", e.target.value)}
-                    >
-                      <option value="Scissors">Tesoura (Barbeiros)</option>
-                      <option value="Sparkles">Brilhos (Cabeleireiros)</option>
-                      <option value="HandMetal">Mão (Manicures)</option>
-                      <option value="Heart">Coração (Autônomos)</option>
-                    </select>
+            {targetAudiences &&
+              targetAudiences.map((audience, index) => (
+                <div
+                  key={index}
+                  className="p-4 border border-border rounded-lg space-y-4"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Card {index + 1}
+                    </span>
                   </div>
-                  <div>
-                    <Label>Título</Label>
-                    <Input
-                      value={audience.title}
-                      onChange={(e) => updateTargetAudience(index, "title", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label>Descrição</Label>
-                  <Textarea
-                    value={audience.description}
-                    onChange={(e) => updateTargetAudience(index, "description", e.target.value)}
-                  />
-                </div>
-                
-                {/* Image Upload Section */}
-                <div>
-                  <Label className="mb-2 block">Imagem de Fundo</Label>
-                  <div className="flex items-start gap-4">
-                    {audience.backgroundImage ? (
-                      <div className="relative group">
-                        <img 
-                          src={audience.backgroundImage} 
-                          alt={`Background ${audience.title}`}
-                          className="w-32 h-24 object-cover rounded-lg border border-border shadow-lg"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeAudienceImage(index)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
-                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        ref={(el) => { fileInputRefs.current[`audience_${index}`] = el; }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleAudienceImageUpload(index, file);
-                        }}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRefs.current[`audience_${index}`]?.click()}
-                        disabled={uploading === `audience_${index}`}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Ícone</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={audience.icon}
+                        onChange={(e) =>
+                          updateTargetAudience(index, "icon", e.target.value)
+                        }
                       >
-                        {uploading === `audience_${index}` ? (
-                          <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <Upload className="w-4 h-4 mr-2" />
-                        )}
-                        {audience.backgroundImage ? "Trocar" : "Enviar"}
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Recomendado: 400x300px
-                      </p>
+                        <option value="Scissors">Tesoura (Barbeiros)</option>
+                        <option value="Sparkles">
+                          Brilhos (Cabeleireiros)
+                        </option>
+                        <option value="HandMetal">Mão (Manicures)</option>
+                        <option value="Heart">Coração (Autônomos)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label>Título</Label>
+                      <Input
+                        value={audience.title}
+                        onChange={(e) =>
+                          updateTargetAudience(index, "title", e.target.value)
+                        }
+                      />
                     </div>
                   </div>
-                </div>
-
-                {/* Opacity Control */}
-                <div>
-                  <Label className="mb-2 block">Transparência da Imagem: {audience.opacity || 40}%</Label>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs text-muted-foreground">0%</span>
-                    <Slider
-                      value={[audience.opacity || 40]}
-                      onValueChange={(value) => updateTargetAudience(index, "opacity", value[0])}
-                      min={0}
-                      max={100}
-                      step={5}
-                      className="flex-1"
+                  <div>
+                    <Label>Descrição</Label>
+                    <Textarea
+                      value={audience.description}
+                      onChange={(e) =>
+                        updateTargetAudience(
+                          index,
+                          "description",
+                          e.target.value,
+                        )
+                      }
                     />
-                    <span className="text-xs text-muted-foreground">100%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Quanto maior o valor, mais visível a imagem ficará
-                  </p>
+
+                  {/* Image Upload Section */}
+                  <div>
+                    <Label className="mb-2 block">Imagem de Fundo</Label>
+                    <div className="flex items-start gap-4">
+                      {audience.backgroundImage ? (
+                        <div className="relative group">
+                          <img
+                            src={audience.backgroundImage}
+                            alt={`Background ${audience.title}`}
+                            className="w-32 h-24 object-cover rounded-lg border border-border shadow-lg"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeAudienceImage(index)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="w-32 h-24 bg-secondary rounded-lg border border-dashed border-border flex items-center justify-center">
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={(el) => {
+                            fileInputRefs.current[`audience_${index}`] = el;
+                          }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleAudienceImageUpload(index, file);
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            fileInputRefs.current[`audience_${index}`]?.click()
+                          }
+                          disabled={uploading === `audience_${index}`}
+                        >
+                          {uploading === `audience_${index}` ? (
+                            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <Upload className="w-4 h-4 mr-2" />
+                          )}
+                          {audience.backgroundImage ? "Trocar" : "Enviar"}
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Recomendado: 400x300px
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Opacity Control */}
+                  <div>
+                    <Label className="mb-2 block">
+                      Transparência da Imagem: {audience.opacity || 40}%
+                    </Label>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-muted-foreground">0%</span>
+                      <Slider
+                        value={[audience.opacity || 40]}
+                        onValueChange={(value) =>
+                          updateTargetAudience(index, "opacity", value[0])
+                        }
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        100%
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Quanto maior o valor, mais visível a imagem ficará
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </CardContent>
         </Card>
 
-        <Button 
-          onClick={() => saveContent("target_audiences", targetAudiences)} 
+        <Button
+          onClick={() => saveContent("target_audiences_v2", targetAudiences)}
           disabled={saving}
           className="w-full md:w-auto"
         >
-          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          {saving ? (
+            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
           Salvar Público-Alvo
         </Button>
       </TabsContent>
@@ -790,32 +804,56 @@ export const LandingPageEditor = () => {
                   <Input
                     value={videoContent.video_url}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    onChange={(e) => setVideoContent({ ...videoContent, video_url: e.target.value })}
+                    onChange={(e) =>
+                      setVideoContent({
+                        ...videoContent,
+                        video_url: e.target.value,
+                      })
+                    }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Formatos aceitos: YouTube (youtube.com/watch?v=...) ou Vimeo (vimeo.com/...)
+                    Formatos aceitos: YouTube (youtube.com/watch?v=...) ou Vimeo
+                    (vimeo.com/...)
                   </p>
                 </div>
                 <div>
                   <Label>Título da Seção</Label>
                   <Input
                     value={videoContent.title}
-                    onChange={(e) => setVideoContent({ ...videoContent, title: e.target.value })}
+                    onChange={(e) =>
+                      setVideoContent({
+                        ...videoContent,
+                        title: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
                   <Label>Subtítulo da Seção</Label>
                   <Textarea
                     value={videoContent.subtitle}
-                    onChange={(e) => setVideoContent({ ...videoContent, subtitle: e.target.value })}
+                    onChange={(e) =>
+                      setVideoContent({
+                        ...videoContent,
+                        subtitle: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">Configuração de vídeo não encontrada</p>
-                <Button 
-                  onClick={() => setVideoContent({ video_url: "", title: "Veja o AgendaAÍ Pro em ação", subtitle: "Assista uma demonstração rápida" })}
+                <p className="text-muted-foreground mb-4">
+                  Configuração de vídeo não encontrada
+                </p>
+                <Button
+                  onClick={() =>
+                    setVideoContent({
+                      video_url: "",
+                      title: "Veja o AgendaAÍ Pro em ação",
+                      subtitle: "Assista uma demonstração rápida",
+                    })
+                  }
                   variant="outline"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -826,12 +864,16 @@ export const LandingPageEditor = () => {
           </CardContent>
         </Card>
 
-        <Button 
-          onClick={() => saveContent("video_content", videoContent)} 
+        <Button
+          onClick={() => saveContent("video_content", videoContent)}
           disabled={saving || !videoContent}
           className="w-full md:w-auto"
         >
-          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          {saving ? (
+            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
           Salvar Vídeo
         </Button>
       </TabsContent>
@@ -840,7 +882,9 @@ export const LandingPageEditor = () => {
         <Card>
           <CardHeader>
             <CardTitle>Informações de Contato</CardTitle>
-            <CardDescription>Atualize os dados de contato exibidos no site</CardDescription>
+            <CardDescription>
+              Atualize os dados de contato exibidos no site
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {contactInfo && (
@@ -850,7 +894,12 @@ export const LandingPageEditor = () => {
                   <Input
                     value={contactInfo.whatsapp}
                     placeholder="5511999999999"
-                    onChange={(e) => setContactInfo({ ...contactInfo, whatsapp: e.target.value })}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        whatsapp: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -858,7 +907,9 @@ export const LandingPageEditor = () => {
                   <Input
                     type="email"
                     value={contactInfo.email}
-                    onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -866,7 +917,12 @@ export const LandingPageEditor = () => {
                   <Input
                     value={contactInfo.instagram}
                     placeholder="@agendaaipro"
-                    onChange={(e) => setContactInfo({ ...contactInfo, instagram: e.target.value })}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        instagram: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </>
@@ -874,12 +930,16 @@ export const LandingPageEditor = () => {
           </CardContent>
         </Card>
 
-        <Button 
-          onClick={() => saveContent("contact_info", contactInfo)} 
+        <Button
+          onClick={() => saveContent("contact_info", contactInfo)}
           disabled={saving}
           className="w-full md:w-auto"
         >
-          {saving ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          {saving ? (
+            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
           Salvar Contato
         </Button>
       </TabsContent>
