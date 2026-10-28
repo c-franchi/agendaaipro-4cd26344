@@ -1,3 +1,4 @@
+import {commerce,type BusinessOrder} from "@/lib/commerce-api";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -45,6 +46,7 @@ const MyProfile = () => {
   const [loading, setLoading] = useState(true);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [hasOrders,setHasOrders]=useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
@@ -76,15 +78,16 @@ const MyProfile = () => {
   const checkSubscription = async (email: string) => {
     setSubscriptionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("check-subscription", {
-        body: { email: email.toLowerCase().trim() },
-      });
-
-      if (error) throw error;
-
-      if (data.subscribed) {
-        setSubscription(data.subscription);
-      }
+      const [legacy,newOrders]=await Promise.all([
+        supabase.functions.invoke("check-subscription",{body:{email:email.toLowerCase().trim()}}),
+        commerce<{orders:BusinessOrder[]}>("commerce-orders",{action:"list"}).catch(()=>({orders:[]})),
+      ]);
+      setHasOrders(newOrders.orders.length>0);
+      if(legacy.error)throw legacy.error;
+      const data=legacy.data;
+      const managed=newOrders.orders.some(order=>order.stripe_subscription_id&&order.stripe_subscription_id===data.subscription?.id)||(newOrders.orders.length>0&&data.subscription?.planName==='Desconhecido');
+      if(data.subscribed&&!managed)setSubscription(data.subscription);
+      else setSubscription(null);
     } catch (error: any) {
       // Silent fail - just don't show subscription
     } finally {
@@ -331,6 +334,8 @@ const MyProfile = () => {
                       )}
                     </Button>
                   </div>
+                ) : hasOrders ? (
+                  <div className="space-y-4"><p>Seu plano, pagamento e endereço personalizado estão em Meus pedidos e plataformas.</p><Button asChild className="w-full"><Link to="/meus-pedidos">Acompanhar minha plataforma</Link></Button></div>
                 ) : (
                   <div className="text-center py-4 space-y-4">
                     <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto">
