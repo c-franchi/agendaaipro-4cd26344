@@ -10,10 +10,173 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
+      business_order_audit: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          details: Json
+          event: string
+          id: string
+          order_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event: string
+          id?: string
+          order_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event?: string
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_order_audit_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_order_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          kind: string
+          order_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          kind: string
+          order_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          kind?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_orders: {
+        Row: {
+          approved_scope: string | null
+          billing_event_created: number
+          created_at: string
+          currency: string
+          email: string
+          id: string
+          installation_id: string | null
+          livemode: boolean | null
+          module_plan: string
+          monthly_cents: number
+          name: string
+          paid_at: string | null
+          payment_status: string
+          plan_type: string
+          ready_at: string | null
+          request_key: string
+          scope_note: string | null
+          setup_cents: number
+          setup_session_id: string | null
+          stage: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
+          subscription_session_id: string | null
+          subscription_status: string
+          terms_accepted_at: string
+          terms_version: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          approved_scope?: string | null
+          billing_event_created?: number
+          created_at?: string
+          currency?: string
+          email: string
+          id?: string
+          installation_id?: string | null
+          livemode?: boolean | null
+          module_plan: string
+          monthly_cents: number
+          name: string
+          paid_at?: string | null
+          payment_status?: string
+          plan_type: string
+          ready_at?: string | null
+          request_key: string
+          scope_note?: string | null
+          setup_cents: number
+          setup_session_id?: string | null
+          stage?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_session_id?: string | null
+          subscription_status?: string
+          terms_accepted_at?: string
+          terms_version?: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          approved_scope?: string | null
+          billing_event_created?: number
+          created_at?: string
+          currency?: string
+          email?: string
+          id?: string
+          installation_id?: string | null
+          livemode?: boolean | null
+          module_plan?: string
+          monthly_cents?: number
+          name?: string
+          paid_at?: string | null
+          payment_status?: string
+          plan_type?: string
+          ready_at?: string | null
+          request_key?: string
+          scope_note?: string | null
+          setup_cents?: number
+          setup_session_id?: string | null
+          stage?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_session_id?: string | null
+          subscription_status?: string
+          terms_accepted_at?: string
+          terms_version?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       landing_content: {
         Row: {
           id: string
@@ -234,6 +397,41 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      commerce_record_payment: {
+        Args: {
+          p_amount: number
+          p_currency: string
+          p_customer: string
+          p_event: string
+          p_intent: string
+          p_kind: string
+          p_live: boolean
+          p_order: string
+          p_session: string
+          p_subscription: string
+        }
+        Returns: boolean
+      }
+      commerce_refund: {
+        Args: {
+          p_event: string
+          p_full: boolean
+          p_intent: string
+          p_order?: string
+        }
+        Returns: undefined
+      }
+      commerce_transition: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_installation?: string
+          p_note: string
+          p_order: string
+          p_url?: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
