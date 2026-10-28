@@ -29,3 +29,8 @@ verify_jwt = false
 
 [functions.toggle-user-access]
 verify_jwt = false
+[functions.commerce-orders]
+verify_jwt = false
+
+[functions.stripe-commerce-webhook]
+verify_jwt = false
