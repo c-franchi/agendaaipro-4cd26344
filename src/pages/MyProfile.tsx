@@ -186,6 +186,7 @@ const MyProfile = () => {
             </p>
           </div>
 
+          <Button asChild className="w-full"><Link to="/meus-pedidos">Meus pedidos e plataformas</Link></Button>
           {/* Expiration Warning */}
           {subscription && (
             <SubscriptionExpirationWarning
