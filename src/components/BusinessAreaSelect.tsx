@@ -1,0 +1,7 @@
+import {useId,useState} from 'react';
+import {Input} from '@/components/ui/input';
+export const businessAreas=['Salão de cabeleireiro','Barbearia','Depilação','Manicure e pedicure','Design de unhas / nail designer','Design de sobrancelhas','Extensão de cílios / lash designer','Maquiagem','Estética facial e corporal','Micropigmentação','Massoterapia','Spa e bem-estar','Trancista','Estúdio de tatuagem e piercing','Personal trainer','Pilates','Pet shop e banho e tosa','Fotografia','Consultoria e atendimento profissional'];
+export default function BusinessAreaSelect({value,onChange,required=false}:{value:string;onChange:(v:string)=>void;required?:boolean}){
+ const id=useId(),[other,setOther]=useState(false);const custom=other||Boolean(value&&!businessAreas.includes(value));
+ return <div className="space-y-2"><label htmlFor={id} className="text-sm">Área de atuação{required?' *':''}</label><select id={id} required={required} value={custom?'other':value} onChange={e=>{setOther(e.target.value==='other');onChange(e.target.value==='other'?'':e.target.value)}} className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="" disabled>Selecione sua área</option>{businessAreas.map(area=><option key={area} value={area}>{area}</option>)}<option value="other">Outro — escrever minha área</option></select>{custom&&<Input aria-label="Outra área de atuação" required={required} maxLength={100} placeholder="Escreva sua área de atuação" value={value} onChange={e=>onChange(e.target.value)}/>}</div>
+}
