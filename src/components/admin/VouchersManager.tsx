@@ -28,6 +28,8 @@ interface Voucher {
   max_uses_per_user: number | null;
   current_uses: number;
   status: string;
+  commerce_enabled: boolean;
+  discount_months: number;
   created_at: string;
 }
 
@@ -52,6 +54,8 @@ export const VouchersManager = () => {
 
   // Form state
   const [formData, setFormData] = useState({
+    commerce_enabled: false,
+    discount_months: 1,
     code: "",
     discount_type: "percentage" as "percentage" | "fixed",
     discount_value: 0,
@@ -144,7 +148,9 @@ export const VouchersManager = () => {
       }
 
       const voucherData = {
-        code: formData.code.toUpperCase(),
+        commerce_enabled: formData.commerce_enabled,
+        discount_months: formData.discount_months,
+        code: formData.code.trim().toUpperCase(),
         discount_type: formData.discount_type,
         discount_value: Number(formData.discount_value),
         applies_to: formData.applies_to,
@@ -181,7 +187,9 @@ export const VouchersManager = () => {
 
   const resetForm = () => {
     setFormData({
-      code: "",
+      commerce_enabled: false,
+    discount_months: 1,
+    code: "",
       discount_type: "percentage",
       discount_value: 0,
       applies_to: "first_payment",
@@ -197,6 +205,8 @@ export const VouchersManager = () => {
   const handleEdit = (voucher: Voucher) => {
     setEditingVoucher(voucher);
     setFormData({
+      commerce_enabled: voucher.commerce_enabled ?? false,
+      discount_months: voucher.discount_months ?? 1,
       code: voucher.code,
       discount_type: voucher.discount_type,
       discount_value: voucher.discount_value,
@@ -382,6 +392,9 @@ export const VouchersManager = () => {
                       </div>
 
                       <div className="space-y-2">
+                        <label className="flex gap-2 text-sm"><Switch checked={formData.commerce_enabled} onCheckedChange={v=>setFormData({...formData,commerce_enabled:v})}/>Revisei as regras e autorizo o uso no novo checkout</label>
+                        <p className="text-xs text-muted-foreground">Implementação e mensalidade contam como resgates separados nos limites de uso. Não altera assinaturas existentes.</p>
+                        <Label>Meses com desconto na mensalidade (opção Mensalidade)</Label><Input type="number" min={1} max={12} value={formData.discount_months} onChange={e=>setFormData({...formData,discount_months:Number(e.target.value)})}/>
                         <Label>Aplica-se a</Label>
                         <Select
                           value={formData.applies_to}
@@ -391,16 +404,16 @@ export const VouchersManager = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="first_payment">Primeiro Pagamento</SelectItem>
-                            <SelectItem value="monthly">Mensalidade</SelectItem>
-                            <SelectItem value="setup">Setup</SelectItem>
-                            <SelectItem value="setup_and_first">Setup + 1ª Mensalidade</SelectItem>
+                            <SelectItem value="first_payment">Primeira mensalidade (1 mês)</SelectItem>
+                            <SelectItem value="monthly">Mensalidade (duração acima)</SelectItem>
+                            <SelectItem value="setup">Implementação única</SelectItem>
+                            <SelectItem value="setup_and_first">Setup + 1ª Mensalidade (duração acima)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Período de Validade</Label>
+                        <Label>Prazo para resgatar o código</Label>
                         <Select
                           value={formData.validity_period}
                           onValueChange={handleValidityPeriodChange}
