@@ -155,7 +155,7 @@ const HeroSection = () => {
             >
               <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-primary animate-pulse" />
               <span className="text-xs md:text-sm text-primary font-medium">
-                Sistema Profissional de Agenda Digital
+                Seu site + seu domínio + seu painel
               </span>
             </motion.div>
 
@@ -167,14 +167,7 @@ const HeroSection = () => {
               className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-4 md:mb-6"
             >
               {heroContent.title}{" "}
-              <motion.span
-                className="gradient-text inline-block"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                em um só sistema.
-              </motion.span>
+
             </motion.h1>
 
             {/* Subtitle */}
@@ -187,6 +180,8 @@ const HeroSection = () => {
               {heroContent.subtitle}
             </motion.p>
 
+            <p className="text-sm text-muted-foreground mb-4">Seu cliente agenda sem instalar nada. Você também pode instalar como aplicativo em dispositivos compatíveis.</p>
+            <a href="#exemplo" className="inline-block text-primary underline underline-offset-4 mb-4">Ver um exemplo funcionando</a>
             {/* CTAs */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}

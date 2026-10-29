@@ -68,14 +68,17 @@ export const PREMIUM_CONTENT_NOTE =
 export const DELIVERY_NOTE =
   "Prazo estimado de 15 a 20 dias úteis após a confirmação da contratação, pagamento da implementação e recebimento de todos os materiais. Recursos em preparação terão disponibilidade e prazo confirmados antes de qualquer cobrança.";
 export const DEFAULT_HERO = {
-  title: "Sua agenda, seus clientes e a gestão do seu negócio",
+  title: "Seu negócio com site próprio, domínio e agendamento online",
   subtitle:
-    "Todos os planos incluem um site com a sua marca e configuração inicial. Edite serviços, preços, horários e informações pelo próprio painel. Escolha as ferramentas que sua rotina precisa.",
+    "Receba um site com sua logo, cores e serviços, conectado ao painel de agendamento. Seus clientes agendam pelo endereço do seu negócio, e você organiza os atendimentos no celular ou no computador.",
   cta_primary: "Conhecer os planos",
   cta_secondary: "Falar sobre meu negócio",
 };
 
 export const OFFER_FAQS = [
+  {question:"Preciso baixar um aplicativo para usar?",answer:"Você e seus clientes podem acessar pelo navegador. O sistema é um site com recursos de aplicativo (PWA), que pode ser instalado em dispositivos e navegadores compatíveis, sem depender de uma loja de aplicativos. A instalação é opcional e não significa funcionamento completo sem internet."},
+  {question:"O que diferencia esta oferta de um aplicativo de agenda?",answer:"A oferta combina um site com a identidade e o domínio do seu negócio, agendamento para seus clientes e um painel para o profissional. Alguns aplicativos também oferecem esses recursos; compare o conjunto, a configuração inicial, o suporte e os módulos efetivamente contratados."},
+  {question:"O sistema é desenvolvido do zero exclusivamente para mim?",answer:"Utilizamos uma estrutura pronta, configurada com sua marca, dados e serviços. A contratação é do acesso à plataforma com personalização inicial; não implica compra do código-fonte ou desenvolvimento exclusivo. Você edita os campos disponíveis no painel. Mudanças de estrutura e novas funções exigem avaliação e orçamento."},
   {
     question: "Todos os planos incluem um site personalizado?",
     answer:

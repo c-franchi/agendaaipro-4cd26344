@@ -1,4 +1,5 @@
 import BackToTop from "@/components/landing/BackToTop";
+import YourPlatformSection from "@/components/landing/YourPlatformSection";
 import Header from "@/components/landing/Header";
 import HeroSection from "@/components/landing/HeroSection";
 import PartnersSection from "@/components/landing/PartnersSection";
@@ -22,6 +23,7 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
+        <YourPlatformSection />
         <PartnersSection />
         <VideoSection />
         <CaseStudySection />
