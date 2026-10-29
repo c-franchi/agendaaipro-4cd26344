@@ -142,9 +142,9 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="admin-mobile min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="container px-4 py-3 flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon">
@@ -157,12 +157,12 @@ const Admin = () => {
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <Button onClick={fetchLeads} variant="outline" disabled={loading} size="sm">
+          <div className="flex items-center gap-1 shrink-0">
+            <Button aria-label="Atualizar dados" onClick={fetchLeads} variant="outline" disabled={loading} size="sm">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline ml-2">Atualizar</span>
             </Button>
-            <Button onClick={handleLogout} variant="ghost" size="sm">
+            <Button aria-label="Sair da conta" onClick={handleLogout} variant="ghost" size="sm">
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline ml-2">Sair</span>
             </Button>
@@ -170,31 +170,31 @@ const Admin = () => {
         </div>
       </header>
 
-      <main className="container py-8">
+      <main className="container px-3 sm:px-6 py-4 sm:py-8 min-w-0">
         <Dialog open={Boolean(selectedLead)} onOpenChange={open=>{if(!open)setSelectedLead(null)}}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>Detalhes da solicitação</DialogTitle></DialogHeader>{selectedLead&&<dl className="space-y-3 text-sm break-words">{[['Nome',selectedLead.name],['E-mail',selectedLead.email],['WhatsApp',selectedLead.phone],['Área de atuação',selectedLead.business_type],['Mensagem / plano solicitado',selectedLead.message],['Origem',selectedLead.source],['Recebido em',new Date(selectedLead.created_at).toLocaleString('pt-BR')]].map(([label,value])=><div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap">{value||'Não informado'}</dd></div>)}</dl>}</DialogContent></Dialog>
       <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 max-w-3xl">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+          <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-6 gap-1 p-1.5">
+            <TabsTrigger value="dashboard" className="flex min-h-12 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
+              <span className="inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users" className="flex min-h-12 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <UserCheck className="w-4 h-4" />
-              <span className="hidden sm:inline">Usuários</span>
+              <span className="inline">Usuários</span>
             </TabsTrigger>
-            <TabsTrigger value="leads" className="flex items-center gap-2">
+            <TabsTrigger value="leads" className="flex min-h-12 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Leads</span>
+              <span className="inline">Leads</span>
             </TabsTrigger>
-            <TabsTrigger value="vouchers" className="flex items-center gap-2">
+            <TabsTrigger value="vouchers" className="flex min-h-12 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <Gift className="w-4 h-4" />
-              <span className="hidden sm:inline">Vouchers</span>
+              <span className="inline">Vouchers</span>
             </TabsTrigger>
-            <TabsTrigger value="landing" className="flex items-center gap-2">
+            <TabsTrigger value="landing" className="flex min-h-12 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Landing</span>
+              <span className="inline">Landing</span>
             </TabsTrigger>
-            <TabsTrigger value="orders" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
+            <TabsTrigger value="orders" className="min-h-12 text-xs sm:text-sm" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -301,8 +301,8 @@ const Admin = () => {
           <TabsContent value="landing">
             <Card>
               <CardHeader>
-                <CardTitle>Editor da Landing Page</CardTitle>
-                <CardDescription>Edite o conteúdo da página inicial, planos e preços promocionais</CardDescription>
+                <CardTitle>Editar página inicial</CardTitle>
+                <CardDescription>Atualize textos, imagens, vídeo e informações de contato</CardDescription>
               </CardHeader>
               <CardContent>
                 <LandingPageEditor />

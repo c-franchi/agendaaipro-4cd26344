@@ -1,3 +1,4 @@
+import heroPlatform from "@/assets/hero-agenda-platform.webp";
 import {
   PLANS,
   PLAN_KEYS,
@@ -6,6 +7,7 @@ import {
   DEFAULT_HERO,
   PlanKey,
 } from "@/lib/constants";
+import {validateMedia,videoSource} from "@/lib/landing-media";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -75,7 +77,7 @@ export const LandingPageEditor = () => {
   const [heroContent, setHeroContent] = useState<HeroContent | null>(
     DEFAULT_HERO,
   );
-  const [videoContent, setVideoContent] = useState<VideoContent | null>(null);
+  const [videoContent, setVideoContent] = useState<VideoContent | null>({video_url:"",title:"Veja a plataforma em ação",subtitle:"Conheça o agendamento online e o painel do profissional."});
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [targetAudiences, setTargetAudiences] = useState<
     TargetAudienceItem[] | null
@@ -116,7 +118,7 @@ export const LandingPageEditor = () => {
       });
       data?.forEach((item) => {
         if (item.key === "video_content") {
-          setVideoContent(item.value as unknown as VideoContent);
+          setVideoContent(current=>({...current,...(item.value as unknown as VideoContent)}));
         } else if (item.key === "contact_info") {
           setContactInfo(item.value as unknown as ContactInfo);
         } else if (item.key === "target_audiences_v2") {
@@ -260,7 +262,7 @@ export const LandingPageEditor = () => {
         .getPublicUrl(filePath);
 
       updateTargetAudience(index, "backgroundImage", publicUrl.publicUrl);
-      toast.success("Imagem enviada com sucesso!");
+      toast.success("Imagem enviada. Toque em Salvar capa para aplicar.");
     } catch (error) {
       console.error("Error uploading audience image:", error);
       toast.error("Erro ao enviar imagem");
@@ -271,7 +273,7 @@ export const LandingPageEditor = () => {
 
   const removeAudienceImage = (index: number) => {
     updateTargetAudience(index, "backgroundImage", "");
-    toast.success("Imagem removida");
+    toast.success("Imagem personalizada removida. Salve a seção para aplicar o padrão.");
   };
 
   const handlePlanImageUpload = async (key: PlanKey, file: File) => {
@@ -301,11 +303,12 @@ export const LandingPageEditor = () => {
     file: File,
   ) => {
     if (!file || !heroContent) return;
+    const validation=validateMedia(file,'image');if(validation){toast.error(validation);return;}
 
     setUploading(`hero_${imageType}`);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `hero-${imageType}-${Date.now()}.${fileExt}`;
+      const fileExt = file.type==='image/jpeg'?'jpg':file.type==='image/png'?'png':'webp';
+      const fileName = `hero-${imageType}-${crypto.randomUUID()}.${fileExt}`;
       const filePath = `hero/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -318,8 +321,8 @@ export const LandingPageEditor = () => {
         .from("landing-images")
         .getPublicUrl(filePath);
 
-      setHeroContent({ ...heroContent, [imageType]: publicUrl.publicUrl });
-      toast.success("Imagem enviada com sucesso!");
+      setHeroContent(current=>current?{...current,[imageType]:publicUrl.publicUrl}:current);
+      toast.success("Imagem enviada. Toque em Salvar capa para aplicar.");
     } catch (error) {
       console.error("Error uploading hero image:", error);
       toast.error("Erro ao enviar imagem");
@@ -328,10 +331,21 @@ export const LandingPageEditor = () => {
     }
   };
 
+  const handleVideoUpload=async(file:File)=>{
+    const validation=validateMedia(file,'video');if(validation){toast.error(validation);return;}
+    setUploading('video');
+    try{const path=`videos/${crypto.randomUUID()}.${file.type==='video/mp4'?'mp4':'webm'}`;
+      const {error}=await supabase.storage.from('landing-videos').upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;
+      const {data}=supabase.storage.from('landing-videos').getPublicUrl(path);
+      setVideoContent(current=>({...current,video_url:data.publicUrl,title:current?.title||'Veja a plataforma em ação',subtitle:current?.subtitle||'Conheça o agendamento e o painel do profissional.'}));
+      toast.success('Vídeo enviado. Toque em Salvar Vídeo para publicar.');
+    }catch{toast.error('Não foi possível enviar. Confira sua conexão e a configuração de mídia do projeto.')}finally{setUploading(null)}
+  };
+
   const removeHeroImage = (imageType: "bg_image" | "mockup_image") => {
     if (!heroContent) return;
     setHeroContent({ ...heroContent, [imageType]: "" });
-    toast.success("Imagem removida");
+    toast.success("Imagem personalizada removida. Salve a seção para aplicar o padrão.");
   };
 
   if (loading) {
@@ -344,12 +358,12 @@ export const LandingPageEditor = () => {
 
   return (
     <Tabs defaultValue="pricing" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-5 max-w-3xl">
-        <TabsTrigger value="pricing">Planos</TabsTrigger>
-        <TabsTrigger value="hero">Hero</TabsTrigger>
-        <TabsTrigger value="audience">Público</TabsTrigger>
-        <TabsTrigger value="video">Vídeo</TabsTrigger>
-        <TabsTrigger value="contact">Contato</TabsTrigger>
+      <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-5 gap-1 p-1.5">
+        <TabsTrigger className="min-h-11 text-xs sm:text-sm" value="pricing">Planos</TabsTrigger>
+        <TabsTrigger className="min-h-11 text-xs sm:text-sm" value="hero">Capa</TabsTrigger>
+        <TabsTrigger className="min-h-11 text-xs sm:text-sm" value="audience">Público</TabsTrigger>
+        <TabsTrigger className="min-h-11 text-xs sm:text-sm" value="video">Vídeo</TabsTrigger>
+        <TabsTrigger className="min-h-11 text-xs sm:text-sm" value="contact">Contato</TabsTrigger>
       </TabsList>
 
       <TabsContent value="pricing" className="space-y-6">
@@ -488,7 +502,7 @@ export const LandingPageEditor = () => {
                     <Label className="mb-2 block">
                       Imagem de Fundo (opcional)
                     </Label>
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-3">
                       {heroContent.bg_image ? (
                         <div className="relative group">
                           <img
@@ -499,7 +513,7 @@ export const LandingPageEditor = () => {
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                             onClick={() => removeHeroImage("bg_image")}
                           >
                             <Trash2 className="w-3 h-3" />
@@ -547,18 +561,18 @@ export const LandingPageEditor = () => {
                   {/* Mockup Image with Preview */}
                   <div>
                     <Label className="mb-2 block">Imagem do Mockup</Label>
-                    <div className="flex items-start gap-4">
-                      {heroContent.mockup_image ? (
+                    <div className="flex flex-col sm:flex-row items-start gap-3">
+                      {(heroContent.mockup_image || heroPlatform) ? (
                         <div className="relative group">
                           <img
-                            src={heroContent.mockup_image}
+                            src={heroContent.mockup_image || heroPlatform}
                             alt="Hero Mockup"
                             className="w-40 h-32 object-contain rounded-lg border border-border shadow-lg bg-card"
                           />
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                             onClick={() => removeHeroImage("mockup_image")}
                           >
                             <Trash2 className="w-3 h-3" />
@@ -611,7 +625,7 @@ export const LandingPageEditor = () => {
 
         <Button
           onClick={() => saveContent("hero_content_v2", heroContent)}
-          disabled={saving}
+          disabled={saving || uploading !== null}
           className="w-full md:w-auto"
         >
           {saving ? (
@@ -619,7 +633,7 @@ export const LandingPageEditor = () => {
           ) : (
             <Save className="w-4 h-4 mr-2" />
           )}
-          Salvar Hero
+          Salvar capa
         </Button>
       </TabsContent>
 
@@ -689,7 +703,7 @@ export const LandingPageEditor = () => {
                   {/* Image Upload Section */}
                   <div>
                     <Label className="mb-2 block">Imagem de Fundo</Label>
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-3">
                       {audience.backgroundImage ? (
                         <div className="relative group">
                           <img
@@ -700,7 +714,7 @@ export const LandingPageEditor = () => {
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute -top-2 -right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute -top-2 -right-2 w-6 h-6 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                             onClick={() => removeAudienceImage(index)}
                           >
                             <Trash2 className="w-3 h-3" />
@@ -778,7 +792,7 @@ export const LandingPageEditor = () => {
 
         <Button
           onClick={() => saveContent("target_audiences_v2", targetAudiences)}
-          disabled={saving}
+          disabled={saving || uploading !== null}
           className="w-full md:w-auto"
         >
           {saving ? (
@@ -800,7 +814,10 @@ export const LandingPageEditor = () => {
             {videoContent ? (
               <>
                 <div>
-                  <Label>URL do Vídeo (YouTube ou Vimeo)</Label>
+                  <Label htmlFor="demo-video-upload">Enviar vídeo do dispositivo</Label>
+                  <Input id="demo-video-upload" type="file" accept="video/mp4,video/webm" disabled={uploading!==null||saving} onChange={e=>{const file=e.target.files?.[0];if(file)void handleVideoUpload(file);e.target.value=''}}/>
+                  <p className="text-xs text-muted-foreground mt-1">MP4 ou WebM, até 100 MB. {uploading==='video'?'Enviando… mantenha esta tela aberta.':'O envio não publica sozinho; salve a seção depois.'}</p>
+                  <Label className="block mt-4">Ou cole um link de vídeo</Label>
                   <Input
                     value={videoContent.video_url}
                     placeholder="https://www.youtube.com/watch?v=..."
@@ -812,11 +829,11 @@ export const LandingPageEditor = () => {
                     }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Formatos aceitos: YouTube (youtube.com/watch?v=...) ou Vimeo
-                    (vimeo.com/...)
+                    Links aceitos: YouTube, Vimeo ou arquivo MP4/WebM em HTTPS.
                   </p>
                 </div>
                 <div>
+                  {videoSource(videoContent.video_url)?.kind==='file'&&<video src={videoContent.video_url} controls playsInline preload="metadata" className="my-3 max-h-72 w-full rounded-lg bg-black object-contain" aria-label="Prévia do vídeo enviado"/>}
                   <Label>Título da Seção</Label>
                   <Input
                     value={videoContent.title}
@@ -866,7 +883,7 @@ export const LandingPageEditor = () => {
 
         <Button
           onClick={() => saveContent("video_content", videoContent)}
-          disabled={saving || !videoContent}
+          disabled={saving || uploading !== null || !videoContent}
           className="w-full md:w-auto"
         >
           {saving ? (
@@ -932,7 +949,7 @@ export const LandingPageEditor = () => {
 
         <Button
           onClick={() => saveContent("contact_info", contactInfo)}
-          disabled={saving}
+          disabled={saving || uploading !== null}
           className="w-full md:w-auto"
         >
           {saving ? (

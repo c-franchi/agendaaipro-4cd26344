@@ -1,3 +1,4 @@
+import {videoSource} from "@/lib/landing-media";
 import { motion } from "framer-motion";
 import { Play, X } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -39,26 +40,9 @@ const VideoSection = () => {
     fetchVideoContent();
   }, []);
 
-  // Extract video ID and determine platform
-  const getEmbedUrl = (url: string) => {
-    if (!url) return null;
-    
-    // YouTube
-    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    if (youtubeMatch) {
-      return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`;
-    }
-    
-    // Vimeo
-    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if (vimeoMatch) {
-      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
-    }
-    
-    return null;
-  };
-
-  const embedUrl = getEmbedUrl(videoContent.video_url);
+  const source=videoSource(videoContent.video_url);
+  const embedUrl=source?.kind==='embed'?source.url:null;
+  const directVideoUrl=source?.kind==='file'?source.url:null;
 
   return (
     <section id="video" className="py-20 md:py-32 relative overflow-hidden">
@@ -113,7 +97,7 @@ const VideoSection = () => {
                   className="relative z-10 group cursor-pointer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  disabled={!embedUrl}
+                  disabled={!source}
                 >
                   <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150 group-hover:bg-primary/30 transition-colors" />
                   <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
@@ -125,13 +109,15 @@ const VideoSection = () => {
                 <div className="absolute bottom-6 left-6 right-6 text-left">
                   <p className="text-sm text-muted-foreground mb-2">Demonstração</p>
                   <h3 className="text-lg md:text-xl font-semibold">Como usar o AgendaAÍ Pro</h3>
-                  {!embedUrl && (
+                  {!source && (
                     <p className="text-xs text-muted-foreground/70 mt-2">
                       Vídeo em breve...
                     </p>
                   )}
                 </div>
               </div>
+            ) : directVideoUrl ? (
+              <video src={directVideoUrl} controls autoPlay playsInline preload="metadata" className="absolute inset-0 h-full w-full object-contain bg-black" onEnded={()=>setIsPlaying(false)} aria-label="Demonstração da plataforma"/>
             ) : embedUrl ? (
               <div className="absolute inset-0 bg-black">
                 <button 

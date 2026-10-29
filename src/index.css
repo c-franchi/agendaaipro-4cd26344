@@ -183,3 +183,17 @@
     transform: scale(1.05);
   }
 }
+
+@media (max-width: 639px) {
+ .admin-mobile { overflow-x: clip; }
+ .admin-mobile main, .admin-mobile [role="tabpanel"] { min-width: 0; }
+ .admin-mobile [role="tabpanel"] > .rounded-lg { min-width: 0; }
+ .admin-mobile .p-6 { padding: 1rem; }
+ .admin-mobile .pt-0 { padding-top: 0; }
+ .admin-mobile .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+ .admin-mobile h3 { font-size: 1.125rem; line-height: 1.5rem; }
+ .admin-mobile input, .admin-mobile select, .admin-mobile textarea { font-size: 16px; min-width: 0; }
+ .admin-mobile label { overflow-wrap: anywhere; }
+}
+
+@media(max-width:639px){.admin-mobile th,.admin-mobile td{padding:.65rem;font-size:.8rem}.admin-mobile button{touch-action:manipulation}.admin-mobile [role="tab"]{white-space:normal}.admin-mobile header img{max-width:150px;object-fit:contain}}
