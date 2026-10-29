@@ -1,3 +1,4 @@
+import {orderContact} from '../_shared/order-contact.ts';
 import {serve} from 'https://deno.land/std@0.190.0/http/server.ts';
 import {catalog,isPlan,isUuid,validSiteUrl,BILLING_VERSION} from '../_shared/commerce.ts';
 import {allowed,cors,reply,database,identity,administrator} from '../_shared/commerce-runtime.ts';
@@ -18,8 +19,9 @@ serve(async req=>{
    const name=typeof body.name==='string'?body.name.trim():'';if(name.length<2||name.length>100||!user.email)return reply(req,{error:'Informe seu nome (2 a 100 caracteres).'},400);
    const {data:previous}=await db.from('business_orders').select('*').eq('request_key',body.requestKey).maybeSingle();
    if(previous){if(previous.user_id!==user.id||previous.plan_type!==body.planType)return reply(req,{error:'Solicitação já utilizada.'},409);return reply(req,{order:previous});}
+   let contact;try{contact=orderContact(body)}catch(e){return reply(req,{error:e instanceof Error?e.message:'Dados inválidos.'},400)}
    const p=catalog[body.planType as keyof typeof catalog];
-   const {data,error}=await db.from('business_orders').insert({request_key:body.requestKey,user_id:user.id,name,email:user.email.toLowerCase(),plan_type:body.planType,module_plan:p.modulePlan,setup_cents:p.setupCents,monthly_cents:p.monthlyCents,terms_version:BILLING_VERSION,scope_note:`Condições ${BILLING_VERSION} aceitas; confirmação de escopo pendente.`}).select('*').single();
+   const {data,error}=await db.from('business_orders').insert({...contact,request_key:body.requestKey,user_id:user.id,name,email:user.email.toLowerCase(),plan_type:body.planType,module_plan:p.modulePlan,setup_cents:p.setupCents,monthly_cents:p.monthlyCents,terms_version:BILLING_VERSION,scope_note:`Condições ${BILLING_VERSION} aceitas; confirmação de escopo pendente.`}).select('*').single();
    if(error){if(error.code==='23505')return reply(req,{error:'Solicitação em processamento. Consulte Meus pedidos.'},409);throw error}
    return reply(req,{order:data},201);
   }
