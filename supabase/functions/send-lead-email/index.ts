@@ -1,3 +1,4 @@
+import {allowed,cors} from "../_shared/commerce-runtime.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -14,6 +15,7 @@ interface LeadEmailRequest {
   phone?: string;
   business_type?: string;
   message?: string;
+  source?: string;
 }
 
 const sendEmail = async (to: string[], subject: string, html: string) => {
@@ -39,12 +41,14 @@ const sendEmail = async (to: string[], subject: string, html: string) => {
   return response.json();
 };
 
+const escapeHtml=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if(req.method!=="POST"||!allowed(req))return Response.json({error:"Origem ou método inválido"},{status:403,headers:cors(req)});
   if (!RESEND_API_KEY) {
     console.error("RESEND_API_KEY not configured");
     return new Response(
@@ -54,12 +58,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { name, email, phone, business_type, message }: LeadEmailRequest = await req.json();
+    const body: LeadEmailRequest = await req.json();
+    if(typeof body.name!=='string'||body.name.trim().length<2||body.name.length>100||typeof body.email!=='string'||body.email.length>255||!/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(body.email)||(['phone','business_type','message','source'] as const).some(k=>body[k]!==undefined&&(typeof body[k]!=='string'||body[k].length>(k==='message'?1000:k==='phone'?30:100))))return Response.json({error:'Dados inválidos'},{status:400,headers:cors(req)});
+    const email=body.email.trim();
+    const [name,phone,business_type,message,source]=[body.name,body.phone,body.business_type,body.message,body.source].map(v=>escapeHtml(v||''));
 
     // Email to the lead (confirmation)
     const confirmationHtml = `
       <!DOCTYPE html>
-      <html>
+      <html lang="pt-BR">
       <head>
         <meta charset="utf-8">
         <style>
@@ -85,6 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
             <p>Ficamos muito felizes com seu interesse no <span class="highlight">AgendaAÍ Pro</span>!</p>
             <p>Recebemos suas informações e nossa equipe entrará em contato em breve para entender melhor suas necessidades e apresentar a melhor solução para o seu negócio.</p>
             ${business_type ? `<p>Vimos que você atua na área de <span class="highlight">${business_type}</span>. Temos soluções específicas para esse segmento!</p>` : ''}
+            <h2>Resumo da sua solicitação</h2><p><strong>Nome:</strong> ${name}<br/><strong>E-mail:</strong> ${escapeHtml(email)}<br/><strong>WhatsApp:</strong> ${phone||'Não informado'}<br/><strong>Área:</strong> ${business_type||'Não informada'}<br/><strong>Origem:</strong> ${source||'Site'}</p><p style="white-space:pre-wrap"><strong>Mensagem e plano solicitado:</strong><br/>${message||'Não informados'}</p>
             <p>Enquanto isso, fique à vontade para responder este email caso tenha alguma dúvida.</p>
             <p>Até breve! 🚀</p>
             <a href="https://agendaaipro.com.br" class="cta">Conhecer mais sobre o AgendaAÍ Pro</a>
@@ -101,14 +109,14 @@ const handler = async (req: Request): Promise<Response> => {
       [email],
       "Recebemos seu interesse no AgendaAÍ Pro! 🎉",
       confirmationHtml
-    );
+    ).catch(()=>null);
 
     // Email to admin (notification)
-    const adminEmail = Deno.env.get("ADMIN_EMAIL");
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "neifranchi@gmail.com";
     if (adminEmail) {
       const adminHtml = `
         <!DOCTYPE html>
-        <html>
+        <html lang="pt-BR">
         <head>
           <meta charset="utf-8">
           <style>
@@ -136,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               <div class="field">
                 <div class="label">Email</div>
-                <div class="value"><a href="mailto:${email}">${email}</a></div>
+                <div class="value"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></div>
               </div>
               ${phone ? `
               <div class="field">
@@ -152,12 +160,12 @@ const handler = async (req: Request): Promise<Response> => {
               ` : ''}
               ${message ? `
               <div class="field">
-                <div class="label">Mensagem</div>
-                <div class="value">${message}</div>
+                <div class="label">Mensagem e plano solicitado</div>
+                <div class="value">${message.replace(/\n/g,"<br/>")}</div>
               </div>
               ` : ''}
             </div>
-            <a href="https://agendaaipro.com.br/admin" class="cta">Ver no Painel Admin</a>
+            <p>Origem: ${source||'Site'}</p><a href="https://agendaaipro.com.br/admin" class="cta">Ver no Painel Admin</a>
           </div>
         </body>
         </html>
@@ -170,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Emails sent successfully:", confirmationEmail);
+    if(!confirmationEmail)throw Error("A confirmação ao solicitante não foi enviada.");
 
     return new Response(JSON.stringify({ success: true, data: confirmationEmail }), {
       status: 200,
