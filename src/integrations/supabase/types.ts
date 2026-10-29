@@ -341,6 +341,8 @@ export type Database = {
       vouchers: {
         Row: {
           applies_to: string
+          commerce_enabled: boolean
+          discount_months: number
           code: string
           created_at: string
           created_by: string | null
@@ -357,6 +359,8 @@ export type Database = {
           validity_months: number | null
         }
         Insert: {
+          commerce_enabled?: boolean
+          discount_months?: number
           applies_to?: string
           code: string
           created_at?: string
@@ -374,6 +378,8 @@ export type Database = {
           validity_months?: number | null
         }
         Update: {
+          commerce_enabled?: boolean
+          discount_months?: number
           applies_to?: string
           code?: string
           created_at?: string
