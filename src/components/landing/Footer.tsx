@@ -119,12 +119,12 @@ const Footer = () => {
           <p className="text-muted-foreground text-xs">
             Desenvolvido por{" "}
             <a
-              href="https://neitechweb.web.app/"
+              href="https://fllifranchi.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline font-medium"
             >
-              NeiTech
+              Flli Franchi
             </a>
           </p>
         </div>

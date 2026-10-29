@@ -1,3 +1,4 @@
+import {Dialog,DialogContent,DialogHeader,DialogTitle} from "@/components/ui/dialog";
 import OrdersList from "@/components/checkout/OrdersList";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -36,6 +37,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [selectedLead,setSelectedLead]=useState<Lead|null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,7 +128,9 @@ const Admin = () => {
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (lead.phone && lead.phone.includes(searchTerm)) ||
-    (lead.business_type && lead.business_type.toLowerCase().includes(searchTerm.toLowerCase()))
+    (lead.business_type && lead.business_type.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (lead.message && lead.message.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (lead.source && lead.source.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (authLoading) {
@@ -167,7 +171,8 @@ const Admin = () => {
       </header>
 
       <main className="container py-8">
-        <Tabs defaultValue="dashboard" className="space-y-6">
+        <Dialog open={Boolean(selectedLead)} onOpenChange={open=>{if(!open)setSelectedLead(null)}}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>Detalhes da solicitação</DialogTitle></DialogHeader>{selectedLead&&<dl className="space-y-3 text-sm break-words">{[['Nome',selectedLead.name],['E-mail',selectedLead.email],['WhatsApp',selectedLead.phone],['Área de atuação',selectedLead.business_type],['Mensagem / plano solicitado',selectedLead.message],['Origem',selectedLead.source],['Recebido em',new Date(selectedLead.created_at).toLocaleString('pt-BR')]].map(([label,value])=><div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap">{value||'Não informado'}</dd></div>)}</dl>}</DialogContent></Dialog>
+      <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 max-w-3xl">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -268,7 +273,7 @@ const Admin = () => {
                             <TableCell className="text-muted-foreground">
                               {format(new Date(lead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right"><Button variant="outline" size="sm" onClick={()=>setSelectedLead(lead)}>Ver detalhes</Button>
                               <Button
                                 variant="ghost"
                                 size="icon"

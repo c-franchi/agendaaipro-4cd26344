@@ -1,3 +1,4 @@
+import BusinessAreaSelect from "@/components/BusinessAreaSelect";
 import { useId, useState } from "react";
 import { motion } from "framer-motion";
 import { Send, Loader2, CheckCircle } from "lucide-react";
@@ -39,6 +40,8 @@ const LeadCaptureForm = ({
   initialMessage = "",
 }: LeadCaptureFormProps) => {
   const consentId = useId();
+  const [receipt, setReceipt] = useState<typeof formData | null>(null);
+  const [emailWarning, setEmailWarning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [lgpdConsent, setLgpdConsent] = useState(false);
@@ -94,20 +97,23 @@ const LeadCaptureForm = ({
 
       // Send confirmation email via edge function
       try {
-        await supabase.functions.invoke("send-lead-email", {
+        const { error: emailError } = await supabase.functions.invoke("send-lead-email", {
           body: {
             name: formData.name,
             email: formData.email,
             phone: formData.phone || undefined,
             business_type: formData.business_type || undefined,
             message: formData.message || undefined,
+            source,
           },
         });
+        if (emailError) throw emailError;
       } catch (emailError) {
         // Email sending is non-blocking - log but don't fail the form
-        console.error("Email sending failed:", emailError);
+        setEmailWarning(true);
       }
 
+      setReceipt({...sanitizedData,name:sanitizedData.name||formData.name,email:sanitizedData.email||formData.email,phone:sanitizedData.phone||"",business_type:sanitizedData.business_type||"",message:sanitizedData.message||""});
       setIsSuccess(true);
       toast({
         title: "Mensagem enviada!",
@@ -124,7 +130,7 @@ const LeadCaptureForm = ({
       });
 
       // Reset success state after 3 seconds
-      setTimeout(() => setIsSuccess(false), 3000);
+      // Keep the receipt visible until the visitor chooses to send another request.
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({
@@ -148,8 +154,11 @@ const LeadCaptureForm = ({
         <CheckCircle className="w-16 h-16 text-primary mb-4" />
         <h3 className="text-xl font-semibold mb-2">Obrigado pelo interesse!</h3>
         <p className="text-muted-foreground">
-          Nossa equipe entrará em contato em breve.
+          Solicitação registrada. Nossa equipe entrará em contato em breve.
         </p>
+        {receipt&&<dl className="w-full text-left text-sm space-y-2 mt-4 break-words"><div><dt className="font-semibold">Nome</dt><dd>{receipt.name}</dd></div><div><dt className="font-semibold">E-mail</dt><dd>{receipt.email}</dd></div><div><dt className="font-semibold">WhatsApp</dt><dd>{receipt.phone||'Não informado'}</dd></div><div><dt className="font-semibold">Área</dt><dd>{receipt.business_type||'Não informada'}</dd></div><div><dt className="font-semibold">Mensagem e plano solicitado</dt><dd className="whitespace-pre-wrap">{receipt.message||'Não informados'}</dd></div></dl>}
+        {emailWarning&&<p role="status" className="text-sm mt-3">Seus dados foram salvos, mas não foi possível confirmar o envio do e-mail. Não é necessário reenviar o formulário.</p>}
+        <Button type="button" variant="outline" className="mt-4" onClick={()=>{setIsSuccess(false);setEmailWarning(false);setLgpdConsent(false)}}>Enviar outra solicitação</Button>
       </motion.div>
     );
   }
@@ -223,16 +232,7 @@ const LeadCaptureForm = ({
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           className="bg-card/50 border-border/50"
         />
-        <Input
-          type="text"
-          placeholder="Tipo de negócio (ex: Barbearia)"
-          aria-label="Tipo de negócio"
-          value={formData.business_type}
-          onChange={(e) =>
-            setFormData({ ...formData, business_type: e.target.value })
-          }
-          className="bg-card/50 border-border/50"
-        />
+        <BusinessAreaSelect value={formData.business_type} onChange={business_type=>setFormData({...formData,business_type})}/>
       </div>
       <Textarea
         placeholder="Conte-nos um pouco sobre seu negócio (opcional)"
