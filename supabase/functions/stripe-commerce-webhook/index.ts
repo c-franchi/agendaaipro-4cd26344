@@ -18,19 +18,31 @@ serve(async req=>{
   if(['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(event.type)){
    const session=event.data.object as Stripe.Checkout.Session;
    if(session.metadata?.billing_version!==BILLING_VERSION)return Response.json({ignored:true});
-   if(session.payment_status!=='paid')return Response.json({pending:true});
+   if(session.payment_status!=='paid'&&!(session.payment_status==='no_payment_required'&&session.amount_total===0))return Response.json({pending:true});
    const orderId=session.metadata.order_id,kind=session.metadata.kind;
    if(!isUuid(orderId)||!['setup','subscription'].includes(kind))throw Error('Invalid metadata');
    const {data:order,error}=await db.from('business_orders').select('*').eq('id',orderId).single();
    if(error||!order||!paymentMatches(order,session,kind as 'setup'|'subscription'))throw Error('Payment mismatch');
    // Stripe can deliver a refund event before the checkout event. Read current
    // payment truth before fulfillment so an already-refunded order is never queued.
-   if(kind==='setup'){
+   const {data:reservation,error:reservationError}=await db.from('commerce_voucher_reservations').select('*').eq('order_id',order.id).eq('kind',kind).neq('state','released').maybeSingle();
+   if(reservationError)throw reservationError;
+   if(reservation){
+    const current=await stripe.checkout.sessions.retrieve(session.id,{expand:['discounts.coupon']});
+    const coupon=current.discounts?.[0]?.coupon;
+    if(reservation.session_id!==session.id||session.metadata.voucher_reservation!==reservation.id||id(coupon)!==reservation.coupon_id||current.total_details?.amount_discount!==reservation.discount_cents)throw Error('Voucher mismatch');
+   }else if(session.metadata.voucher_reservation)throw Error('Unknown voucher');
+   if(kind==='subscription'){
+    const subId=id(session.subscription);if(!subId)throw Error('Missing subscription');
+    const sub=await stripe.subscriptions.retrieve(subId,{expand:['discounts']});
+    if(!['active','trialing'].includes(sub.status)||sub.currency!=='brl'||id(sub.customer)!==id(session.customer)||sub.items.data.length!==1||sub.items.data[0].price.unit_amount!==order.monthly_cents||sub.items.data[0].price.recurring?.interval!=='month')throw Error('Subscription mismatch');
+   }
+   if(kind==='setup'&&(session.amount_total??0)>0){
     const intentId=id(session.payment_intent);if(!intentId)throw Error('Missing payment intent');
     const intent=await stripe.paymentIntents.retrieve(intentId,{expand:['latest_charge']});
-    if(intent.status!=='succeeded'||intent.amount_received!==order.setup_cents||intent.currency!=='brl')throw Error('Payment intent mismatch');
+    if(intent.status!=='succeeded'||intent.amount_received!==(order.setup_due_cents??order.setup_cents)||intent.currency!=='brl')throw Error('Payment intent mismatch');
     const charge=typeof intent.latest_charge==='string'?await stripe.charges.retrieve(intent.latest_charge):intent.latest_charge;
-    if(!charge||charge.amount!==order.setup_cents||charge.currency!=='brl')throw Error('Missing charge');
+    if(!charge||charge.amount!==(order.setup_due_cents??order.setup_cents)||charge.currency!=='brl')throw Error('Missing charge');
     if(charge.amount_refunded>=charge.amount){
      const {error:refundError}=await db.rpc('commerce_refund',{p_intent:intentId,p_event:event.id,p_full:true,p_order:order.id});
      if(refundError)throw refundError;
@@ -39,6 +51,14 @@ serve(async req=>{
    }
    const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:session.amount_total,p_currency:session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
    if(recordError)throw recordError;
+  }else if(event.type==='checkout.session.expired'){
+   const session=event.data.object as Stripe.Checkout.Session;
+   if(session.metadata?.billing_version===BILLING_VERSION&&isUuid(session.metadata.order_id)){
+    const current=await stripe.checkout.sessions.retrieve(session.id);
+    if(current.status==='expired'){
+     const {error}=await db.rpc('commerce_release_voucher',{p_session:session.id});if(error)throw error;
+    }
+   }
   }else if(event.type==='charge.refunded'){
    const charge=event.data.object as Stripe.Charge;
    const intent=id(charge.payment_intent);if(intent){const {error}=await db.rpc('commerce_refund',{p_intent:intent,p_event:event.id,p_full:charge.amount_refunded>=charge.amount});if(error)throw error;}
