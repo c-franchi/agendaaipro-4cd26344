@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp, Users, Calendar, Target } from "lucide-react";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -108,7 +108,7 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total de Leads</CardTitle>
               <Users className="w-4 h-4 text-primary" />
@@ -121,7 +121,7 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Hoje</CardTitle>
               <Calendar className="w-4 h-4 text-primary" />
@@ -134,7 +134,7 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Esta Semana</CardTitle>
               <Target className="w-4 h-4 text-primary" />
@@ -147,7 +147,7 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Crescimento</CardTitle>
               <TrendingUp className={`w-4 h-4 ${stats.growth >= 0 ? "text-green-500" : "text-red-500"}`} />
@@ -167,20 +167,20 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Leads por dia */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader>
-              <CardTitle className="text-lg">Leads por Dia (Últimos 7 dias)</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Leads por Dia (Últimos 7 dias)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer config={chartConfig} className="h-[220px] sm:h-[250px] w-full min-w-0 aspect-auto">
+
                   <BarChart data={last7DaysData}>
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                    <YAxis allowDecimals={false} width={30} stroke="hsl(var(--muted-foreground))" fontSize={11} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar dataKey="leads" fill="hsl(180, 85%, 50%)" radius={[4, 4, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+
               </ChartContainer>
             </CardContent>
           </Card>
@@ -188,20 +188,20 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
 
         {/* Tendência */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader>
-              <CardTitle className="text-lg">Tendência de Captação</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Tendência de Captação</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer config={chartConfig} className="h-[220px] sm:h-[250px] w-full min-w-0 aspect-auto">
+
                   <LineChart data={last7DaysData}>
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                    <YAxis allowDecimals={false} width={30} stroke="hsl(var(--muted-foreground))" fontSize={11} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Line type="monotone" dataKey="leads" stroke="hsl(180, 85%, 50%)" strokeWidth={2} dot={{ fill: "hsl(180, 85%, 50%)" }} />
                   </LineChart>
-                </ResponsiveContainer>
+
               </ChartContainer>
             </CardContent>
           </Card>
@@ -209,43 +209,44 @@ export const LeadsDashboard = ({ leads }: LeadsDashboardProps) => {
 
         {/* Tipo de Negócio */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader>
-              <CardTitle className="text-lg">Leads por Tipo de Negócio</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Leads por Tipo de Negócio</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer config={chartConfig} className="h-[220px] sm:h-[250px] w-full min-w-0 aspect-auto">
+
                   <PieChart>
-                    <Pie data={businessTypeData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value" label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
+                    <Pie data={businessTypeData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value">
                       {businessTypeData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} />
                   </PieChart>
-                </ResponsiveContainer>
+
               </ChartContainer>
+              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">{businessTypeData.map((item,index)=><li key={item.name} className="flex gap-2"><span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{backgroundColor:COLORS[index%COLORS.length]}}/><span className="break-words">{item.name}: {item.value}</span></li>)}</ul>
             </CardContent>
           </Card>
         </motion.div>
 
         {/* Origem */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-          <Card className="glass-card">
+          <Card className="glass-card min-w-0">
             <CardHeader>
-              <CardTitle className="text-lg">Leads por Origem</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Leads por Origem</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer config={chartConfig} className="h-[220px] sm:h-[250px] w-full min-w-0 aspect-auto">
+
                   <BarChart data={sourceData} layout="vertical">
-                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                     <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} width={100} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar dataKey="value" fill="hsl(200, 85%, 55%)" radius={[0, 4, 4, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+
               </ChartContainer>
             </CardContent>
           </Card>

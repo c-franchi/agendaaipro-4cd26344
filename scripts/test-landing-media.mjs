@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import ts from 'typescript';import {readFileSync} from 'node:fs';
+const m={exports:{}};new Function('exports','module',ts.transpileModule(readFileSync(new URL('../src/lib/landing-media.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m.exports,m);
+const {videoSource,validateMedia}=m.exports;
+assert.equal(validateMedia({size:100,type:'video/mp4'},'video'),null);assert.ok(validateMedia({size:104857601,type:'video/mp4'},'video'));assert.ok(validateMedia({size:100,type:'text/html'},'video'));assert.ok(validateMedia({size:100,type:'image/svg+xml'},'image'));assert.equal(validateMedia({size:100,type:'image/webp'},'image'),null);
+assert.equal(videoSource('https://youtu.be/abcdefghijk').kind,'embed');assert.equal(videoSource('https://vimeo.com/123456').kind,'embed');assert.equal(videoSource('https://example.com/demo.mp4?token=fixture').kind,'file');for(const s of ['javascript:alert(1)','https://youtube.com.attacker.example/watch?v=abcdefghijk','http://example.com/demo.mp4','https://user:pass@example.com/demo.mp4'])assert.equal(videoSource(s),null);
+console.log('PASS: supported uploads, size limits, direct MP4/WebM, YouTube/Vimeo, invalid/untrusted URLs. No media uploaded.');

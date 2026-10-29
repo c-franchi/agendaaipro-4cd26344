@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroMockup from "@/assets/hero-mockup.png";
+import heroMockup from "@/assets/hero-agenda-platform.webp";
 import bgBarber from "@/assets/bg-professional-barber.png";
 import bgManicure from "@/assets/bg-professional-manicure.png";
 import bgMassage from "@/assets/bg-professional-massage.png";
