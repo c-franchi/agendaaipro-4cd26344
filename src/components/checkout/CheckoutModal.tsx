@@ -102,6 +102,7 @@ export const CheckoutModal = ({
           Esta solicitação não gera cobrança nem ativa assinatura. Assinaturas
           existentes continuam na área da sua conta.
         </p>
+        <Button type="button" variant="outline" onClick={e=>e.currentTarget.closest('[role="dialog"]')?.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>Voltar ao início do formulário</Button>
       </DialogContent>
     </Dialog>
   );
