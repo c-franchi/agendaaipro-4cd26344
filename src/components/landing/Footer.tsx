@@ -53,28 +53,28 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Produto</h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="/#funcionalidades"
+                <Link
+                  to="/#funcionalidades"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   Funcionalidades
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/#como-funciona"
+                <Link
+                  to="/#como-funciona"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   Como Funciona
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/#planos"
+                <Link
+                  to="/#planos"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   Planos
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -100,12 +100,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a
-                  href="/#contato"
+                <Link
+                  to="/#contato-form"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   Contato
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
