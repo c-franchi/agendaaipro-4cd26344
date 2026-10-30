@@ -15,6 +15,13 @@
       "when": 1793331734571,
       "tag": "0001_enable_order_notification_scheduling_extensions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793331806845,
+      "tag": "0002_authorize_secure_notification_vault_transfer",
+      "breakpoints": true
     }
   ]
 }
