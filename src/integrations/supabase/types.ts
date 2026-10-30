@@ -210,6 +210,24 @@ export type Database = {
         }
         Relationships: []
       }
+      commerce_contract_templates: {
+        Row: {
+          active: boolean
+          document: Json
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          document: Json
+          version: string
+        }
+        Update: {
+          active?: boolean
+          document?: Json
+          version?: string
+        }
+        Relationships: []
+      }
       commerce_voucher_reservations: {
         Row: {
           base_cents: number
@@ -369,6 +387,32 @@ export type Database = {
         }
         Relationships: []
       }
+      order_activity_reads: {
+        Row: {
+          order_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          order_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          order_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_activity_reads_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_assets: {
         Row: {
           active: boolean
@@ -409,6 +453,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "order_assets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_contract_acceptances: {
+        Row: {
+          accepted_at: string
+          fingerprint: string
+          id: string
+          order_id: string
+          snapshot: Json
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          fingerprint: string
+          id?: string
+          order_id: string
+          snapshot: Json
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          fingerprint?: string
+          id?: string
+          order_id?: string
+          snapshot?: Json
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_contract_acceptances_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "business_orders"
@@ -463,6 +545,7 @@ export type Database = {
           last_attempt: string | null
           order_id: string
           provider_id: string | null
+          sent_at: string | null
           status: string
           subject: string
         }
@@ -477,6 +560,7 @@ export type Database = {
           last_attempt?: string | null
           order_id: string
           provider_id?: string | null
+          sent_at?: string | null
           status?: string
           subject: string
         }
@@ -491,12 +575,57 @@ export type Database = {
           last_attempt?: string | null
           order_id?: string
           provider_id?: string | null
+          sent_at?: string | null
           status?: string
           subject?: string
         }
         Relationships: [
           {
             foreignKeyName: "order_notifications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_support_requests: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          order_id: string
+          response: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id: string
+          kind: string
+          order_id: string
+          response?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          order_id?: string
+          response?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_support_requests_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "business_orders"
@@ -768,6 +897,7 @@ export type Database = {
           last_attempt: string | null
           order_id: string
           provider_id: string | null
+          sent_at: string | null
           status: string
           subject: string
         }[]
@@ -780,6 +910,19 @@ export type Database = {
       }
       commerce_offer_quote: {
         Args: { p_code?: string; p_plan: string }
+        Returns: Json
+      }
+      commerce_order_activity: {
+        Args: { p_action?: string; p_data?: Json; p_order: string }
+        Returns: Json
+      }
+      commerce_order_contract: {
+        Args: {
+          p_accept?: boolean
+          p_code?: string
+          p_fingerprint?: string
+          p_order: string
+        }
         Returns: Json
       }
       commerce_record_payment: {
