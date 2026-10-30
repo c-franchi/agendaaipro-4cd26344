@@ -1,3 +1,4 @@
+import {usePromotions,displayedOffer} from '@/lib/offers';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Palette } from "lucide-react";
@@ -48,6 +49,7 @@ const comparison = [
 ];
 
 const PricingSection = () => {
+  const promotions=usePromotions();
   const [images, setImages] = useState(defaultImages);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   useEffect(() => {
@@ -112,6 +114,7 @@ const PricingSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
           {PLAN_KEYS.map((key, index) => {
             const plan = PLANS[key];
+            const offer=displayedOffer(promotions,key);
             return (
               <motion.article
                 key={key}
@@ -135,14 +138,16 @@ const PricingSection = () => {
                 <p className="text-sm text-muted-foreground mt-2 min-h-10">
                   {plan.description}
                 </p>
+                {offer.promotion&&<p className="mt-3 text-sm text-primary">{offer.promotion.title}{offer.promotion.ends_at?` · até ${new Date(offer.promotion.ends_at).toLocaleString('pt-BR')}`:''}</p>}
                 <p className="mt-5">
+                  {offer.monthly<plan.price&&<del className="block text-sm text-muted-foreground">{formatCurrency(plan.price)}/mês</del>}
                   <span className="text-4xl font-bold gradient-text">
-                    {formatCurrency(plan.price)}
+                    {formatCurrency(offer.monthly)}
                   </span>
                   <span className="text-muted-foreground">/mês</span>
                 </p>
                 <p className="mt-3 text-sm border-y border-border/50 py-3">
-                  <strong>{formatCurrency(plan.setupPrice)}</strong> de
+                  {offer.setup<plan.setupPrice&&<del className="mr-2 text-muted-foreground">{formatCurrency(plan.setupPrice)}</del>}<strong>{formatCurrency(offer.setup)}</strong> de
                   implementação única
                 </p>
                 <ul className="space-y-3 my-6">

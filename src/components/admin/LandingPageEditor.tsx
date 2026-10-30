@@ -1,3 +1,4 @@
+import PromotionsManager from './PromotionsManager';
 import heroPlatform from "@/assets/hero-agenda-platform.webp";
 import {
   PLANS,
@@ -367,13 +368,14 @@ export const LandingPageEditor = () => {
       </TabsList>
 
       <TabsContent value="pricing" className="space-y-6">
+        <PromotionsManager/>
         <Card>
           <CardHeader>
             <CardTitle>Oferta comercial vigente</CardTitle>
             <CardDescription>
               Valores e escopo da nova oferta são centralizados no catálogo do
-              código. Os preços e promoções antigos do banco não são usados na
-              nova contratação. Assinaturas existentes mantêm suas condições.
+              código. As promoções configuradas acima são registradas no pedido pela
+              contratação. Assinaturas existentes mantêm suas condições.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

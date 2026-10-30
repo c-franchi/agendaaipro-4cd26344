@@ -1,3 +1,4 @@
+import {usePromotions,displayedOffer} from '@/lib/offers';
 import CardOrderRequest from "./CardOrderRequest";
 import {
   Dialog,
@@ -32,7 +33,8 @@ export const CheckoutModal = ({
   planType,
 }: CheckoutModalProps) => {
   const plan = PLANS[planType];
-  const summary = `Tenho interesse no plano ${plan.name} do AgendaAÍ Pro: ${formatCurrency(plan.price)}/mês e ${formatCurrency(plan.setupPrice)} de implementação única. Quero confirmar os recursos disponíveis, limites e prazo de entrega antes de contratar.`;
+  const offer=displayedOffer(usePromotions(),planType);
+  const summary = `Tenho interesse no plano ${plan.name} do AgendaAÍ Pro: ${formatCurrency(offer.monthly)}/mês e ${formatCurrency(offer.setup)} de implementação única. Quero confirmar os recursos disponíveis, limites e prazo de entrega antes de contratar.`;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[90svh] overflow-y-auto">
@@ -43,15 +45,16 @@ export const CheckoutModal = ({
             disponibilidade dos recursos e o escopo antes do pagamento.
           </DialogDescription>
         </DialogHeader>
+        {offer.promotion&&<p className="text-sm text-primary">{offer.promotion.title} · valores promocionais registrados na solicitação, sujeitos à confirmação do resumo.</p>}
         <dl className="rounded-xl bg-secondary/50 p-4 space-y-3 text-sm">
           <div className="flex justify-between gap-4">
             <dt>Implementação · pagamento único</dt>
-            <dd className="font-semibold">{formatCurrency(plan.setupPrice)}</dd>
+            <dd className="font-semibold">{formatCurrency(offer.setup)}</dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt>Mensalidade após disponibilização</dt>
             <dd className="font-semibold text-primary">
-              {formatCurrency(plan.price)}/mês
+              {formatCurrency(offer.monthly)}/mês
             </dd>
           </div>
         </dl>
@@ -63,8 +66,7 @@ export const CheckoutModal = ({
         </p>
         {planType !== "essencial" && (
           <p className="text-sm rounded-lg bg-primary/10 p-3">
-            Os módulos de gestão, estoque e insumos aplicáveis ao plano estão em
-            preparação. A entrega será confirmada antes da cobrança.
+            As ferramentas são liberadas conforme o plano. Gestão inclui vendas, estoque e caixa; Premium também inclui consumo de insumos e margem estimada.
           </p>
         )}
         {planType === "premium" && (

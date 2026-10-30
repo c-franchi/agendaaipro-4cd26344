@@ -23,3 +23,13 @@ A validade para novos resgates é independente: `expires_at=NULL` significa sem 
 Correção de produção: a migração de vouchers de 29/10 não estava aplicada, causando erro de coluna `commerce_enabled`. Foi aplicada com a migração de duração, histórico de migrações registrado e cache REST notificado. Inserção de voucher vitalício testada sob papel authenticated com identidade do operador, dentro de transação revertida; nenhum voucher de teste permaneceu salvo.
 
 A publicação do frontend pelo Lovable não publica Edge Functions. A conexão Supabase da sessão não tem acesso ao projeto `paajzwvuccvdveejdown`. Publicar os arquivos atualizados de `create-checkout`, `validate-voucher`, `stripe-commerce-webhook` e `create-free-subscription` antes de habilitar cobrança. Preservar autenticação e variáveis existentes; não expor segredos. Checkout permanece desabilitado até validação da integração.
+
+## Promoções públicas e voucher na solicitação
+
+ADM → Landing → Planos → Promoções dos planos: uma campanha por plano, com início/fim, valores em reais, ativação e opção de acumular voucher (desligada por padrão). Nenhuma campanha é criada/ativada pela migração. Preços só podem ser positivos e iguais ou inferiores ao catálogo. A mensalidade promocional permanece no contrato; não há retorno automático ao valor normal depois de N meses. O fim da campanha afeta novas solicitações, não pedidos existentes.
+
+Home e modal usam a tabela pública de campanhas ativas. A contratação consulta `commerce_offer_quote` e grava por `commerce_request_offer`, sem depender de uma função Edge nova para criar o pedido. O banco recalcula preços, exige identidade, valida os contatos e o fingerprint da oferta, registra auditoria e guarda preços, campanha e códigos em cada pedido. As funções privilegiadas ficam em schema privado, com busca fixa, identidade obrigatória e acesso revogado a PUBLIC/anon. RPCs públicas são invoker; gravação direta do pedido pelo cliente continua proibida.
+
+O voucher aparece na contratação e é indicado para implementação/mensalidade conforme seu escopo. A prévia não reserva usos: validade e limites são revalidados no checkout, evitando promessa de código expirado. O preço da campanha fica preservado no pedido; as regras de acumulação também ficam registradas e são conferidas pela reserva no servidor. Atualização de campanhas não altera assinaturas nem pedidos antigos.
+
+Publicar `create-checkout` e demais funções de vouchers pendentes antes de habilitar cobrança. A sessão continua sem acesso ao deploy das Edge Functions do projeto Lovable. A publicação do frontend não comprova que o checkout está atualizado.
