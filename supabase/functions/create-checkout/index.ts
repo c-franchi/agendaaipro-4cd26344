@@ -39,7 +39,7 @@ serve(async req=>{
 
   const params:any=checkoutParams(order,kind,req.headers.get('origin')!);
   if(reservation){
-   const coupon=await stripe.coupons.create({amount_off:reservation.discount_cents,currency:'brl',duration:kind==='setup'||reservation.months===1?'once':'repeating',...(kind==='subscription'&&reservation.months>1?{duration_in_months:reservation.months}:{}),name:`Voucher ${reservation.code}`},{idempotencyKey:`commerce-voucher:${reservation.id}`});
+   const coupon=await stripe.coupons.create({amount_off:reservation.discount_cents,currency:'brl',duration:kind==='subscription'&&reservation.months===0?'forever':kind==='setup'||reservation.months===1?'once':'repeating',...(kind==='subscription'&&reservation.months>1?{duration_in_months:reservation.months}:{}),name:`Voucher ${reservation.code}`},{idempotencyKey:`commerce-voucher:${reservation.id}`});
    params.discounts=[{coupon:coupon.id}];params.metadata.voucher_reservation=reservation.id;params.metadata.voucher_code=reservation.code;
    const {error}=await db.from('commerce_voucher_reservations').update({coupon_id:coupon.id}).eq('id',reservation.id);if(error)throw error;
   }
