@@ -9,7 +9,7 @@ serve(async req=>{
   const body=await req.json();
   const enabled=Deno.env.get('STRIPE_CHECKOUT_ENABLED')==='true';
   const key=Deno.env.get('STRIPE_SECRET_KEY'),webhook=Deno.env.get('STRIPE_WEBHOOK_SECRET');
-  if(body.action==='status')return reply(req,{voucherVersion:'2026-10-30',enabled:Boolean(enabled&&key&&webhook),recurringEnabled:Boolean(enabled&&key&&webhook&&Deno.env.get('STRIPE_RECURRING_ENABLED')==='true'),message:enabled&&key&&webhook?'Disponível após aprovação do pedido.':'Cartão em preparação. Aguardamos a liberação da Stripe e a configuração final.'});
+  if(body.action==='status')return reply(req,{voucherVersion:'2026-10-30',enabled:Boolean(enabled&&key&&webhook),recurringEnabled:Boolean(enabled&&key&&webhook&&Deno.env.get('STRIPE_RECURRING_ENABLED')==='true'),message:enabled&&key&&webhook?'Disponível após aprovação do pedido.':'Pagamento aguarda a configuração final. Você pode registrar a solicitação sem cobrança.'});
   const db=database(),user=await identity(req,db);if(!user)return reply(req,{error:'Entre na sua conta para pagar.'},401);
   if(!enabled||!key||!webhook)return reply(req,{error:'O pagamento por cartão ainda não está liberado. Seu pedido pode ser acompanhado normalmente.'},503);
   if(!isUuid(body.orderId)||!['setup','subscription'].includes(body.kind))return reply(req,{error:'Pedido ou cobrança inválidos.'},400);
