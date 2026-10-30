@@ -101,10 +101,7 @@ const Terms = () => {
                   </li>
                 ))}
                 <li>
-                  A solicitação pelo site é assistida e não gera cobrança nem
-                  assinatura automática. Escopo, disponibilidade, limites e
-                  condições de suporte são confirmados na proposta antes do
-                  pagamento.
+                  A contratação padrão direciona ao checkout da implementação do plano escolhido, com o valor final e eventuais descontos apresentados no resumo. Após a confirmação do pagamento, o cliente envia os materiais e acompanha a preparação pela sua conta. O prazo de produção começa após o envio completo e a conferência dos materiais. Necessidades fora da estrutura e dos módulos do plano são avaliadas separadamente.
                 </li>
                 <li>
                   A implementação cobre a configuração inicial e o primeiro ano
@@ -112,7 +109,7 @@ const Terms = () => {
                   cobrada separadamente.
                 </li>
                 <li>
-                  A mensalidade começa na disponibilização do sistema e inclui
+                  A mensalidade é contratada após a aprovação da entrega e inclui
                   ferramentas contratadas, hospedagem, manutenção técnica e
                   suporte de uso.
                 </li>
@@ -135,7 +132,7 @@ const Terms = () => {
               </ul>
               <p className="mt-4 font-semibold">Vouchers:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Não são cumulativos</li>
+                <li>Um voucher por cobrança. A combinação com uma promoção só é permitida quando indicada nas regras da campanha.</li>
                 <li>Podem ter validade e limite de uso</li>
                 <li>Podem ser cancelados a qualquer momento</li>
               </ul>

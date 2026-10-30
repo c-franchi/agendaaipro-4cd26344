@@ -66,7 +66,7 @@ export const formatCurrency = (value: number) =>
 export const PREMIUM_CONTENT_NOTE =
   "A mensalidade remunera as ferramentas do sistema, hospedagem, manutenção técnica e suporte de uso. A preparação de imagens, portfólio e vídeo acontece somente na entrega inicial. Não há criação mensal de conteúdo incluída.";
 export const DELIVERY_NOTE =
-  "Prazo estimado de 15 a 20 dias úteis após a confirmação da contratação, pagamento da implementação e recebimento de todos os materiais. O escopo e os limites do plano são confirmados antes da cobrança.";
+  "Prazo estimado de 15 a 20 dias úteis a partir do envio completo e da conferência dos materiais. O pagamento da implementação inicia o atendimento; a mensalidade é contratada após a aprovação da entrega. Cada instalação inclui uma agenda de atendimento.";
 export const DEFAULT_HERO = {
   title: "Seu negócio com site próprio, domínio e agendamento online",
   subtitle:
@@ -96,7 +96,7 @@ export const OFFER_FAQS = [
         (key) =>
           `${PLANS[key].name}: ${formatCurrency(PLANS[key].price)}/mês e ${formatCurrency(PLANS[key].setupPrice)} de implementação.`,
       ).join(" ") +
-      " Estes são os preços normais; promoções ativas aparecem nos planos e no resumo da contratação. A implementação é única. A mensalidade começa quando o sistema for disponibilizado para uso. A contratação é assistida: confirmamos escopo, limites e disponibilidade antes da cobrança.",
+      " Estes são os preços normais; promoções ativas aparecem nos planos e no resumo da contratação. A implementação é única. A mensalidade é contratada quando o sistema estiver entregue e aprovado. Você paga a implementação ao contratar. Depois envia os materiais e acompanha a preparação, as mensagens e a aprovação da entrega pela sua conta.",
   },
   {
     question: "O Premium inclui conteúdo novo todo mês?",
@@ -118,21 +118,21 @@ export const OFFER_FAQS = [
   {
     question: "O que a mensalidade inclui e o que é cobrado à parte?",
     answer:
-      "Inclui as ferramentas contratadas, hospedagem, manutenção técnica e suporte de uso. Quantidade de profissionais, armazenamento e canais e horários de suporte serão definidos na proposta antes do pagamento. Taxas dos meios de pagamento, mensagens pagas, serviços externos e produção adicional de conteúdo não estão incluídos.",
+      "Inclui as ferramentas contratadas, hospedagem, manutenção técnica e suporte de uso. Cada instalação inclui uma agenda de atendimento. Necessidades fora da estrutura e dos módulos do plano são avaliadas separadamente. Taxas dos meios de pagamento, mensagens pagas, serviços externos e produção adicional de conteúdo não estão incluídos.",
   },
   {
     question: "Posso conhecer o sistema antes de contratar?",
     answer:
-      "Sim. Veja o exemplo do Eric Zambonini e solicite uma demonstração. O exemplo mostra uma aplicação da estrutura; seu site recebe sua própria marca e as funções contratadas. A solicitação pelo site não gera cobrança nem ativa uma assinatura automaticamente.",
+      "Sim. Veja o exemplo do Eric Zambonini e solicite uma demonstração. O exemplo mostra uma aplicação da estrutura; seu site recebe sua própria marca e as funções contratadas. Você pode conhecer a demonstração sem cobrança. Ao contratar, o pagamento da implementação é feito no checkout; a mensalidade é contratada após a entrega.",
   },
   {
     question: "Como funcionam pagamentos e mensagens automáticas?",
     answer:
-      "A disponibilidade de Pix integrado, confirmações e mensagens automáticas depende das integrações configuradas no seu sistema. Confirmamos as funções e os custos externos na proposta, antes de contratar. Não são recursos automaticamente incluídos em todos os planos.",
+      "A disponibilidade de Pix integrado, confirmações e mensagens automáticas depende das integrações configuradas no seu sistema. Integrações adicionais e seus custos são avaliados separadamente. Não são recursos automaticamente incluídos em todos os planos.",
   },
   {
     question: "Como funciona o cancelamento?",
     answer:
-      "Você pode solicitar o cancelamento pelo atendimento ou gerenciar uma assinatura existente na sua conta. As condições de encerramento, acesso aos dados e implementação serão apresentadas na proposta antes do pagamento.",
+      "Você pode solicitar o cancelamento pelo atendimento ou gerenciar uma assinatura existente na sua conta. Consulte as condições de encerramento, acesso aos dados e implementação nos Termos de Uso disponíveis na contratação.",
   },
 ];
