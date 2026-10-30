@@ -20,11 +20,11 @@ const problems = [
   },
   {
     problem: "Estoque sem acompanhamento",
-    solution: "Estoque de produtos previsto no Gestão e Premium*",
+    solution: "Estoque de produtos incluído no Gestão e Premium",
   },
   {
     problem: "Falta de controle financeiro",
-    solution: "Financeiro e relatórios previstos no Gestão e Premium*",
+    solution: "Resumo financeiro dos atendimentos no Gestão e Premium",
   },
   {
     problem: "Agenda desorganizada",

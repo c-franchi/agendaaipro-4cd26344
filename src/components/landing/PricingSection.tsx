@@ -35,7 +35,8 @@ const comparison = [
     "Incluído",
     "Incluído",
   ],
-  ["Vendas, estoque de produtos e financeiro", "—", "Previsto*", "Previsto*"],
+  ["Catálogo, vendas e estoque de produtos", "—", "Incluído", "Incluído"],
+  ["Resumo financeiro mensal dos atendimentos", "—", "Incluído", "Incluído"],
   ["Insumos por serviço e margem estimada", "—", "—", "Previsto*"],
   [
     "Preparação de imagens, portfólio e vídeo",
@@ -183,9 +184,9 @@ const PricingSection = () => {
           })}
         </div>
         <p className="max-w-4xl mx-auto text-sm text-muted-foreground mt-6 text-center">
-          * Estoque, financeiro ampliado e consumo de insumos serão
-          implementados e validados no sistema. A disponibilidade e os prazos
-          são confirmados antes da contratação e da cobrança.
+          * Apenas consumo de insumos por serviço e margem estimada estão em
+          preparação e não estão incluídos na entrega atual. O financeiro
+          disponível resume os recebimentos dos atendimentos; não inclui caixa de despesas.
         </p>
         <div
           className="max-w-6xl mx-auto mt-12 overflow-x-auto rounded-xl border border-border/50"
