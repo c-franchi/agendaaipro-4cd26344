@@ -8,6 +8,27 @@
       "when": 1793225330998,
       "tag": "0000_commerce_checkout_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793331734571,
+      "tag": "0001_enable_order_notification_scheduling_extensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793331806845,
+      "tag": "0002_authorize_secure_notification_vault_transfer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793331838998,
+      "tag": "0003_remove_temporary_notification_vault_permission",
+      "breakpoints": true
     }
   ]
 }
