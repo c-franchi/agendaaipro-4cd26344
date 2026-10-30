@@ -32,6 +32,7 @@ export const PLANS = {
       "Entradas, perdas, conferência e estoque mínimo",
       "Resumo financeiro mensal dos atendimentos",
       "Valores recebidos, em aberto e comprovantes",
+      "Despesas, receitas e fluxo de caixa mensal",
     ],
     plannedFeatures: [] as string[],
     popular: true,
@@ -46,12 +47,11 @@ export const PLANS = {
       "Preparação visual na entrega inicial",
       "Até 10 imagens e 10 itens de portfólio",
       "1 vídeo curto e 2 rodadas de revisão",
-    ],
-    plannedFeatures: [
       "Insumos e consumo de materiais por serviço",
       "Baixa de insumos ao concluir o atendimento",
       "Custos registrados e margem estimada",
     ],
+    plannedFeatures: [] as string[],
     popular: false,
   },
 };
@@ -66,7 +66,7 @@ export const formatCurrency = (value: number) =>
 export const PREMIUM_CONTENT_NOTE =
   "A mensalidade remunera as ferramentas do sistema, hospedagem, manutenção técnica e suporte de uso. A preparação de imagens, portfólio e vídeo acontece somente na entrega inicial. Não há criação mensal de conteúdo incluída.";
 export const DELIVERY_NOTE =
-  "Prazo estimado de 15 a 20 dias úteis após a confirmação da contratação, pagamento da implementação e recebimento de todos os materiais. Recursos em preparação terão disponibilidade e prazo confirmados antes de qualquer cobrança.";
+  "Prazo estimado de 15 a 20 dias úteis após a confirmação da contratação, pagamento da implementação e recebimento de todos os materiais. O escopo e os limites do plano são confirmados antes da cobrança.";
 export const DEFAULT_HERO = {
   title: "Seu negócio com site próprio, domínio e agendamento online",
   subtitle:
@@ -107,7 +107,7 @@ export const OFFER_FAQS = [
   {
     question: "Como funcionam estoque e consumo de materiais?",
     answer:
-      "Gestão e Premium incluem catálogo, vendas e estoque de produtos, com entradas, perdas, conferência, movimentações e indicação de estoque mínimo. Incluem também o resumo financeiro mensal dos atendimentos, com valores recebidos, em aberto e comprovantes. Consumo automático de insumos por serviço, margem estimada e caixa de despesas ainda estão em preparação e não fazem parte dos recursos disponíveis.",
+      "Gestão e Premium incluem catálogo, vendas e estoque de produtos, com entradas, perdas, conferência, movimentações e indicação de estoque mínimo. Incluem também o resumo financeiro mensal dos atendimentos, com valores recebidos, em aberto e comprovantes. O caixa registra receitas e despesas, com recebimentos novos confirmados registrados automaticamente. No Premium, você cadastra os materiais de cada serviço e o sistema baixa o consumo ao concluir o atendimento, preservando o custo histórico. A margem estimada desconta os materiais registrados; não representa lucro líquido nem inclui todos os custos do negócio.",
   },
   {
     question: "O domínio está incluído?",
