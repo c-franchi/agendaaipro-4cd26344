@@ -13,3 +13,13 @@ Adicionar `checkout.session.expired` aos eventos do webhook existente. Isso libe
 Flags de checkout/recorrência continuam desativadas. Validar em ambiente Stripe de testes antes de ativar: cupom percentual/fixo/100%, primeira mensalidade e renovação após desconto, expiração e reenvio de webhook. Os testes locais não são transações Stripe reais. Cupons são criados somente quando o comprador inicia o checkout habilitado; nenhuma cobrança, cliente ou assinatura foi criada nesta implementação.
 
 Execução local: `COMMERCE_TEST_MODULES=/tmp/agendai-commerce-test/node_modules node scripts/test-vouchers.mjs`, `node scripts/test-checkout-handler.mjs`, `COMMERCE_TEST_MODULES=/tmp/agendai-commerce-test/node_modules node scripts/test-commerce.mjs`, `node scripts/test-password-recovery.mjs`, `npx tsc --noEmit -p tsconfig.app.json`, `npm run build`.
+
+## Desconto vitalício e prazo de resgate
+
+A migração `20261030014834_voucher_lifetime.sql` permite `discount_months=0`: desconto enquanto a assinatura continuar ativa. Valores de 1 a 12 mantêm duração finita. O checkout cria cupom Stripe `duration=forever` para a mensalidade com zero meses; implementação e primeira mensalidade permanecem únicas. Isso não transfere o desconto para uma nova assinatura nem altera assinaturas existentes.
+
+A validade para novos resgates é independente: `expires_at=NULL` significa sem expiração. O ADM oferece as duas escolhas separadas. As regras de quantidade de usos, escopo, autorização e reservas continuam válidas.
+
+Correção de produção: a migração de vouchers de 29/10 não estava aplicada, causando erro de coluna `commerce_enabled`. Foi aplicada com a migração de duração, histórico de migrações registrado e cache REST notificado. Inserção de voucher vitalício testada sob papel authenticated com identidade do operador, dentro de transação revertida; nenhum voucher de teste permaneceu salvo.
+
+A publicação do frontend pelo Lovable não publica Edge Functions. A conexão Supabase da sessão não tem acesso ao projeto `paajzwvuccvdveejdown`. Publicar os arquivos atualizados de `create-checkout`, `validate-voucher`, `stripe-commerce-webhook` e `create-free-subscription` antes de habilitar cobrança. Preservar autenticação e variáveis existentes; não expor segredos. Checkout permanece desabilitado até validação da integração.

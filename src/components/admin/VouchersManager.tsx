@@ -62,7 +62,7 @@ export const VouchersManager = () => {
     applies_to: "first_payment",
     starts_at: new Date().toISOString().split("T")[0],
     expires_at: "",
-    validity_period: "" as "" | "1" | "3" | "6" | "12" | "custom",
+    validity_period: "" as "" | "1" | "3" | "6" | "12" | "custom" | "forever",
     max_uses: "",
     max_uses_per_user: "1",
   });
@@ -77,7 +77,9 @@ export const VouchersManager = () => {
   const handleValidityPeriodChange = (value: string) => {
     setFormData(prev => {
       const newData = { ...prev, validity_period: value as typeof prev.validity_period };
-      if (value && value !== "custom") {
+      if (value === "forever") {
+        newData.expires_at = "";
+      } else if (value && value !== "custom") {
         newData.expires_at = calculateExpirationDate(parseInt(value));
       } else if (value === "custom") {
         // Keep existing expires_at for custom
@@ -136,8 +138,8 @@ export const VouchersManager = () => {
 
     try {
       // Determine validity_months from validity_period
-      let validityMonths = 1;
-      if (formData.validity_period && formData.validity_period !== "custom") {
+      let validityMonths: number | null = formData.validity_period === "forever" ? null : 1;
+      if (formData.validity_period && formData.validity_period !== "custom" && formData.validity_period !== "forever") {
         validityMonths = parseInt(formData.validity_period);
       } else if (formData.expires_at && formData.starts_at) {
         // Calculate months from dates
@@ -213,7 +215,7 @@ export const VouchersManager = () => {
       applies_to: voucher.applies_to,
       starts_at: voucher.starts_at.split("T")[0],
       expires_at: voucher.expires_at ? voucher.expires_at.split("T")[0] : "",
-      validity_period: "custom",
+      validity_period: voucher.expires_at ? "custom" : "forever",
       max_uses: voucher.max_uses?.toString() || "",
       max_uses_per_user: voucher.max_uses_per_user?.toString() || "1",
     });
@@ -394,7 +396,14 @@ export const VouchersManager = () => {
                       <div className="space-y-2">
                         <label className="flex gap-2 text-sm"><Switch checked={formData.commerce_enabled} onCheckedChange={v=>setFormData({...formData,commerce_enabled:v})}/>Revisei as regras e autorizo o uso no novo checkout</label>
                         <p className="text-xs text-muted-foreground">Implementação e mensalidade contam como resgates separados nos limites de uso. Não altera assinaturas existentes.</p>
-                        <Label>Meses com desconto na mensalidade (opção Mensalidade)</Label><Input type="number" min={1} max={12} value={formData.discount_months} onChange={e=>setFormData({...formData,discount_months:Number(e.target.value)})}/>
+                        <Label>Duração do desconto na mensalidade</Label>
+                        <Select value={String(formData.discount_months)} onValueChange={v=>setFormData({...formData,discount_months:Number(v)})} disabled={formData.applies_to!=="monthly"}>
+                          <SelectTrigger><SelectValue/></SelectTrigger><SelectContent>
+                            {Array.from({length:12},(_,i)=><SelectItem key={i+1} value={String(i+1)}>{i+1} mês(es)</SelectItem>)}
+                            <SelectItem value="0">Vitalício · enquanto a assinatura estiver ativa</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">Vitalício vale para a opção Mensalidade e dura enquanto a assinatura continuar ativa. Não transfere para uma nova assinatura. O prazo para resgatar o código é definido separadamente abaixo.</p>
                         <Label>Aplica-se a</Label>
                         <Select
                           value={formData.applies_to}
@@ -407,7 +416,7 @@ export const VouchersManager = () => {
                             <SelectItem value="first_payment">Primeira mensalidade (1 mês)</SelectItem>
                             <SelectItem value="monthly">Mensalidade (duração acima)</SelectItem>
                             <SelectItem value="setup">Implementação única</SelectItem>
-                            <SelectItem value="setup_and_first">Setup + 1ª Mensalidade (duração acima)</SelectItem>
+                            <SelectItem value="setup_and_first">Implementação + primeira mensalidade (1 mês)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -427,6 +436,7 @@ export const VouchersManager = () => {
                             <SelectItem value="6">6 meses</SelectItem>
                             <SelectItem value="12">12 meses (1 ano)</SelectItem>
                             <SelectItem value="custom">Data personalizada</SelectItem>
+                            <SelectItem value="forever">Vitalício / sem expiração para resgate</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -455,7 +465,7 @@ export const VouchersManager = () => {
                           />
                           {formData.validity_period && formData.validity_period !== "custom" && (
                             <p className="text-xs text-muted-foreground">
-                              Calculada automaticamente
+                              {formData.validity_period === "forever" ? "Sem data de expiração para novos resgates" : "Calculada automaticamente"}
                             </p>
                           )}
                         </div>

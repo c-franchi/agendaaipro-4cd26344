@@ -7,10 +7,10 @@ const compile=s=>ts.transpileModule(s,{compilerOptions:{module:ts.ModuleKind.Com
 const mod={exports:{}};new Function('exports','module',compile(pure))(mod.exports,mod);const shared=mod.exports;
 let handler,user={id:'11111111-1111-4111-8111-111111111111'},originAllowed=true,calls=0,lastParams,charges=true;
 const env={STRIPE_SECRET_KEY:'sk_test_fixture',STRIPE_WEBHOOK_SECRET:'whsec_fixture',STRIPE_CHECKOUT_ENABLED:'false',STRIPE_RECURRING_ENABLED:'false'};
-let order;
+let order,heldVoucher=null,lastCoupon;
 const reset=()=>{order={id:'22222222-2222-4222-8222-222222222222',user_id:user.id,email:'fixture@example.com',plan_type:'essencial',setup_cents:25000,monthly_cents:3990,stage:'awaiting_payment',payment_status:'pending',setup_session_id:null,subscription_session_id:null,stripe_subscription_id:null}};reset();
-const db={from(table){const filters=[];let patch=null;return {select(){return this},neq(){return this},async maybeSingle(){return {data:null,error:null}},eq(k,v){filters.push([k,v]);return this},update(p){patch=p;return this},async single(){if(filters.some(([k,v])=>order[k]!==v))return {data:null,error:Error('not found')};if(patch)Object.assign(order,patch);return {data:order,error:null}}}}};
-class FakeStripe{accounts={retrieve:async()=>({id:'acct_fixture',charges_enabled:charges})};checkout={sessions:{create:async params=>{calls++;lastParams=params;return {id:'cs_fixture',url:'https://checkout.stripe.com/c/pay/fixture',livemode:false}},retrieve:async()=>({status:'open',url:'https://checkout.stripe.com/c/pay/fixture'}),expire:async()=>({})}}}
+const db={from(table){const filters=[];let patch=null;return {select(){return this},neq(){return this},async maybeSingle(){return {data:heldVoucher,error:null}},eq(k,v){filters.push([k,v]);return this},update(p){patch=p;return this},async single(){if(filters.some(([k,v])=>order[k]!==v))return {data:null,error:Error('not found')};if(patch)Object.assign(order,patch);return {data:order,error:null}}}}};
+class FakeStripe{coupons={create:async p=>{lastCoupon=p;return {id:'coupon_fixture'}}};accounts={retrieve:async()=>({id:'acct_fixture',charges_enabled:charges})};checkout={sessions:{create:async params=>{calls++;lastParams=params;return {id:'cs_fixture',url:'https://checkout.stripe.com/c/pay/fixture',livemode:false}},retrieve:async()=>({status:'open',url:'https://checkout.stripe.com/c/pay/fixture'}),expire:async()=>({})}}}
 const runtime={allowed:()=>originAllowed,cors:()=>({}),reply:(_req,data,status=200)=>Response.json(data,{status}),database:()=>db,identity:async()=>user};
 const req=id=>id.includes('http/server')?{serve:fn=>{handler=fn}}:id.includes('stripe@')?{__esModule:true,default:FakeStripe}:id.endsWith('/commerce.ts')?shared:runtime;
 new Function('require','exports','module','Deno',compile(source))(req,{}, {exports:{}},{env:{get:k=>env[k]}});
@@ -24,6 +24,13 @@ assert.equal((await pay('setup')).status,200);assert.equal(calls,1);assert.equal
 assert.equal((await pay('setup')).status,200);assert.equal(calls,1,'Reuses open session');
 order.stage='queued';order.payment_status='paid';env.STRIPE_RECURRING_ENABLED='true';assert.equal((await pay('subscription')).status,409);
 order.stage='ready';assert.equal((await pay('subscription')).status,200);assert.equal(lastParams.mode,'subscription');assert.equal(lastParams.line_items[0].price_data.unit_amount,3990);
+for(const [months,duration] of [[0,'forever'],[1,'once'],[3,'repeating']]){
+ reset();order.stage='ready';order.payment_status='paid';heldVoucher={id:'reservation_fixture',code:'LIFETIME',discount_cents:399,months};
+ assert.equal((await handler(request({orderId:order.id,kind:'subscription',voucherCode:'LIFETIME'}))).status,200);
+ assert.equal(lastCoupon.duration,duration);assert.equal(lastCoupon.duration_in_months,months>1?months:undefined);
+ assert.equal(lastParams.discounts[0].coupon,'coupon_fixture');
+}
+heldVoucher=null;
 reset();env.STRIPE_SECRET_KEY='sk_live_fixture';env.STRIPE_EXPECTED_ACCOUNT_ID='wrong_account';assert.equal((await pay('setup')).status,503);env.STRIPE_EXPECTED_ACCOUNT_ID='acct_fixture';charges=false;assert.equal((await pay('setup')).status,503);
 originAllowed=false;assert.equal((await handler(request({action:'status'}))).status,403);
 console.log('PASS: disabled billing makes no checkout; authentication and ownership; scope approval; forged prices/email ignored; retry reuses session; monthly checkout requires delivery; account verification; rejected origins. No Stripe network requests.');
