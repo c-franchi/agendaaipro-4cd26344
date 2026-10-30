@@ -45,17 +45,17 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: "Financeiro dos atendimentos",
+    title: "Financeiro e fluxo de caixa",
     description:
-      "Incluído no Gestão e Premium: resumo mensal dos atendimentos, valores recebidos, em aberto e comprovantes para análise.",
+      "Incluído no Gestão e Premium: resumo dos atendimentos, receitas, despesas, fluxo de caixa e histórico de lançamentos com estorno.",
     highlight: "Gestão e Premium",
   },
   {
     icon: CreditCard,
     title: "Insumos e custos por serviço",
     description:
-      "Previsto no Premium: consumo de materiais, baixa por atendimento e margem estimada pelos custos registrados. Módulo em preparação.",
-    highlight: "Em preparação",
+      "Incluído no Premium: materiais por serviço, baixa ao concluir o atendimento e margem estimada a partir dos custos registrados.",
+    highlight: "Premium",
   },
   {
     icon: MessageSquare,

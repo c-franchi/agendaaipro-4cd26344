@@ -37,7 +37,8 @@ const comparison = [
   ],
   ["Catálogo, vendas e estoque de produtos", "—", "Incluído", "Incluído"],
   ["Resumo financeiro mensal dos atendimentos", "—", "Incluído", "Incluído"],
-  ["Insumos por serviço e margem estimada", "—", "—", "Previsto*"],
+  ["Receitas, despesas e fluxo de caixa", "—", "Incluído", "Incluído"],
+  ["Insumos por serviço e margem estimada", "—", "—", "Incluído"],
   [
     "Preparação de imagens, portfólio e vídeo",
     "Avulso",
@@ -152,18 +153,6 @@ const PricingSection = () => {
                     </li>
                   ))}
                 </ul>
-                {plan.plannedFeatures.length > 0 && (
-                  <div className="rounded-lg bg-secondary/50 p-4 mb-6 text-sm">
-                    <p className="font-semibold mb-2">
-                      Recursos previstos · em preparação
-                    </p>
-                    <ul className="list-disc pl-4 space-y-2 text-muted-foreground">
-                      {plan.plannedFeatures.map((feature) => (
-                        <li key={feature}>{feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
                 <div className="mt-auto">
                   <p className="text-xs text-muted-foreground mb-4">
                     {key === "premium"
@@ -184,9 +173,9 @@ const PricingSection = () => {
           })}
         </div>
         <p className="max-w-4xl mx-auto text-sm text-muted-foreground mt-6 text-center">
-          * Apenas consumo de insumos por serviço e margem estimada estão em
-          preparação e não estão incluídos na entrega atual. O financeiro
-          disponível resume os recebimentos dos atendimentos; não inclui caixa de despesas.
+          O fluxo de caixa considera receitas e despesas registradas. No Premium,
+          a margem estimada do serviço desconta os materiais consumidos;
+          não equivale a lucro líquido. A baixa acontece ao concluir o atendimento.
         </p>
         <div
           className="max-w-6xl mx-auto mt-12 overflow-x-auto rounded-xl border border-border/50"
