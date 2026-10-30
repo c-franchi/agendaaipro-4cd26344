@@ -82,6 +82,8 @@ export type Database = {
         Row: {
           approved_scope: string | null
           billing_event_created: number
+          business_name: string | null
+          business_type: string | null
           created_at: string
           currency: string
           email: string
@@ -90,15 +92,23 @@ export type Database = {
           livemode: boolean | null
           module_plan: string
           monthly_cents: number
+          monthly_due_cents: number | null
           name: string
           paid_at: string | null
           payment_status: string
+          phone: string | null
           plan_type: string
+          promotion_snapshot: Json | null
           ready_at: string | null
           request_key: string
+          request_message: string | null
+          requested_monthly_code: string | null
+          requested_setup_code: string | null
           scope_note: string | null
           setup_cents: number
+          setup_due_cents: number | null
           setup_session_id: string | null
+          setup_waived: boolean
           stage: string
           stripe_customer_id: string | null
           stripe_payment_intent_id: string | null
@@ -114,6 +124,8 @@ export type Database = {
         Insert: {
           approved_scope?: string | null
           billing_event_created?: number
+          business_name?: string | null
+          business_type?: string | null
           created_at?: string
           currency?: string
           email: string
@@ -122,15 +134,23 @@ export type Database = {
           livemode?: boolean | null
           module_plan: string
           monthly_cents: number
+          monthly_due_cents?: number | null
           name: string
           paid_at?: string | null
           payment_status?: string
+          phone?: string | null
           plan_type: string
+          promotion_snapshot?: Json | null
           ready_at?: string | null
           request_key: string
+          request_message?: string | null
+          requested_monthly_code?: string | null
+          requested_setup_code?: string | null
           scope_note?: string | null
           setup_cents: number
+          setup_due_cents?: number | null
           setup_session_id?: string | null
+          setup_waived?: boolean
           stage?: string
           stripe_customer_id?: string | null
           stripe_payment_intent_id?: string | null
@@ -146,6 +166,8 @@ export type Database = {
         Update: {
           approved_scope?: string | null
           billing_event_created?: number
+          business_name?: string | null
+          business_type?: string | null
           created_at?: string
           currency?: string
           email?: string
@@ -154,15 +176,23 @@ export type Database = {
           livemode?: boolean | null
           module_plan?: string
           monthly_cents?: number
+          monthly_due_cents?: number | null
           name?: string
           paid_at?: string | null
           payment_status?: string
+          phone?: string | null
           plan_type?: string
+          promotion_snapshot?: Json | null
           ready_at?: string | null
           request_key?: string
+          request_message?: string | null
+          requested_monthly_code?: string | null
+          requested_setup_code?: string | null
           scope_note?: string | null
           setup_cents?: number
+          setup_due_cents?: number | null
           setup_session_id?: string | null
+          setup_waived?: boolean
           stage?: string
           stripe_customer_id?: string | null
           stripe_payment_intent_id?: string | null
@@ -174,6 +204,108 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      commerce_voucher_reservations: {
+        Row: {
+          base_cents: number
+          code: string
+          coupon_id: string | null
+          created_at: string
+          discount_cents: number
+          due_cents: number
+          id: string
+          kind: string
+          months: number
+          order_id: string
+          session_id: string | null
+          state: string
+          user_id: string
+          voucher_id: string
+        }
+        Insert: {
+          base_cents: number
+          code: string
+          coupon_id?: string | null
+          created_at?: string
+          discount_cents: number
+          due_cents: number
+          id?: string
+          kind: string
+          months: number
+          order_id: string
+          session_id?: string | null
+          state?: string
+          user_id: string
+          voucher_id: string
+        }
+        Update: {
+          base_cents?: number
+          code?: string
+          coupon_id?: string | null
+          created_at?: string
+          discount_cents?: number
+          due_cents?: number
+          id?: string
+          kind?: string
+          months?: number
+          order_id?: string
+          session_id?: string | null
+          state?: string
+          user_id?: string
+          voucher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commerce_voucher_reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commerce_voucher_reservations_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_promotions: {
+        Row: {
+          active: boolean
+          allow_voucher: boolean
+          ends_at: string | null
+          monthly_cents: number
+          plan_type: string
+          setup_cents: number
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          allow_voucher?: boolean
+          ends_at?: string | null
+          monthly_cents: number
+          plan_type: string
+          setup_cents: number
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          allow_voucher?: boolean
+          ends_at?: string | null
+          monthly_cents?: number
+          plan_type?: string
+          setup_cents?: number
+          starts_at?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -341,12 +473,12 @@ export type Database = {
       vouchers: {
         Row: {
           applies_to: string
-          commerce_enabled: boolean
-          discount_months: number
           code: string
+          commerce_enabled: boolean
           created_at: string
           created_by: string | null
           current_uses: number
+          discount_months: number
           discount_type: string
           discount_value: number
           expires_at: string | null
@@ -359,13 +491,13 @@ export type Database = {
           validity_months: number | null
         }
         Insert: {
-          commerce_enabled?: boolean
-          discount_months?: number
           applies_to?: string
           code: string
+          commerce_enabled?: boolean
           created_at?: string
           created_by?: string | null
           current_uses?: number
+          discount_months?: number
           discount_type: string
           discount_value: number
           expires_at?: string | null
@@ -378,13 +510,13 @@ export type Database = {
           validity_months?: number | null
         }
         Update: {
-          commerce_enabled?: boolean
-          discount_months?: number
           applies_to?: string
           code?: string
+          commerce_enabled?: boolean
           created_at?: string
           created_by?: string | null
           current_uses?: number
+          discount_months?: number
           discount_type?: string
           discount_value?: number
           expires_at?: string | null
@@ -403,6 +535,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      commerce_offer_quote: {
+        Args: { p_code?: string; p_plan: string }
+        Returns: Json
+      }
       commerce_record_payment: {
         Args: {
           p_amount: number
@@ -426,6 +562,99 @@ export type Database = {
           p_order?: string
         }
         Returns: undefined
+      }
+      commerce_release_voucher: {
+        Args: { p_session: string }
+        Returns: undefined
+      }
+      commerce_request_offer: {
+        Args: {
+          p_code: string
+          p_contact: Json
+          p_fingerprint: string
+          p_key: string
+          p_plan: string
+          p_terms: string
+        }
+        Returns: {
+          approved_scope: string | null
+          billing_event_created: number
+          business_name: string | null
+          business_type: string | null
+          created_at: string
+          currency: string
+          email: string
+          id: string
+          installation_id: string | null
+          livemode: boolean | null
+          module_plan: string
+          monthly_cents: number
+          monthly_due_cents: number | null
+          name: string
+          paid_at: string | null
+          payment_status: string
+          phone: string | null
+          plan_type: string
+          promotion_snapshot: Json | null
+          ready_at: string | null
+          request_key: string
+          request_message: string | null
+          requested_monthly_code: string | null
+          requested_setup_code: string | null
+          scope_note: string | null
+          setup_cents: number
+          setup_due_cents: number | null
+          setup_session_id: string | null
+          setup_waived: boolean
+          stage: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
+          subscription_session_id: string | null
+          subscription_status: string
+          terms_accepted_at: string
+          terms_version: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "business_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      commerce_reserve_voucher: {
+        Args: {
+          p_code: string
+          p_kind: string
+          p_order: string
+          p_preview?: boolean
+          p_user: string
+        }
+        Returns: {
+          base_cents: number
+          code: string
+          coupon_id: string | null
+          created_at: string
+          discount_cents: number
+          due_cents: number
+          id: string
+          kind: string
+          months: number
+          order_id: string
+          session_id: string | null
+          state: string
+          user_id: string
+          voucher_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commerce_voucher_reservations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       commerce_transition: {
         Args: {
