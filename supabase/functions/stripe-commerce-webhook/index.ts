@@ -1,3 +1,4 @@
+import {notifyOrder} from '../_shared/order-notifications.ts';
 import {serve} from 'https://deno.land/std@0.190.0/http/server.ts';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
 import {BILLING_VERSION,isUuid,paymentMatches} from '../_shared/commerce.ts';
@@ -51,6 +52,7 @@ serve(async req=>{
    }
    const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:session.amount_total,p_currency:session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
    if(recordError)throw recordError;
+   await notifyOrder(db,orderId).catch(()=>console.error('order_email_queued',orderId));
   }else if(event.type==='checkout.session.expired'){
    const session=event.data.object as Stripe.Checkout.Session;
    if(session.metadata?.billing_version===BILLING_VERSION&&isUuid(session.metadata.order_id)){

@@ -247,7 +247,7 @@ const PricingSection = () => {
               </li>
               <li>
                 <strong className="text-foreground">Mensalidade:</strong> começa
-                na disponibilização do sistema. Inclui ferramentas contratadas,
+                após a aprovação da entrega. Inclui ferramentas contratadas,
                 hospedagem, manutenção técnica e suporte de uso.
               </li>
               <li>
@@ -256,8 +256,7 @@ const PricingSection = () => {
                 externos e conteúdo adicional.
               </li>
               <li>
-                Quantidade de profissionais, armazenamento e condições do
-                suporte são definidos na proposta antes do pagamento.
+                Cada instalação possui uma agenda de atendimento. Necessidades fora da estrutura e dos módulos do plano são avaliadas separadamente.
               </li>
             </ul>
           </div>

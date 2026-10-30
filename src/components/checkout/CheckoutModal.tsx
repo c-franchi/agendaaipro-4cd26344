@@ -34,15 +34,14 @@ export const CheckoutModal = ({
 }: CheckoutModalProps) => {
   const plan = PLANS[planType];
   const offer=displayedOffer(usePromotions(),planType);
-  const summary = `Tenho interesse no plano ${plan.name} do AgendaAÍ Pro: ${formatCurrency(offer.monthly)}/mês e ${formatCurrency(offer.setup)} de implementação única. Quero confirmar os recursos disponíveis, limites e prazo de entrega antes de contratar.`;
+  const summary = `Tenho interesse no plano ${plan.name} do AgendaAÍ Pro: ${formatCurrency(offer.monthly)}/mês e ${formatCurrency(offer.setup)} de implementação única. Quero contratar os recursos do plano e acompanhar o envio dos materiais e a entrega.`;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Seu sistema no plano {plan.name}</DialogTitle>
           <DialogDescription>
-            Confira os valores e solicite a contratação. Confirmamos a
-            disponibilidade dos recursos e o escopo antes do pagamento.
+            Confira os valores e contrate o plano. Após o pagamento da implementação, envie os materiais e acompanhe a preparação pela sua conta.
           </DialogDescription>
         </DialogHeader>
         {offer.promotion&&<p className="text-sm text-primary">{offer.promotion.title} · valores promocionais registrados na solicitação, sujeitos à confirmação do resumo.</p>}
@@ -80,7 +79,7 @@ export const CheckoutModal = ({
         )}
         <p className="text-xs text-muted-foreground">
           {DELIVERY_NOTE} Limites de profissionais e armazenamento, suporte e
-          custos externos serão detalhados na proposta.
+          necessidades adicionais serão avaliadas separadamente.
         </p>
         <CardOrderRequest plan={planType}/>
         <Button variant="hero" asChild>
@@ -101,8 +100,7 @@ export const CheckoutModal = ({
           initialMessage={summary}
         />
         <p className="text-xs text-center text-muted-foreground">
-          Esta solicitação não gera cobrança nem ativa assinatura. Assinaturas
-          existentes continuam na área da sua conta.
+          O formulário de proposta abaixo não gera cobrança. A contratação pelo cartão ocorre no checkout da implementação. A mensalidade é contratada após a aprovação da entrega.
         </p>
         <Button type="button" variant="outline" onClick={e=>e.currentTarget.closest('[role="dialog"]')?.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>Voltar ao início do formulário</Button>
       </DialogContent>
