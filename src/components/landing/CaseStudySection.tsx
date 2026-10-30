@@ -1,176 +1,24 @@
-import { motion } from "framer-motion";
-import {
-  ArrowUpRight,
-  CalendarCheck,
-  Globe,
-  Smartphone,
-  Sparkles,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import caseHero from "@/assets/case-eric-hero.jpg";
-import caseServicos from "@/assets/case-eric-servicos.jpg";
-import caseMobile from "@/assets/case-eric-mobile.jpg";
-
-const CASE_URL = "https://ericzambonini.com.br";
-
-const highlights = [
-  {
-    icon: Globe,
-    title: "Domínio próprio",
-    description:
-      "ericzambonini.com.br com identidade visual exclusiva do profissional.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Agenda online 24 horas",
-    description:
-      "O cliente escolhe o serviço e o horário sem precisar de mensagens.",
-  },
-  {
-    icon: Sparkles,
-    title: "Catálogo de serviços",
-    description:
-      "Cada serviço com duração e valor definidos pelo profissional.",
-  },
-  {
-    icon: Smartphone,
-    title: "Pronto para o celular",
-    description: "Pode ser instalado na tela inicial como um aplicativo.",
-  },
+import {useEffect,useState} from 'react';
+import {Link} from 'react-router-dom';
+import {ArrowUpRight,CalendarCheck,Globe,Smartphone,Sparkles,Expand} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Carousel,CarouselContent,CarouselItem,CarouselNext,CarouselPrevious,type CarouselApi} from '@/components/ui/carousel';
+import {Dialog,DialogContent,DialogHeader,DialogTitle} from '@/components/ui/dialog';
+import caseHero from '@/assets/case-eric-hero.jpg';
+import caseServicos from '@/assets/case-eric-servicos.jpg';
+import barber from '@/assets/examples/barbearia-conceito.webp';
+import beauty from '@/assets/examples/estetica-conceito.webp';
+import pilates from '@/assets/examples/pilates-conceito.webp';
+import pet from '@/assets/examples/pet-conceito.webp';
+const projects=[
+ {id:'eric',title:'Eric Zambonini',area:'Beleza masculina e feminina',image:caseHero,live:true,visual:'Preto e dourado · identidade sofisticada',calendar:'Agendamento em etapas',description:'Um projeto real em funcionamento: site próprio, serviços e horários editáveis, com agendamento pelo cliente. A estrutura recebe a marca e os dados do profissional.',url:'https://ericzambonini.com.br'},
+ {id:'barbearia',title:'Barbearia · estilo urbano',area:'Barbearias',image:barber,live:false,visual:'Grafite e cobre · contraste marcante',calendar:'Visão semanal da agenda',description:'Uma proposta de apresentação para cortes e barba, com uma agenda semanal e horários organizados em cartões. A mesma lógica de serviço, data e horário, com outra identidade visual.'},
+ {id:'estetica',title:'Estética · tons suaves',area:'Estética e depilação',image:beauty,live:false,visual:'Marfim e rosé · visual delicado',calendar:'Calendário mensal com horários ao lado',description:'Uma proposta leve para apresentar serviços de estética e depilação. Calendário e seleção de horários com uma composição diferente, mantendo o fluxo de agendamento.'},
+ {id:'pilates',title:'Pilates · visual natural',area:'Estúdios e profissionais de pilates',image:pilates,live:false,visual:'Verde sálvia · ambiente acolhedor',calendar:'Linha do tempo do dia',description:'Uma proposta para atendimento individual de pilates, com os horários em uma linha do tempo. Mantém uma agenda por instalação; este conceito não representa gestão de turmas ou vagas simultâneas.'},
+ {id:'pet',title:'Banho e tosa · visual acolhedor',area:'Banho e tosa',image:pet,live:false,visual:'Azul profundo · apresentação amigável',calendar:'Calendário e lista de atendimentos',description:'Uma proposta para serviços de banho e tosa, combinando seleção de data e lista do dia. Preserva o agendamento simples; não representa prontuário veterinário ou gestão clínica.'},
 ];
-
-const CaseStudySection = () => {
-  return (
-    <section id="exemplo" className="py-20 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
-
-      <div className="container relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12 md:mb-16"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">
-              Projeto no ar
-            </span>
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-balance">
-            Veja um sistema{" "}
-            <span className="gradient-text">já em funcionamento</span>
-          </h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Eric Zambonini, profissional de beleza masculina e feminina com mais
-            de 25 anos de experiência, recebe agendamentos pelo próprio site —
-            criado com o AgendaAÍ Pro. Esta é uma aplicação da estrutura: seu
-            negócio recebe sua própria marca, seus dados e as ferramentas do
-            plano contratado. As telas do exemplo não representam todos os
-            planos.
-          </p>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-5 gap-8 items-center max-w-6xl mx-auto">
-          {/* Screens */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-3 relative"
-          >
-            <div className="relative rounded-2xl overflow-hidden border border-border/40 shadow-2xl">
-              <img
-                src={caseHero}
-                alt="Página inicial do site de agendamentos de Eric Zambonini"
-                loading="lazy"
-                className="w-full h-auto"
-              />
-            </div>
-
-            {/* Mobile screen floating */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="absolute -bottom-8 -right-2 sm:right-4 w-24 sm:w-32 md:w-40 rounded-2xl overflow-hidden border-2 border-border/60 shadow-2xl hidden sm:block"
-            >
-              <img
-                src={caseMobile}
-                alt="Site de agendamentos de Eric Zambonini visto no celular"
-                loading="lazy"
-                className="w-full h-auto"
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Highlights */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-2 space-y-4 mt-10 lg:mt-0"
-          >
-            {highlights.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.08 }}
-                className="glass-card p-5 rounded-xl flex gap-4"
-              >
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold mb-1">{item.title}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-
-            <a
-              href={CASE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block pt-2"
-              aria-label="Abrir o site de Eric Zambonini em uma nova aba"
-            >
-              <Button variant="hero" size="lg" className="w-full min-h-[48px]">
-                Visitar o projeto
-                <ArrowUpRight className="w-5 h-5" />
-              </Button>
-            </a>
-          </motion.div>
-        </div>
-
-        {/* Services screenshot */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto mt-20 md:mt-24"
-        >
-          <p className="text-center text-muted-foreground text-sm md:text-base mb-6">
-            A lista de serviços com duração e valores, do jeito que o cliente vê
-            antes de agendar.
-          </p>
-          <div className="rounded-2xl overflow-hidden border border-border/40 shadow-2xl">
-            <img
-              src={caseServicos}
-              alt="Lista de serviços com duração e valores no site de Eric Zambonini"
-              loading="lazy"
-              className="w-full h-auto"
-            />
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-};
-
-export default CaseStudySection;
+export default function CaseStudySection(){
+ const [api,setApi]=useState<CarouselApi>(),[selected,setSelected]=useState(0),[zoom,setZoom]=useState<number|null>(null);
+ useEffect(()=>{if(!api)return;const update=()=>setSelected(api.selectedScrollSnap());update();api.on('select',update);api.on('reInit',update);return()=>{api.off('select',update);api.off('reInit',update)}},[api]);
+ return <section id="exemplo" className="py-20 md:py-28 relative overflow-hidden"><div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none"/><div className="container relative z-10 space-y-8"><header className="max-w-3xl mx-auto text-center space-y-4"><span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm text-primary"><Sparkles className="w-4 h-4"/>Projetos e possibilidades visuais</span><h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance">Uma estrutura. <span className="gradient-text">A identidade do seu negócio.</span></h2><p className="text-muted-foreground leading-relaxed">Conheça o Eric Zambonini, já em funcionamento, e explore quatro conceitos para outros segmentos. Mudam as cores, a apresentação e a forma de visualizar a agenda; o fluxo continua simples: serviço, data, horário e confirmação.</p></header><div className="max-w-6xl mx-auto space-y-4"><div className="flex gap-2 flex-wrap justify-center" role="group" aria-label="Escolher exemplo">{projects.map((p,i)=><Button key={p.id} variant={selected===i?'default':'outline'} size="sm" className="min-h-11 h-auto py-2 whitespace-normal" aria-pressed={selected===i} onClick={()=>api?.scrollTo(i)}>{p.live?'Eric Zambonini':p.area==='Estúdios e profissionais de pilates'?'Pilates':p.area}</Button>)}</div><Carousel setApi={setApi} opts={{loop:true,align:'start'}} aria-label="Exemplos de sites personalizados"><CarouselContent>{projects.map((p,i)=><CarouselItem key={p.id}><article className="rounded-2xl border border-border/60 bg-card overflow-hidden grid lg:grid-cols-5"><button className="lg:col-span-3 relative bg-background/60 group min-w-0 text-left" onClick={()=>setZoom(i)} aria-label={`Ampliar imagem: ${p.title}`} tabIndex={selected===i?0:-1}><img src={p.image} alt={`${p.live?'Projeto em funcionamento':'Conceito visual ilustrativo'} de sistema de agendamento para ${p.area.toLowerCase()}`} loading="lazy" width={1536} height={1024} className="w-full aspect-[3/2] object-contain"/><span className="absolute bottom-3 right-3 rounded-lg bg-background/85 border border-border px-3 py-2 text-xs flex gap-2 items-center"><Expand className="h-4 w-4"/>Ampliar</span></button><div className="lg:col-span-2 p-5 sm:p-7 flex flex-col gap-4"><span className={`text-xs font-medium rounded-full px-3 py-1.5 self-start ${p.live?'bg-primary/15 text-primary':'bg-secondary text-muted-foreground'}`}>{p.live?'Projeto real · no ar':'Conceito visual · demonstração'}</span><div><p className="text-xs text-primary mb-2">{p.area}</p><h3 className="text-xl sm:text-2xl font-bold">{p.title}</h3></div><p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p><dl className="text-sm space-y-3 border-y border-border/50 py-4"><div><dt className="text-muted-foreground text-xs">Identidade</dt><dd className="font-medium">{p.visual}</dd></div><div><dt className="text-muted-foreground text-xs">Apresentação da agenda</dt><dd className="font-medium">{p.calendar}</dd></div></dl>{p.live?<Button asChild variant="hero" className="mt-auto min-h-11"><a href={p.url} target="_blank" rel="noopener noreferrer" tabIndex={selected===i?0:-1}>Visitar projeto real<ArrowUpRight className="ml-2 h-4 w-4"/></a></Button>:<><p className="text-xs text-muted-foreground">Imagem ilustrativa de uma possibilidade de personalização, não um site de cliente entregue. A apresentação final e os recursos seguem o plano e o escopo combinados.</p><Button asChild variant="outline" className="mt-auto min-h-11"><Link to="/#planos" tabIndex={selected===i?0:-1}>Ver planos para meu negócio</Link></Button></>}</div></article></CarouselItem>)}</CarouselContent><div className="flex justify-center items-center gap-4 mt-5"><CarouselPrevious aria-label="Exemplo anterior" className="relative left-auto top-auto translate-y-0 h-11 w-11"/><p className="text-sm text-muted-foreground" aria-live="polite">{selected+1} de {projects.length}</p><CarouselNext aria-label="Próximo exemplo" className="relative right-auto top-auto translate-y-0 h-11 w-11"/></div></Carousel><p className="text-center text-xs text-muted-foreground">No celular, deslize para explorar. Também é possível usar as setas e os botões dos segmentos.</p><div className="grid sm:grid-cols-3 gap-3 pt-4">{[[Globe,'Sua marca e domínio','A apresentação é personalizada para o profissional.'],[CalendarCheck,'A mesma lógica','Serviços, datas e horários em uma agenda de atendimento.'],[Smartphone,'No computador e no celular','Site responsivo e PWA em dispositivos compatíveis.']].map(([Icon,title,body])=>{const I=Icon as typeof Globe;return <div className="rounded-xl border p-4 flex gap-3" key={String(title)}><I className="h-5 w-5 text-primary shrink-0"/><div><p className="font-semibold text-sm">{String(title)}</p><p className="text-xs text-muted-foreground mt-1">{String(body)}</p></div></div>})}</div><details className="rounded-xl border p-4 sm:p-5"><summary className="cursor-pointer text-sm font-medium">Veja também os serviços do projeto real Eric Zambonini</summary><p className="text-sm text-muted-foreground my-4">Serviços com duração e valores definidos pelo profissional, como aparecem antes do agendamento. As ferramentas disponíveis dependem do plano contratado.</p><img src={caseServicos} alt="Lista real de serviços do site Eric Zambonini" className="w-full rounded-lg" loading="lazy"/></details></div></div><Dialog open={zoom!==null} onOpenChange={open=>{if(!open)setZoom(null)}}><DialogContent className="max-w-6xl w-[calc(100%_-_1.5rem)] p-3 sm:p-5"><DialogHeader><DialogTitle className="text-base pr-8">{zoom!==null?projects[zoom].title:''}</DialogTitle></DialogHeader>{zoom!==null&&<><img src={projects[zoom].image} alt={`Imagem ampliada: ${projects[zoom].title}`} className="max-h-[75dvh] w-full object-contain rounded-lg"/><p className="text-xs text-muted-foreground">{projects[zoom].live?'Captura de um projeto real em funcionamento.':'Conceito visual ilustrativo. A implementação final será combinada no escopo do projeto.'}</p></>}</DialogContent></Dialog></section>
+}
