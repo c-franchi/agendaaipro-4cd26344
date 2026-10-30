@@ -96,7 +96,7 @@ export const OFFER_FAQS = [
         (key) =>
           `${PLANS[key].name}: ${formatCurrency(PLANS[key].price)}/mês e ${formatCurrency(PLANS[key].setupPrice)} de implementação.`,
       ).join(" ") +
-      " A implementação é única. A mensalidade começa quando o sistema for disponibilizado para uso. A contratação é assistida: confirmamos escopo, limites e disponibilidade antes da cobrança.",
+      " Estes são os preços normais; promoções ativas aparecem nos planos e no resumo da contratação. A implementação é única. A mensalidade começa quando o sistema for disponibilizado para uso. A contratação é assistida: confirmamos escopo, limites e disponibilidade antes da cobrança.",
   },
   {
     question: "O Premium inclui conteúdo novo todo mês?",

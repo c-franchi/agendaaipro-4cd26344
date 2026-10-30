@@ -9,7 +9,7 @@ serve(async req=>{
   const body=await req.json();
   const enabled=Deno.env.get('STRIPE_CHECKOUT_ENABLED')==='true';
   const key=Deno.env.get('STRIPE_SECRET_KEY'),webhook=Deno.env.get('STRIPE_WEBHOOK_SECRET');
-  if(body.action==='status')return reply(req,{enabled:Boolean(enabled&&key&&webhook),recurringEnabled:Boolean(enabled&&key&&webhook&&Deno.env.get('STRIPE_RECURRING_ENABLED')==='true'),message:enabled&&key&&webhook?'Disponível após aprovação do pedido.':'Cartão em preparação. Aguardamos a liberação da Stripe e a configuração final.'});
+  if(body.action==='status')return reply(req,{voucherVersion:'2026-10-30',enabled:Boolean(enabled&&key&&webhook),recurringEnabled:Boolean(enabled&&key&&webhook&&Deno.env.get('STRIPE_RECURRING_ENABLED')==='true'),message:enabled&&key&&webhook?'Disponível após aprovação do pedido.':'Cartão em preparação. Aguardamos a liberação da Stripe e a configuração final.'});
   const db=database(),user=await identity(req,db);if(!user)return reply(req,{error:'Entre na sua conta para pagar.'},401);
   if(!enabled||!key||!webhook)return reply(req,{error:'O pagamento por cartão ainda não está liberado. Seu pedido pode ser acompanhado normalmente.'},503);
   if(!isUuid(body.orderId)||!['setup','subscription'].includes(body.kind))return reply(req,{error:'Pedido ou cobrança inválidos.'},400);
@@ -26,7 +26,7 @@ serve(async req=>{
   const previousId=order[column];
   if(previousId){const existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url){if((existing.metadata?.voucher_code||'')!==(typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():''))return reply(req,{error:'Este checkout já foi aberto com outra condição. Aguarde sua expiração para trocar o voucher.'},409);return reply(req,{url:existing.url});}if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);if(existing.status!=='expired')throw Error('Unknown checkout state');const {error:releaseError}=await db.from('commerce_voucher_reservations').update({state:'released'}).eq('order_id',order.id).eq('kind',kind).eq('session_id',previousId).eq('state','reserved');if(releaseError)throw releaseError;const {error:clearError}=await db.from('business_orders').update({[kind==='setup'?'setup_due_cents':'monthly_due_cents']:null}).eq('id',order.id).eq(column,previousId);if(clearError)throw clearError;}
   let reservation:any=null;
-  const code=typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():'';
+  const code=typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():(kind==='setup'?order.requested_setup_code:order.requested_monthly_code)||'';
   if(code.length>80)return reply(req,{error:'Código inválido.'},400);
   const {data:held,error:heldError}=await db.from('commerce_voucher_reservations').select('*').eq('order_id',order.id).eq('kind',kind).neq('state','released').maybeSingle();
   if(heldError)throw heldError;
