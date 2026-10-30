@@ -28,16 +28,14 @@ const Terms = () => {
             TERMOS DE USO – AGENDAAÍ PRO
           </h1>
           <p className="text-muted-foreground mb-8">
-            Última atualização: 28 de outubro de 2026
+            Última atualização: 30 de outubro de 2026
           </p>
 
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg">
               Bem-vindo ao AgendaAÍ Pro.
               <br />
-              Ao acessar ou utilizar nosso site, aplicativo ou sistema, você
-              concorda integralmente com estes Termos de Uso. Caso não concorde,
-              não utilize nossos serviços.
+              Antes de contratar, confira o contrato e o resumo comercial apresentados no checkout. A contratação exige seu aceite expresso; navegar no site não cria uma assinatura. A cópia aceita fica disponível em Meus pedidos.
             </p>
 
             <section>
@@ -55,12 +53,10 @@ const Terms = () => {
                   contratação
                 </li>
                 <li>
-                  Vendas e estoque de produtos previstos no Gestão e Premium,
-                  sujeitos à implementação e validação
+                  Vendas e estoque de produtos incluídos no Gestão e Premium
                 </li>
                 <li>
-                  Financeiro previsto no Gestão e Premium; insumos e margem
-                  estimada previstos no Premium
+                  Financeiro incluído no Gestão e Premium; insumos e margem estimada no Premium
                 </li>
                 <li>
                   Site com logo, cores e informações do cliente em todos os
@@ -134,7 +130,7 @@ const Terms = () => {
               <ul className="list-disc pl-6 space-y-2">
                 <li>Um voucher por cobrança. A combinação com uma promoção só é permitida quando indicada nas regras da campanha.</li>
                 <li>Podem ter validade e limite de uso</li>
-                <li>Podem ser cancelados a qualquer momento</li>
+                <li>O cancelamento de campanhas não altera as condições já contratadas; a validade do código é conferida antes de cada nova cobrança.</li>
               </ul>
             </section>
 
@@ -194,7 +190,7 @@ const Terms = () => {
                 7. CANCELAMENTO E ENCERRAMENTO
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li>O usuário pode cancelar a assinatura a qualquer momento</li>
+                <li>Solicite cancelamento, suspensão ou arrependimento em Meus pedidos → Atendimento e protocolos. O recebimento é confirmado na ferramenta, e a equipe se manifestará em até 5 dias. A solicitação não confirma, sozinha, o estorno ou o encerramento da assinatura.</li><li>Nas relações de consumo aplicáveis, fica preservado o direito de arrependimento do art. 49 do CDC no prazo legal de 7 dias, contado na forma da lei, sem renúncia automática por início da personalização.</li>
                 <li>
                   Não há reembolso de períodos já pagos, salvo disposição legal
                 </li>
@@ -224,16 +220,16 @@ const Terms = () => {
               <h2 className="text-2xl font-semibold mb-4">
                 9. ALTERAÇÕES DOS TERMOS
               </h2>
-              <p>Os Termos podem ser alterados a qualquer momento.</p>
+              <p>Atualizações futuras dos Termos não substituem o conteúdo e as condições da cópia do contrato já aceita no pedido.</p>
               <p className="mt-2">
-                A continuidade do uso após alterações representa concordância.
+                Mudanças materiais na contratação exigem informação e concordância apropriadas, preservados os direitos legais.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">10. CONTATO</h2>
               <p>Dúvidas ou solicitações:</p>
-              <p className="mt-2 text-primary">📧 contato@agendaaipro.com.br</p>
+              <p className="mt-2 text-primary">📧 neifranchi@gmail.com</p>
             </section>
           </div>
         </div>

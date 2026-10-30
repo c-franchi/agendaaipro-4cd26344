@@ -1,0 +1,48 @@
+{
+  "version": "2026-10-30-v1",
+  "title": "Contrato de implementação e licença de uso · AgendaAÍ Pro",
+  "provider": "AgendaAÍ Pro · responsável: Claudinei Luiz Franchi · atendimento: neifranchi@gmail.com",
+  "clauses": [
+    {
+      "title": "1. Objeto e recursos",
+      "body": "Configuração de um site próprio com a identidade e os materiais do contratante, domínio e sistema PWA acessível pelo navegador e instalável em dispositivos compatíveis. Uma agenda de atendimento por instalação. Os módulos incluídos são os do plano descrito neste resumo. Não inclui cessão do código-fonte, desenvolvimento exclusivo de funcionalidades ou aplicativo publicado na Play Store."
+    },
+    {
+      "title": "2. Implementação e mensalidade",
+      "body": "O pagamento inicial é único e remunera a implementação. A mensalidade será contratada separadamente após a aprovação expressa da entrega pelo cliente e remunera ferramentas, hospedagem, manutenção técnica e suporte de uso. Aprovar a entrega não efetua cobrança nem inicia assinatura automaticamente. O valor e os descontos do pedido estão discriminados no resumo; o checkout deve respeitar as condições aceitas. Taxas de integrações, mensagens pagas, novos serviços e trabalhos fora do escopo exigem informação e contratação separadas."
+    },
+    {
+      "title": "3. Personalização e materiais",
+      "body": "Todos os planos recebem logo ou identidade em texto, cores e informações do negócio. No Agenda e Gestão, o cliente fornece logo, textos e imagens prontos. O Premium inclui somente na entrega inicial preparação de até 10 imagens fornecidas pelo cliente, organização de até 10 itens de portfólio, 1 vídeo curto e 2 rodadas de revisão criativa. Criação de logo, conteúdo mensal e trabalhos adicionais não estão incluídos. Correções de defeitos ou de divergências em relação ao escopo não consomem essas rodadas criativas."
+    },
+    {
+      "title": "4. Prazo e aprovação",
+      "body": "Prazo estimado de 15 a 20 dias úteis a partir do envio completo e da conferência dos materiais, com início registrado no acompanhamento. O pagamento inicia o atendimento. Pendências de materiais e solicitações fora do escopo serão comunicadas no pedido, com eventual novo prazo informado antes da execução. A prévia é apresentada para conferência; o cliente pode solicitar correções e deve aprovar expressamente a entrega. O silêncio não equivale a aprovação."
+    },
+    {
+      "title": "5. Domínio e continuidade",
+      "body": "A implementação inclui o primeiro ano de um domínio .com.br disponível, escolhido em conjunto. A renovação será informada e cobrada separadamente. A manutenção do sistema hospedado depende da assinatura contratada após a entrega. Cancelamento e disponibilização de dados ou transferência do domínio devem ser solicitados pelo atendimento, preservados os direitos do titular e as obrigações legais."
+    },
+    {
+      "title": "6. Atendimento e registros",
+      "body": "Pedidos, materiais, mensagens, solicitações, conferências e aprovações ficam registrados na conta, com data e autoria. O atendimento eletrônico permite dúvidas, reclamações, pedidos de suspensão e cancelamento. O recebimento é confirmado no painel; os e-mails são complementares e podem falhar. As demandas terão manifestação da equipe em até 5 dias. O contratante pode conservar uma cópia deste contrato e do resumo aceito pelo próprio painel."
+    },
+    {
+      "title": "7. Cancelamento e direitos do consumidor",
+      "body": "O cliente pode solicitar cancelamento, suspensão ou arrependimento no atendimento do pedido, sem depender do WhatsApp. Nas relações de consumo às quais se aplica o art. 49 do Código de Defesa do Consumidor, fica preservado o direito de arrependimento no prazo legal de 7 dias, contado na forma da lei, com devolução dos valores devidos. O início da personalização não implica renúncia automática a direitos legais. Outras hipóteses de cancelamento e eventuais valores por etapas efetivamente prestadas serão avaliados e informados conforme o caso, sem afastar direitos obrigatórios. Solicitar cancelamento gera protocolo e exige execução pela equipe; não equivale a confirmação de estorno ou cancelamento de assinatura."
+    },
+    {
+      "title": "8. Dados e propriedade dos materiais",
+      "body": "O cliente declara possuir autorização para usar os materiais enviados e responde pela exatidão de seus serviços, preços e horários. Logo, fotos e demais materiais do cliente permanecem de sua titularidade. O sistema e sua estrutura são licenciados, não vendidos como código-fonte. Os dados serão tratados para contratação, pagamento, suporte e execução do serviço conforme a Política de Privacidade. Somente o titular e a equipe autorizada acessam o acompanhamento e os arquivos privados."
+    },
+    {
+      "title": "9. Aceite eletrônico",
+      "body": "O aceite é uma manifestação expressa da conta autenticada antes do checkout. São conservados versão, conteúdo do contrato, resumo comercial, identificação da conta, data e código de integridade. Alterações posteriores do texto não substituem a cópia já aceita. O aceite eletrônico registra a concordância com as condições apresentadas, sem afastar direitos legais nem substituir o comprovante de pagamento da Stripe."
+    }
+  ],
+  "modulesByPlan": {
+    "essencial": "Agenda, clientes, serviços, horários e site personalizado.",
+    "pro": "Agenda, clientes, serviços, horários, site personalizado, vendas, estoque de produtos e financeiro.",
+    "premium": "Agenda, clientes, serviços, horários, site personalizado, vendas, estoque, financeiro, consumo de insumos por serviço e margem estimada. Preparação visual inicial dentro dos limites deste contrato."
+  }
+}

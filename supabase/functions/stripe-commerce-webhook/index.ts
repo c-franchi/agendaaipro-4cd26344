@@ -69,7 +69,7 @@ serve(async req=>{
    const subscriptionId=event.type.startsWith('customer.subscription')?object.id:id(object.parent?.subscription_details?.subscription||object.subscription);
    if(subscriptionId){
     const {data:order,error}=await db.from('business_orders').select('id').eq('stripe_subscription_id',subscriptionId).maybeSingle();if(error)throw error;
-    if(order){const current=await stripe.subscriptions.retrieve(subscriptionId);const {error:updateError}=await db.from('business_orders').update({subscription_status:current.status,billing_event_created:event.created,updated_at:new Date().toISOString()}).eq('id',order.id).lte('billing_event_created',event.created);if(updateError)throw updateError;}
+    if(order){const current=await stripe.subscriptions.retrieve(subscriptionId);const {error:updateError}=await db.from('business_orders').update({subscription_status:current.status,billing_event_created:event.created,updated_at:new Date().toISOString()}).eq('id',order.id).lte('billing_event_created',event.created);if(updateError)throw updateError;await notifyOrder(db,order.id).catch(()=>console.error('order_email_queued',order.id));}
    }
   }
   return Response.json({received:true});

@@ -18,13 +18,20 @@ serve(async req=>{
   const kind=body.kind as 'setup'|'subscription';
   if(kind==='setup'&&(order.stage!=='awaiting_payment'||order.payment_status!=='pending'))return reply(req,{error:'O pedido precisa ter o escopo aprovado antes do pagamento.'},409);
   if(kind==='subscription'&&(Deno.env.get('STRIPE_RECURRING_ENABLED')!=='true'||order.stage!=='ready'||order.payment_status!=='paid'||order.stripe_subscription_id))return reply(req,{error:'A mensalidade só pode ser iniciada após a disponibilização da plataforma.'},409);
+  let contract:any=null;
+  if(kind==='setup'){
+   const {data,error:consentError}=await db.from('order_contract_acceptances').select('*').eq('order_id',order.id).eq('user_id',user.id).order('accepted_at',{ascending:false}).limit(1).maybeSingle();
+   if(consentError)throw consentError;contract=data;
+   const code=typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():order.requested_setup_code||'';
+   if(!contract||contract.snapshot?.quote?.setupCode!==code)return reply(req,{error:'Confira e aceite o contrato e os valores deste pagamento em Meus pedidos antes de continuar.'},409);
+  }
   const stripe=new Stripe(key,{apiVersion:'2025-08-27.basil'});
   const account=await stripe.accounts.retrieve();
   const live=key.startsWith('sk_live_')||key.startsWith('rk_live_');
   if(live&&(!account.charges_enabled||!Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')||account.id!==Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')))return reply(req,{error:'A conta Stripe ainda precisa ser validada para receber pagamentos.'},503);
   const column=kind==='setup'?'setup_session_id':'subscription_session_id';
   const previousId=order[column];
-  if(previousId){const existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url){if((existing.metadata?.voucher_code||'')!==(typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():''))return reply(req,{error:'Este checkout já foi aberto com outra condição. Aguarde sua expiração para trocar o voucher.'},409);return reply(req,{url:existing.url});}if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);if(existing.status!=='expired')throw Error('Unknown checkout state');const {error:releaseError}=await db.from('commerce_voucher_reservations').update({state:'released'}).eq('order_id',order.id).eq('kind',kind).eq('session_id',previousId).eq('state','reserved');if(releaseError)throw releaseError;const {error:clearError}=await db.from('business_orders').update({[kind==='setup'?'setup_due_cents':'monthly_due_cents']:null}).eq('id',order.id).eq(column,previousId);if(clearError)throw clearError;}
+  if(previousId){const existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url){if(kind==='setup'&&existing.amount_total!==contract.snapshot.quote.setupDueCents)return reply(req,{error:'O valor do checkout difere do contrato aceito. Aguarde a expiração e confira o contrato novamente.'},409);if((existing.metadata?.voucher_code||'')!==(typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():''))return reply(req,{error:'Este checkout já foi aberto com outra condição. Aguarde sua expiração para trocar o voucher.'},409);return reply(req,{url:existing.url});}if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);if(existing.status!=='expired')throw Error('Unknown checkout state');const {error:releaseError}=await db.from('commerce_voucher_reservations').update({state:'released'}).eq('order_id',order.id).eq('kind',kind).eq('session_id',previousId).eq('state','reserved');if(releaseError)throw releaseError;const {error:clearError}=await db.from('business_orders').update({[kind==='setup'?'setup_due_cents':'monthly_due_cents']:null}).eq('id',order.id).eq(column,previousId);if(clearError)throw clearError;}
   let reservation:any=null;
   const code=typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():(kind==='setup'?order.requested_setup_code:order.requested_monthly_code)||'';
   if(code.length>80)return reply(req,{error:'Código inválido.'},400);
@@ -37,7 +44,9 @@ serve(async req=>{
    if(error)return reply(req,{error:error.message},400);reservation=data;
   }
 
+  if(kind==='setup'&&(reservation?.due_cents??order.setup_cents)!==contract.snapshot.quote.setupDueCents)return reply(req,{error:'As condições do voucher mudaram. Confira e aceite o contrato atualizado em Meus pedidos.'},409);
   const params:any=checkoutParams(order,kind,req.headers.get('origin')!);
+  if(contract){params.metadata.contract_acceptance_id=contract.id;params.metadata.contract_version=contract.version;}
   if(reservation){
    const coupon=await stripe.coupons.create({amount_off:reservation.discount_cents,currency:'brl',duration:kind==='subscription'&&reservation.months===0?'forever':kind==='setup'||reservation.months===1?'once':'repeating',...(kind==='subscription'&&reservation.months>1?{duration_in_months:reservation.months}:{}),name:`Voucher ${reservation.code}`},{idempotencyKey:`commerce-voucher:${reservation.id}`});
    params.discounts=[{coupon:coupon.id}];params.metadata.voucher_reservation=reservation.id;params.metadata.voucher_code=reservation.code;
