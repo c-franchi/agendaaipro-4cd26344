@@ -84,6 +84,7 @@ export type Database = {
           billing_event_created: number
           business_name: string | null
           business_type: string | null
+          contract_flow: string
           created_at: string
           currency: string
           email: string
@@ -126,6 +127,7 @@ export type Database = {
           billing_event_created?: number
           business_name?: string | null
           business_type?: string | null
+          contract_flow?: string
           created_at?: string
           currency?: string
           email: string
@@ -168,6 +170,7 @@ export type Database = {
           billing_event_created?: number
           business_name?: string | null
           business_type?: string | null
+          contract_flow?: string
           created_at?: string
           currency?: string
           email?: string
@@ -366,6 +369,223 @@ export type Database = {
         }
         Relationships: []
       }
+      order_assets: {
+        Row: {
+          active: boolean
+          created_at: string
+          filename: string
+          id: string
+          kind: string
+          order_id: string
+          path: string
+          review_note: string | null
+          status: string
+          uploaded_by: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          filename: string
+          id?: string
+          kind: string
+          order_id: string
+          path: string
+          review_note?: string | null
+          status?: string
+          uploaded_by: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          filename?: string
+          id?: string
+          kind?: string
+          order_id?: string
+          path?: string
+          review_note?: string | null
+          status?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_assets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_messages: {
+        Row: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at: string
+          id: string
+          order_id: string
+        }
+        Insert: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at?: string
+          id: string
+          order_id: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          body?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_notifications: {
+        Row: {
+          attempts: number
+          audience: string
+          body: string
+          created_at: string
+          error: string | null
+          event_key: string
+          id: string
+          last_attempt: string | null
+          order_id: string
+          provider_id: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          attempts?: number
+          audience: string
+          body: string
+          created_at?: string
+          error?: string | null
+          event_key: string
+          id?: string
+          last_attempt?: string | null
+          order_id: string
+          provider_id?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          attempts?: number
+          audience?: string
+          body?: string
+          created_at?: string
+          error?: string | null
+          event_key?: string
+          id?: string
+          last_attempt?: string | null
+          order_id?: string
+          provider_id?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_notifications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_timeline: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          note: string
+          order_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          note: string
+          order_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          note?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_timeline_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_workspaces: {
+        Row: {
+          approved_at: string | null
+          brief: Json
+          installation_id: string | null
+          modules_confirmed: boolean
+          order_id: string
+          phase: string
+          preview_url: string | null
+          production_started_at: string | null
+          revision_count: number
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          brief?: Json
+          installation_id?: string | null
+          modules_confirmed?: boolean
+          order_id: string
+          phase?: string
+          preview_url?: string | null
+          production_started_at?: string | null
+          revision_count?: number
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          brief?: Json
+          installation_id?: string | null
+          modules_confirmed?: boolean
+          order_id?: string
+          phase?: string
+          preview_url?: string | null
+          production_started_at?: string | null
+          revision_count?: number
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_workspaces_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           app_access_enabled: boolean | null
@@ -535,6 +755,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      commerce_claim_notifications: {
+        Args: { p_order: string }
+        Returns: {
+          attempts: number
+          audience: string
+          body: string
+          created_at: string
+          error: string | null
+          event_key: string
+          id: string
+          last_attempt: string | null
+          order_id: string
+          provider_id: string | null
+          status: string
+          subject: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "order_notifications"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       commerce_offer_quote: {
         Args: { p_code?: string; p_plan: string }
         Returns: Json
@@ -581,6 +824,7 @@ export type Database = {
           billing_event_created: number
           business_name: string | null
           business_type: string | null
+          contract_flow: string
           created_at: string
           currency: string
           email: string
@@ -666,6 +910,10 @@ export type Database = {
           p_url?: string
         }
         Returns: undefined
+      }
+      commerce_workspace: {
+        Args: { p_action: string; p_data?: Json; p_order: string }
+        Returns: Json
       }
       has_role: {
         Args: {
