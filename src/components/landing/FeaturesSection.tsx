@@ -40,15 +40,15 @@ const features = [
     icon: ShoppingCart,
     title: "Vendas e estoque de produtos",
     description:
-      "Previsto no Gestão e Premium: entradas, vendas, ajustes e alerta de estoque mínimo. Módulo em preparação.",
-    highlight: "Em preparação",
+      "Incluído no Gestão e Premium: catálogo, vendas, entradas, perdas, conferência e indicação de estoque mínimo.",
+    highlight: "Gestão e Premium",
   },
   {
     icon: BarChart3,
-    title: "Financeiro e relatórios",
+    title: "Financeiro dos atendimentos",
     description:
-      "Previsto no Gestão e Premium: recebimentos, despesas, fluxo de caixa e relatórios. Disponibilidade confirmada antes da contratação.",
-    highlight: "Em preparação",
+      "Incluído no Gestão e Premium: resumo mensal dos atendimentos, valores recebidos, em aberto e comprovantes para análise.",
+    highlight: "Gestão e Premium",
   },
   {
     icon: CreditCard,

@@ -28,12 +28,12 @@ export const PLANS = {
       "Tudo do Agenda",
       "Site personalizado e painel de edição",
       "Configuração dos recursos contratados",
-    ],
-    plannedFeatures: [
       "Catálogo, vendas e estoque de produtos",
-      "Entradas, saídas e fluxo de caixa",
-      "Relatórios de atendimentos e vendas",
+      "Entradas, perdas, conferência e estoque mínimo",
+      "Resumo financeiro mensal dos atendimentos",
+      "Valores recebidos, em aberto e comprovantes",
     ],
+    plannedFeatures: [] as string[],
     popular: true,
   },
   premium: {
@@ -107,7 +107,7 @@ export const OFFER_FAQS = [
   {
     question: "Como funcionam estoque e consumo de materiais?",
     answer:
-      "O Gestão prevê estoque dos produtos vendidos, com entradas, saídas e alertas. O Premium também prevê insumos consumidos nos serviços e margem estimada a partir dos custos registrados. Esses módulos estão em preparação e precisam ser implementados e validados no sistema antes da contratação com esses recursos.",
+      "Gestão e Premium incluem catálogo, vendas e estoque de produtos, com entradas, perdas, conferência, movimentações e indicação de estoque mínimo. Incluem também o resumo financeiro mensal dos atendimentos, com valores recebidos, em aberto e comprovantes. Consumo automático de insumos por serviço, margem estimada e caixa de despesas ainda estão em preparação e não fazem parte dos recursos disponíveis.",
   },
   {
     question: "O domínio está incluído?",
