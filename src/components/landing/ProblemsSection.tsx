@@ -61,9 +61,8 @@ const ProblemsSection = () => {
             <span className="gradient-text">sistema resolve</span>
           </h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Escolha os recursos adequados à sua rotina. * Módulos de estoque e
-            financeiro em preparação, com disponibilidade confirmada antes da
-            contratação.
+            Escolha os recursos adequados à sua rotina. Vendas, estoque de produtos
+            e resumo financeiro dos atendimentos estão incluídos no Gestão e Premium.
           </p>
         </motion.div>
 
