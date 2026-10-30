@@ -33,11 +33,11 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { label: "Exemplo", href: "#exemplo" },
-    { label: "Funcionalidades", href: "#funcionalidades" },
-    { label: "Como Funciona", href: "#como-funciona" },
-    { label: "Planos", href: "#planos" },
-    { label: "Contato", href: "#contato-form" },
+    { label: "Exemplo", href: "/#exemplo" },
+    { label: "Funcionalidades", href: "/#funcionalidades" },
+    { label: "Como Funciona", href: "/#como-funciona" },
+    { label: "Planos", href: "/#planos" },
+    { label: "Contato", href: "/#contato-form" },
   ];
 
   const whatsappLink = getWhatsAppLink(getWhatsAppMessage("hero"));
@@ -57,13 +57,13 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           {user ? (
             <Link
@@ -99,11 +99,11 @@ const Header = () => {
               Falar com especialista
             </Button>
           </a>
-          <a href="#planos">
+          <Link to="/#planos">
             <Button variant="hero" size="sm">
               Ver Planos
             </Button>
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -127,14 +127,14 @@ const Header = () => {
         >
           <nav className="container py-6 flex flex-col gap-4">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                to={link.href}
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             {user ? (
               <Link
@@ -171,11 +171,11 @@ const Header = () => {
                   Falar com especialista
                 </Button>
               </a>
-              <a href="#planos" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/#planos" onClick={() => setIsMenuOpen(false)}>
                 <Button variant="hero" className="w-full min-h-[48px]">
                   Ver Planos
                 </Button>
-              </a>
+              </Link>
             </div>
           </nav>
         </motion.div>

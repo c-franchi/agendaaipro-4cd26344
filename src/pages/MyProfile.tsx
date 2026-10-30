@@ -379,7 +379,7 @@ const MyProfile = () => {
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="h-auto py-4 flex-col gap-2">
-                  <Link to="/#contato">
+                  <Link to="/#contato-form">
                     <Mail className="w-5 h-5" />
                     <span className="text-xs">Suporte</span>
                   </Link>

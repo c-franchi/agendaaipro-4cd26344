@@ -1,3 +1,4 @@
+import RouteScroll from "./components/RouteScroll";
 import MyOrders from "./pages/MyOrders";
 import PasswordRecoveryGate from "./components/auth/PasswordRecoveryGate";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,6 +26,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RouteScroll />
         <PasswordRecoveryGate>
         <Routes>
           <Route path="/" element={<Index />} />

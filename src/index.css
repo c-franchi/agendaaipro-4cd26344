@@ -197,3 +197,6 @@
 }
 
 @media(max-width:639px){.admin-mobile th,.admin-mobile td{padding:.65rem;font-size:.8rem}.admin-mobile button{touch-action:manipulation}.admin-mobile [role="tab"]{white-space:normal}.admin-mobile header img{max-width:150px;object-fit:contain}}
+
+/* Keep landing destinations visible below the fixed navigation. */
+main section[id] { scroll-margin-top: 7rem; }
