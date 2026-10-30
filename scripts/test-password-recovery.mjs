@@ -9,6 +9,7 @@ assert.deepEqual(recoveryLocation({search:'?mode=reset',hash:''}),{requested:tru
 assert.deepEqual(recoveryLocation({search:'',hash:'#type=recovery&access_token=TEST_TOKEN'}),{requested:true,invalid:false});
 assert.deepEqual(recoveryLocation({search:'?mode=reset',hash:'#error=access_denied&error_code=otp_expired'}),{requested:true,invalid:true});
 assert.deepEqual(recoveryLocation({search:'?redirect=checkout',hash:''}),{requested:false,invalid:false});
+assert.equal(passwordProblem('password-A','password-B'),'As senhas estão diferentes. Digite a mesma senha nos dois campos.');
 assert.equal(passwordProblem('short','short')!==null,true);assert.equal(passwordProblem('password-A','password-B')!==null,true);
 let updates=0,signouts=0;
 const auth={async getUser(){return {data:{user:{id:'fixture'}},error:null}},async updateUser({password}){assert.equal(password,'fixture-password-123');updates++;return {error:null}},async signOut(options){assert.equal(options.scope,'local');signouts++;return {error:null}}};
@@ -22,3 +23,5 @@ assert.deepEqual(await completePasswordReset({...auth,signOut:async()=>({error:E
 const app=readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');assert.match(app,/<PasswordRecoveryGate>\s*<Routes>/);
 const gate=readFileSync(new URL('../src/components/auth/PasswordRecoveryGate.tsx',import.meta.url),'utf8');assert.match(gate,/event==='PASSWORD_RECOVERY'/);assert.match(gate,/if\(recovering\|\|intent.requested\)return <ResetPassword/);
 console.log('PASS: recovery links/events, invalid links, password confirmation, session validation, update failures, save/logout and normal-route isolation. No real accounts or passwords changed.');
+
+const resetUI=readFileSync(new URL('../src/components/auth/ResetPassword.tsx',import.meta.url),'utf8');assert.match(resetUI,/Mostrar senha/);assert.match(resetUI,/Mostrar confirmação da senha/);assert.match(resetUI,/aria-invalid=\{mismatch\}/);

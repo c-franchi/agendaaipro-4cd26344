@@ -33,3 +33,7 @@ Home e modal usam a tabela pública de campanhas ativas. A contratação consult
 O voucher aparece na contratação e é indicado para implementação/mensalidade conforme seu escopo. A prévia não reserva usos: validade e limites são revalidados no checkout, evitando promessa de código expirado. O preço da campanha fica preservado no pedido; as regras de acumulação também ficam registradas e são conferidas pela reserva no servidor. Atualização de campanhas não altera assinaturas nem pedidos antigos.
 
 Publicar `create-checkout` e demais funções de vouchers pendentes antes de habilitar cobrança. A sessão continua sem acesso ao deploy das Edge Functions do projeto Lovable. A publicação do frontend não comprova que o checkout está atualizado.
+
+## Implementação + mensalidade vitalícia
+
+Novo escopo persistido `setup_and_monthly`, exibido como opção direta “Implementação + mensalidade vitalícia” quando discount_months=0. A implementação usa o desconto uma vez; a assinatura ativa mantém o desconto, sem transferi-lo para outra assinatura. O mesmo código é registrado nos dois componentes do pedido. A seleção configura pelo menos 2 usos por cliente; limites insuficientes são rejeitados no formulário. A reserva continua validada no servidor e cada componente conta como um resgate.

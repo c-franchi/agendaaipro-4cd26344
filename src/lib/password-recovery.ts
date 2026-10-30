@@ -9,7 +9,7 @@ export function recoveryLocation(location: {search:string;hash:string}) {
 export const initialRecovery=typeof window==='undefined'?{requested:false,invalid:false}:recoveryLocation(window.location);
 export function passwordProblem(password:string,confirmation:string):string|null {
   if(password.length<8||password.length>128)return 'Use uma senha entre 8 e 128 caracteres.';
-  if(password!==confirmation)return 'As senhas não coincidem.';
+  if(password!==confirmation)return 'As senhas estão diferentes. Digite a mesma senha nos dois campos.';
   return null;
 }
 export async function completePasswordReset(auth:AuthClient,password:string,confirmation:string) {
@@ -17,7 +17,7 @@ export async function completePasswordReset(auth:AuthClient,password:string,conf
   const {data,error}=await auth.getUser();
   if(error||!data.user)throw Error('Seu link expirou ou a sessão não é válida. Solicite um novo link.');
   const result=await auth.updateUser({password});
-  if(result.error)throw Error(result.error.message||'Não foi possível atualizar a senha.');
+  if(result.error){const code=(result.error as {code?:string}).code;throw Error(code==='same_password'?'A nova senha deve ser diferente da senha atual.':code==='weak_password'?'A senha é muito fraca. Use uma combinação mais forte de letras, números e símbolos.':'Não foi possível atualizar a senha. Confira os requisitos ou solicite um novo link de recuperação.');}
   // End the recovery session so the user explicitly signs in with the new password.
   const signedOut=await auth.signOut({scope:'local'});
   return {signedOut:!signedOut.error};

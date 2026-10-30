@@ -136,6 +136,9 @@ export const VouchersManager = () => {
       return;
     }
 
+    if (["setup_and_first","setup_and_monthly"].includes(formData.applies_to) && (Number(formData.max_uses_per_user||1)<2 || (formData.max_uses && Number(formData.max_uses)<2))) {
+      toast.error("Para aplicar na implementação e na mensalidade, permita pelo menos 2 usos: um para cada cobrança."); return;
+    }
     try {
       // Determine validity_months from validity_period
       let validityMonths: number | null = formData.validity_period === "forever" ? null : 1;
@@ -397,17 +400,17 @@ export const VouchersManager = () => {
                         <label className="flex gap-2 text-sm"><Switch checked={formData.commerce_enabled} onCheckedChange={v=>setFormData({...formData,commerce_enabled:v})}/>Revisei as regras e autorizo o uso no novo checkout</label>
                         <p className="text-xs text-muted-foreground">Implementação e mensalidade contam como resgates separados nos limites de uso. Não altera assinaturas existentes.</p>
                         <Label>Duração do desconto na mensalidade</Label>
-                        <Select value={String(formData.discount_months)} onValueChange={v=>setFormData({...formData,discount_months:Number(v)})} disabled={formData.applies_to!=="monthly"}>
+                        <Select value={String(formData.discount_months)} onValueChange={v=>setFormData({...formData,discount_months:Number(v)})} disabled={!["monthly","setup_and_monthly"].includes(formData.applies_to)}>
                           <SelectTrigger><SelectValue/></SelectTrigger><SelectContent>
                             {Array.from({length:12},(_,i)=><SelectItem key={i+1} value={String(i+1)}>{i+1} mês(es)</SelectItem>)}
                             <SelectItem value="0">Vitalício · enquanto a assinatura estiver ativa</SelectItem>
                           </SelectContent>
                         </Select>
-                        <p className="text-xs text-muted-foreground">Vitalício vale para a opção Mensalidade e dura enquanto a assinatura continuar ativa. Não transfere para uma nova assinatura. O prazo para resgatar o código é definido separadamente abaixo.</p>
+                        <p className="text-xs text-muted-foreground">Vitalício vale para Mensalidade ou Implementação + mensalidade e dura enquanto a assinatura continuar ativa. Não transfere para uma nova assinatura. O prazo para resgatar o código é definido separadamente abaixo.</p>
                         <Label>Aplica-se a</Label>
                         <Select
-                          value={formData.applies_to}
-                          onValueChange={(value) => setFormData({ ...formData, applies_to: value })}
+                          value={formData.applies_to==="setup_and_monthly"&&formData.discount_months===0?"setup_and_lifetime":formData.applies_to}
+                          onValueChange={(value) => setFormData(prev=>({...prev,applies_to:value==="setup_and_lifetime"?"setup_and_monthly":value,discount_months:value==="setup_and_lifetime"?0:value==="setup_and_monthly"?Math.max(1,prev.discount_months):prev.discount_months,max_uses_per_user:["setup_and_first","setup_and_monthly","setup_and_lifetime"].includes(value)?String(Math.max(2,Number(prev.max_uses_per_user||1))):prev.max_uses_per_user}))}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -417,6 +420,8 @@ export const VouchersManager = () => {
                             <SelectItem value="monthly">Mensalidade (duração acima)</SelectItem>
                             <SelectItem value="setup">Implementação única</SelectItem>
                             <SelectItem value="setup_and_first">Implementação + primeira mensalidade (1 mês)</SelectItem>
+                            <SelectItem value="setup_and_monthly">Implementação + mensalidade por período</SelectItem>
+                            <SelectItem value="setup_and_lifetime">Implementação + mensalidade vitalícia</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
