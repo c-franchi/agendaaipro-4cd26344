@@ -1,0 +1,13 @@
+# Contrato, atendimento e notificações
+
+Contrato 2026-10-30-v1 em docs/contracts. O resumo é carregado antes do checkout; o aceite expresso da conta autenticada é obrigatório no RPC de criação e o backend do checkout exige cópia aceita com o mesmo voucher e valor devido. Retomadas do pagamento em Meus pedidos permitem conferir e registrar novo aceite se as condições mudaram. Assinaturas existentes e contratos antigos não recebem aceites retroativos.
+
+Cópias append-only: titular, horário do servidor, versão, documento/resumo comercial e SHA-256. RLS restringe ao titular/equipe. O titular pode baixar TXT, e o recibo do contrato inclui o anexo por e-mail. Não é certificação ICP-Brasil nem promessa de validade jurídica absoluta. Dados cadastrais completos do fornecedor (CPF/CNPJ e endereço comercial) ainda precisam ser fornecidos pelo responsável para completar a identificação formal; não inventar esses dados.
+
+Atendimento por pedido desde o recebimento, inclusive antes do pagamento: dúvidas, problemas, cancelamento, suspensão e arrependimento. Protocolo UUID, confirmação no painel, fila de aviso para cliente/equipe, resposta da equipe e histórico de alterações. Resposta em até 5 dias; solicitação não realiza estorno nem cancela Stripe automaticamente. A equipe deve executar as ações financeiras e registrar a resposta. Até 10 solicitações abertas por pedido; criação idempotente pelo mesmo UUID.
+
+Painel de avisos com indicador de não lidos, timeline, status do envio por e-mail e contratos. Atualização de 30 segundos; registro no painel não depende do Resend. Pagamento e mensalidade confirmados apenas por webhook Stripe verificado, nunca por retorno de tela. Cobertura de avisos: pedido/contrato recebidos, implementação paga, materiais recebidos/conferidos, andamento, prévia, aprovação, atendimento, alteração da mensalidade e reembolso.
+
+Resend usa EMAIL_FROM e RESEND_API_KEY cadastrados no projeto. Reply-To fixo do administrador. Teste de e-mail disponível apenas ao operador autenticado ou token interno dedicado, destinatário fixo neifranchi@gmail.com, sem criar pedido/cobrança. `accepted`/`sent` significa aceito pelo provedor, não recebimento comprovado. Função order-notifications não expõe segredos. O cron agendai-order-notifications deve estar ativo, * * * * *, Vault com segredo dedicado, chamando drain somente quando há fila pendente. Preservar o cron existente.
+
+Publicar create-checkout, order-notifications, stripe-commerce-webhook e _shared/order-notifications. Aplicar migração 20261030154744 e validar anon/RLS/contrato/pagamentos/protocolos. Não executar cobranças ou enviar testes para clientes reais. Um e-mail de teste para o titular foi autorizado.
