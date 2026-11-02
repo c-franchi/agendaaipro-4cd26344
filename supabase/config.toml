@@ -37,3 +37,6 @@ verify_jwt = false
 
 [functions.order-notifications]
 verify_jwt = false
+
+[functions.commerce-subscriptions]
+verify_jwt = true

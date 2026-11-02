@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import logoSimple from "@/assets/logo-simple.png";
 import { SubscriptionExpirationWarning } from "@/components/subscription/SubscriptionExpirationWarning";
+import { ManagedSubscriptions } from "@/components/subscription/ManagedSubscriptions";
 import { APP_URL } from "@/lib/constants";
 
 interface SubscriptionData {
@@ -46,7 +47,8 @@ const MyProfile = () => {
   const [loading, setLoading] = useState(true);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
-  const [hasOrders,setHasOrders]=useState(false);
+  const [orders,setOrders]=useState<BusinessOrder[]>([]);
+  const [ordersError,setOrdersError]=useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
@@ -80,9 +82,9 @@ const MyProfile = () => {
     try {
       const [legacy,newOrders]=await Promise.all([
         supabase.functions.invoke("check-subscription",{body:{email:email.toLowerCase().trim()}}),
-        commerce<{orders:BusinessOrder[]}>("commerce-orders",{action:"list"}).catch(()=>({orders:[]})),
+        commerce<{orders:BusinessOrder[]}>("commerce-orders",{action:"list"}).catch(()=>{setOrdersError(true);return {orders:[]}}),
       ]);
-      setHasOrders(newOrders.orders.length>0);
+      setOrders(newOrders.orders);
       if(legacy.error)throw legacy.error;
       const data=legacy.data;
       const managed=newOrders.orders.some(order=>order.stripe_subscription_id&&order.stripe_subscription_id===data.subscription?.id)||(newOrders.orders.length>0&&data.subscription?.planName==='Desconhecido');
@@ -285,6 +287,10 @@ const MyProfile = () => {
                     <Skeleton className="h-8 w-2/3" />
                     <Skeleton className="h-10 w-full" />
                   </div>
+                ) : orders.length>0 ? (
+                  <ManagedSubscriptions orders={orders}/>
+                ) : ordersError ? (
+                  <div role="alert" className="space-y-3"><p>Não foi possível consultar seus planos.</p><Button variant="outline" onClick={()=>{setOrdersError(false);void checkSubscription(user!.email!)}}>Tentar novamente</Button></div>
                 ) : subscription ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -334,8 +340,6 @@ const MyProfile = () => {
                       )}
                     </Button>
                   </div>
-                ) : hasOrders ? (
-                  <div className="space-y-4"><p>Seu plano, pagamento e endereço personalizado estão em Meus pedidos e plataformas.</p><Button asChild className="w-full"><Link to="/meus-pedidos">Acompanhar minha plataforma</Link></Button></div>
                 ) : (
                   <div className="text-center py-4 space-y-4">
                     <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto">
