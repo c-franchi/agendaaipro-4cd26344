@@ -80,6 +80,7 @@ export type Database = {
       }
       business_orders: {
         Row: {
+          address_policy: string
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null
@@ -123,6 +124,7 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          address_policy?: string
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -166,6 +168,7 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          address_policy?: string
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -225,6 +228,30 @@ export type Database = {
           active?: boolean
           document?: Json
           version?: string
+        }
+        Relationships: []
+      }
+      commerce_provider_settings: {
+        Row: {
+          data: Json
+          revision: number
+          singleton: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          data: Json
+          revision?: number
+          singleton?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          data?: Json
+          revision?: number
+          singleton?: boolean
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -908,6 +935,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      commerce_contract_template: { Args: never; Returns: Json }
       commerce_offer_quote: {
         Args: { p_code?: string; p_plan: string }
         Returns: Json
@@ -923,6 +951,10 @@ export type Database = {
           p_fingerprint?: string
           p_order: string
         }
+        Returns: Json
+      }
+      commerce_provider_settings: {
+        Args: { p_action?: string; p_data?: Json }
         Returns: Json
       }
       commerce_record_payment: {
@@ -963,6 +995,7 @@ export type Database = {
           p_terms: string
         }
         Returns: {
+          address_policy: string
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null
