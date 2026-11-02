@@ -59,9 +59,7 @@ export const CheckoutModal = ({
         </dl>
         <p className="text-sm text-muted-foreground">
           Seu site recebe sua logo, cores, dados e serviços, com configuração
-          inicial e painel para editar os campos disponíveis. Primeiro ano do
-          domínio .com.br incluído, sujeito à disponibilidade; renovação à
-          parte.
+          inicial e painel para editar os campos disponíveis. {planType==="essencial" ? "Inclui subdomínio AgendaAÍ, como meunegocio.agendaaipro.com.br, sujeito à disponibilidade. Domínio próprio é opcional, com orçamento e contratação à parte." : "Inclui primeiro ano de domínio próprio .com.br disponível; renovação à parte."}
         </p>
         {planType !== "essencial" && (
           <p className="text-sm rounded-lg bg-primary/10 p-3">

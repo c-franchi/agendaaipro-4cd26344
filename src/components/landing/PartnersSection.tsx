@@ -86,7 +86,7 @@ const PartnersSection = () => {
           {[
             { value: "100%", label: "Personalizado" },
             { value: "24/7", label: "Agendamentos online" },
-            { value: "Domínio", label: "Próprio do profissional" },
+            { value: "Endereço", label: "Conforme o plano" },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-lg sm:text-xl md:text-2xl font-bold gradient-text">

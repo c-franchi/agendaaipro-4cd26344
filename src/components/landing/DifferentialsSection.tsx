@@ -11,7 +11,7 @@ const differentials = [
   "Estrutura pronta configurada para você",
   "Painel para editar os campos disponíveis",
   "Seus registros separados dos outros negócios",
-  "Primeiro ano de domínio .com.br incluído na implementação",
+  "Agenda com subdomínio; Gestão e Premium com domínio próprio",
   "Ferramentas conforme o plano contratado",
   "Preparação visual inicial adicional no Premium",
 ];

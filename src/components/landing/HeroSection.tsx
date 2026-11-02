@@ -155,7 +155,7 @@ const HeroSection = () => {
             >
               <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-primary animate-pulse" />
               <span className="text-xs md:text-sm text-primary font-medium">
-                Seu site + seu domínio + seu painel
+                Seu site + seu endereço + seu painel
               </span>
             </motion.div>
 
