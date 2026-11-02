@@ -11,6 +11,7 @@ export const PLANS = {
     description: "Para organizar seus atendimentos",
     features: [
       "Site com sua logo, cores e informações",
+      "Subdomínio AgendaAÍ incluído; domínio próprio à parte",
       "Agenda online e cadastro de clientes",
       "Serviços, preços e duração editáveis",
       "Horários, bloqueios e agendamentos manuais",
@@ -26,6 +27,7 @@ export const PLANS = {
     description: "Para acompanhar a operação do negócio",
     features: [
       "Tudo do Agenda",
+      "Primeiro ano de domínio próprio .com.br incluído",
       "Site personalizado e painel de edição",
       "Configuração dos recursos contratados",
       "Catálogo, vendas e estoque de produtos",
@@ -68,7 +70,7 @@ export const PREMIUM_CONTENT_NOTE =
 export const DELIVERY_NOTE =
   "Prazo estimado de 15 a 20 dias úteis a partir do envio completo e da conferência dos materiais. O pagamento da implementação inicia o atendimento; a mensalidade é contratada após a aprovação da entrega. Cada instalação inclui uma agenda de atendimento.";
 export const DEFAULT_HERO = {
-  title: "Seu negócio com site próprio, domínio e agendamento online",
+  title: "Seu negócio com site personalizado e agendamento online",
   subtitle:
     "Receba um site com sua logo, cores e serviços, conectado ao painel de agendamento. Seus clientes agendam pelo endereço do seu negócio, e você organiza os atendimentos no celular ou no computador.",
   cta_primary: "Conhecer os planos",
@@ -77,7 +79,7 @@ export const DEFAULT_HERO = {
 
 export const OFFER_FAQS = [
   {question:"Preciso baixar um aplicativo para usar?",answer:"Você e seus clientes podem acessar pelo navegador. O sistema é um site com recursos de aplicativo (PWA), que pode ser instalado em dispositivos e navegadores compatíveis, sem depender de uma loja de aplicativos. A instalação é opcional e não significa funcionamento completo sem internet."},
-  {question:"O que diferencia esta oferta de um aplicativo de agenda?",answer:"A oferta combina um site com a identidade e o domínio do seu negócio, agendamento para seus clientes e um painel para o profissional. Alguns aplicativos também oferecem esses recursos; compare o conjunto, a configuração inicial, o suporte e os módulos efetivamente contratados."},
+  {question:"O que diferencia esta oferta de um aplicativo de agenda?",answer:"A oferta combina um site com a identidade do seu negócio e um endereço conforme o plano, agendamento para seus clientes e um painel para o profissional. Alguns aplicativos também oferecem esses recursos; compare o conjunto, a configuração inicial, o suporte e os módulos efetivamente contratados."},
   {question:"O sistema é desenvolvido do zero exclusivamente para mim?",answer:"Utilizamos uma estrutura pronta, configurada com sua marca, dados e serviços. A contratação é do acesso à plataforma com personalização inicial; não implica compra do código-fonte ou desenvolvimento exclusivo. Você edita os campos disponíveis no painel. Mudanças de estrutura e novas funções exigem avaliação e orçamento."},
   {
     question: "Todos os planos incluem um site personalizado?",
@@ -112,7 +114,7 @@ export const OFFER_FAQS = [
   {
     question: "O domínio está incluído?",
     answer:
-      "A implementação inclui o primeiro ano de um domínio .com.br, sujeito à disponibilidade do nome. A renovação após o primeiro ano é cobrada separadamente, com valor informado previamente.",
+      "No Agenda, incluímos um subdomínio, como meunegocio.agendaaipro.com.br, sujeito à disponibilidade. Domínio próprio é opcional e contratado à parte, mediante orçamento e aprovação. Gestão e Premium incluem o primeiro ano de um domínio .com.br disponível; renovação à parte. Condições anteriores já contratadas são preservadas.",
   },
   { question: "Quando recebo meu sistema?", answer: DELIVERY_NOTE },
   {

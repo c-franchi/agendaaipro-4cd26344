@@ -24,6 +24,7 @@ const defaultImages: Record<PlanKey, string> = {
   premium: bgMassage,
 };
 const comparison = [
+  ["Endereço do site", "Subdomínio AgendaAÍ", "Domínio próprio · 1º ano", "Domínio próprio · 1º ano"],
   [
     "Site com sua marca e configuração inicial",
     "Incluído",
@@ -248,8 +249,7 @@ const PricingSection = () => {
             <ul className="text-sm text-muted-foreground space-y-3">
               <li>
                 <strong className="text-foreground">Implementação:</strong>{" "}
-                configuração, orientação inicial e primeiro ano de domínio
-                .com.br, sujeito à disponibilidade.
+                configuração e orientação inicial. Agenda inclui subdomínio AgendaAÍ; Gestão e Premium incluem primeiro ano de domínio .com.br disponível.
               </li>
               <li>
                 <strong className="text-foreground">Mensalidade:</strong> começa
@@ -258,7 +258,7 @@ const PricingSection = () => {
               </li>
               <li>
                 <strong className="text-foreground">À parte:</strong> renovação
-                do domínio, taxas de pagamento, mensagens pagas, serviços
+                de domínio próprio; domínio próprio opcional no Agenda mediante orçamento e aprovação; taxas de pagamento, mensagens pagas, serviços
                 externos e conteúdo adicional.
               </li>
               <li>

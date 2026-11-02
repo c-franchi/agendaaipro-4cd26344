@@ -100,9 +100,7 @@ const Terms = () => {
                   A contratação padrão direciona ao checkout da implementação do plano escolhido, com o valor final e eventuais descontos apresentados no resumo. Após a confirmação do pagamento, o cliente envia os materiais e acompanha a preparação pela sua conta. O prazo de produção começa após o envio completo e a conferência dos materiais. Necessidades fora da estrutura e dos módulos do plano são avaliadas separadamente.
                 </li>
                 <li>
-                  A implementação cobre a configuração inicial e o primeiro ano
-                  de domínio .com.br, sujeito à disponibilidade. A renovação é
-                  cobrada separadamente.
+                  Para novas contratações, o Agenda inclui subdomínio do AgendaAÍ Pro, sujeito à disponibilidade. Domínio próprio no Agenda é adicional sob orçamento e aprovação. Gestão e Premium incluem o primeiro ano de domínio .com.br disponível, com renovação à parte. Pedidos existentes conservam as condições registradas no contrato aceito.
                 </li>
                 <li>
                   A mensalidade é contratada após a aprovação da entrega e inclui
