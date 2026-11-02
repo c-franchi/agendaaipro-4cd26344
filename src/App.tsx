@@ -1,3 +1,4 @@
+import Project from "./pages/Project";
 import RouteScroll from "./components/RouteScroll";
 import MyOrders from "./pages/MyOrders";
 import PasswordRecoveryGate from "./components/auth/PasswordRecoveryGate";
@@ -38,6 +39,8 @@ const App = () => (
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/minha-assinatura" element={<MySubscription />} />
           <Route path="/meus-pedidos" element={<MyOrders />} />
+          <Route path="/meus-pedidos/:orderId/:step" element={<Project />} />
+          <Route path="/admin/pedidos/:orderId/:step" element={<Project />} />
           <Route path="/meu-perfil" element={<MyProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
