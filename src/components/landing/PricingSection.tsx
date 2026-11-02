@@ -1,7 +1,7 @@
 import {usePromotions,displayedOffer} from '@/lib/offers';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Palette } from "lucide-react";
+import { Check, ArrowRight, Palette, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CheckoutModal } from "@/components/checkout/CheckoutModal";
 import {
@@ -115,6 +115,10 @@ const PricingSection = () => {
           {PLAN_KEYS.map((key, index) => {
             const plan = PLANS[key];
             const offer=displayedOffer(promotions,key);
+            const onOffer=Boolean(offer.promotion);
+            const hasPromotion=PLAN_KEYS.some(planKey=>Boolean(displayedOffer(promotions,planKey).promotion));
+            const monthlySaving=Math.max(0,plan.price-offer.monthly);
+            const setupSaving=Math.max(0,plan.setupPrice-offer.setup);
             return (
               <motion.article
                 key={key}
@@ -122,26 +126,27 @@ const PricingSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className={`glass-card p-6 md:p-8 relative flex flex-col ${plan.popular ? "border-primary/60" : ""}`}
+                className={`glass-card p-6 md:p-8 relative flex flex-col min-w-0 ${onOffer ? "border-2 border-amber-400/90 shadow-[0_0_36px_-12px_rgba(251,191,36,0.45)]" : plan.popular && !hasPromotion ? "border-primary/60" : ""}`}
                 style={{
                   backgroundImage: `linear-gradient(hsl(var(--card) / .95), hsl(var(--card) / .95)), url("${images[key]}")`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               >
-                {plan.popular && (
+                {plan.popular && !onOffer && (
                   <span className="absolute -top-3 left-6 text-xs text-primary bg-card border border-primary/40 rounded-full px-3 py-1">
                     Agenda + gestão
                   </span>
                 )}
+                {onOffer&&<div className="mb-5 -mx-6 -mt-6 md:-mx-8 md:-mt-8 rounded-t-xl bg-amber-400 px-6 py-3 text-slate-950 flex items-center gap-2 font-bold text-sm"><Tag className="h-4 w-4 shrink-0" aria-hidden="true"/><span className="break-words">PLANO EM OFERTA</span></div>}
                 <h3 className="text-2xl font-bold">{plan.name}</h3>
                 <p className="text-sm text-muted-foreground mt-2 min-h-10">
                   {plan.description}
                 </p>
-                {offer.promotion&&<p className="mt-3 text-sm text-primary">{offer.promotion.title}{offer.promotion.ends_at?` · até ${new Date(offer.promotion.ends_at).toLocaleString('pt-BR')}`:''}</p>}
+                {offer.promotion&&<div className="mt-3 space-y-1"><p className="text-sm font-semibold text-amber-300 break-words">{offer.promotion.title}</p>{offer.promotion.ends_at&&<p className="text-xs text-muted-foreground">Válida até {new Date(offer.promotion.ends_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</p>}</div>}
                 <p className="mt-5">
                   {offer.monthly<plan.price&&<del className="block text-sm text-muted-foreground">{formatCurrency(plan.price)}/mês</del>}
-                  <span className="text-4xl font-bold gradient-text">
+                  <span className={`text-4xl font-bold ${onOffer ? "text-amber-300" : "gradient-text"}`}>
                     {formatCurrency(offer.monthly)}
                   </span>
                   <span className="text-muted-foreground">/mês</span>
@@ -150,6 +155,7 @@ const PricingSection = () => {
                   {offer.setup<plan.setupPrice&&<del className="mr-2 text-muted-foreground">{formatCurrency(plan.setupPrice)}</del>}<strong>{formatCurrency(offer.setup)}</strong> de
                   implementação única
                 </p>
+                {onOffer&&(monthlySaving>0||setupSaving>0)&&<div className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100" aria-label="Economia desta oferta"><p className="font-semibold mb-1">Você economiza</p>{monthlySaving>0&&<p>{formatCurrency(monthlySaving)} por mês</p>}{setupSaving>0&&<p>{formatCurrency(setupSaving)} na implementação</p>}</div>}
                 <ul className="space-y-3 my-6">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex gap-3 text-sm">
@@ -165,11 +171,11 @@ const PricingSection = () => {
                       : "Você fornece logo, imagens e textos prontos; nós configuramos seu site."}
                   </p>
                   <Button
-                    variant={plan.popular ? "hero" : "heroOutline"}
-                    className="w-full"
+                    variant={onOffer ? "default" : plan.popular && !hasPromotion ? "hero" : "heroOutline"}
+                    className={`w-full ${onOffer ? "bg-amber-400 text-slate-950 hover:bg-amber-300 font-bold shadow-lg shadow-amber-400/15" : ""}`}
                     onClick={() => setSelectedPlan(key)}
                   >
-                    Quero o {plan.name}
+                    {onOffer ? `Aproveitar oferta ${plan.name}` : `Quero o ${plan.name}`}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
