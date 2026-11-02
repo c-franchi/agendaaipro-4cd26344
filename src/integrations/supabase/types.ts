@@ -80,6 +80,7 @@ export type Database = {
       }
       business_orders: {
         Row: {
+          address_policy: string
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null
@@ -123,6 +124,7 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          address_policy?: string
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -166,6 +168,7 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          address_policy?: string
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -992,6 +995,7 @@ export type Database = {
           p_terms: string
         }
         Returns: {
+          address_policy: string
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null
