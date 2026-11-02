@@ -36,6 +36,13 @@
       "when": 1793642638546,
       "tag": "0004_address_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793647291476,
+      "tag": "0005_admin_role_policies",
+      "breakpoints": true
     }
   ]
 }
