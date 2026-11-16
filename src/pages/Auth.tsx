@@ -302,13 +302,10 @@ const Auth = () => {
                 Continuar com Google
               </button>
 
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border/30" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-card px-2 text-muted-foreground">ou continue com email</span>
-                </div>
+              <div className="flex items-center gap-3 my-6">
+                <span className="flex-1 border-t border-border/30" />
+                <span className="text-xs text-muted-foreground">ou continue com email</span>
+                <span className="flex-1 border-t border-border/30" />
               </div>
             </>
           )}
