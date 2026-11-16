@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,6 +126,33 @@ const Auth = () => {
     } catch (error) {
       toast.error("Erro ao enviar email de recuperação");
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      // Preserve the pending plan choice so the checkout resumes after the OAuth redirect.
+      if (pendingCheckout) {
+        localStorage.setItem("auto_open_checkout", pendingCheckout);
+        localStorage.removeItem("pending_checkout");
+      }
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error("Não foi possível entrar com o Google. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+      if (result.redirected) {
+        // Browser is redirecting to Google; keep the loading state.
+        return;
+      }
+      // Session already set; onAuthStateChange handles the navigation.
+    } catch {
+      toast.error("Erro ao entrar com o Google");
       setLoading(false);
     }
   };
