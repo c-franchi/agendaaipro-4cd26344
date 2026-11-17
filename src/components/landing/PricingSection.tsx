@@ -1,4 +1,5 @@
 import {usePromotions,displayedOffer} from '@/lib/offers';
+import { PREMIUM_TEAM_ROLLOUT } from "@/lib/premium-team-rollout";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Palette, Tag } from "lucide-react";
@@ -24,6 +25,7 @@ const defaultImages: Record<PlanKey, string> = {
   premium: bgMassage,
 };
 const comparison = [
+  ...(PREMIUM_TEAM_ROLLOUT.enabled ? [PREMIUM_TEAM_ROLLOUT.comparison] : []),
   ["Endereço do site", "Subdomínio AgendaAÍ", "Domínio próprio · 1º ano", "Domínio próprio · 1º ano"],
   [
     "Site com sua marca e configuração inicial",
