@@ -1,0 +1,1 @@
+- Unapproved production migrations live in `drizzle/pending/` with a rollback file and a local test under `tests/sql/`; they are applied byte-for-byte via the migration tool only after owner approval (keeps the live journal free of unapproved changes).
