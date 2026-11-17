@@ -1,4 +1,5 @@
 import {catalog} from "../../supabase/functions/_shared/commerce";
+import { PREMIUM_TEAM_ROLLOUT } from "./premium-team-rollout";
 export const APP_URL = "https://app.agendaaipro.com.br";
 
 // Historical keys are preserved for existing customer records.
@@ -52,6 +53,7 @@ export const PLANS = {
       "Insumos e consumo de materiais por serviço",
       "Baixa de insumos ao concluir o atendimento",
       "Custos registrados e margem estimada",
+      ...(PREMIUM_TEAM_ROLLOUT.enabled ? [PREMIUM_TEAM_ROLLOUT.benefit] : []),
     ],
     plannedFeatures: [] as string[],
     popular: false,
@@ -68,7 +70,8 @@ export const formatCurrency = (value: number) =>
 export const PREMIUM_CONTENT_NOTE =
   "A mensalidade remunera as ferramentas do sistema, hospedagem, manutenção técnica e suporte de uso. A preparação de imagens, portfólio e vídeo acontece somente na entrega inicial. Não há criação mensal de conteúdo incluída.";
 export const DELIVERY_NOTE =
-  "Prazo estimado de 15 a 20 dias úteis a partir do envio completo e da conferência dos materiais. O pagamento da implementação inicia o atendimento; a mensalidade é contratada após a aprovação da entrega. Cada instalação inclui uma agenda de atendimento.";
+  "Prazo estimado de 15 a 20 dias úteis a partir do envio completo e da conferência dos materiais. O pagamento da implementação inicia o atendimento; a mensalidade é contratada após a aprovação da entrega. " +
+  (PREMIUM_TEAM_ROLLOUT.enabled ? "Agenda e Gestão incluem um profissional por instalação; Premium contempla até dois." : "Cada instalação inclui uma agenda de atendimento.");
 export const DEFAULT_HERO = {
   title: "Seu negócio com site personalizado e agendamento online",
   subtitle:
@@ -78,6 +81,7 @@ export const DEFAULT_HERO = {
 };
 
 export const OFFER_FAQS = [
+  ...(PREMIUM_TEAM_ROLLOUT.enabled ? [PREMIUM_TEAM_ROLLOUT.faq] : []),
   {question:"Preciso baixar um aplicativo para usar?",answer:"Você e seus clientes podem acessar pelo navegador. O sistema é um site com recursos de aplicativo (PWA), que pode ser instalado em dispositivos e navegadores compatíveis, sem depender de uma loja de aplicativos. A instalação é opcional e não significa funcionamento completo sem internet."},
   {question:"O que diferencia esta oferta de um aplicativo de agenda?",answer:"A oferta combina um site com a identidade do seu negócio e um endereço conforme o plano, agendamento para seus clientes e um painel para o profissional. Alguns aplicativos também oferecem esses recursos; compare o conjunto, a configuração inicial, o suporte e os módulos efetivamente contratados."},
   {question:"O sistema é desenvolvido do zero exclusivamente para mim?",answer:"Utilizamos uma estrutura pronta, configurada com sua marca, dados e serviços. A contratação é do acesso à plataforma com personalização inicial; não implica compra do código-fonte ou desenvolvimento exclusivo. Você edita os campos disponíveis no painel. Mudanças de estrutura e novas funções exigem avaliação e orçamento."},
