@@ -128,7 +128,7 @@ const MySubscription = () => {
         </div>
       </header>
 
-      <main className="container py-12 max-w-2xl">
+      <main className="container px-4 py-5 sm:py-12 max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -173,7 +173,7 @@ const MyProfile = () => {
         </div>
       </header>
 
-      <main className="container py-12 max-w-4xl">
+      <main className="container px-4 py-5 sm:py-12 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
