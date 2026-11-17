@@ -357,6 +357,33 @@ export type Database = {
         }
         Relationships: []
       }
+      installation_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          installation_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          installation_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          installation_id?: string
+        }
+        Relationships: []
+      }
       installation_checklist_items: {
         Row: {
           done: boolean
@@ -397,6 +424,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "installation_checklist_items_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "system_installations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      installation_customizations: {
+        Row: {
+          area: string
+          details: string | null
+          id: string
+          installation_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          area: string
+          details?: string | null
+          id?: string
+          installation_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string
+          details?: string | null
+          id?: string
+          installation_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installation_customizations_installation_id_fkey"
             columns: ["installation_id"]
             isOneToOne: false
             referencedRelation: "system_installations"

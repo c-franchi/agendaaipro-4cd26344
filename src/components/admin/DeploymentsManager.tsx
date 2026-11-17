@@ -79,7 +79,43 @@ function InstallationDetail({inst,template,order,onBack}:{inst:Install;template?
   </div>
   <div className="glass-card space-y-2 rounded-xl p-4"><h4 className="font-medium">Checklist de personalização · {done}/{items.length}</h4>
    {items.map(it=><ChecklistRow key={it.id} it={it} onSave={p=>saveItem(it,p)}/>)}</div>
+  <Customizations id={inst.id}/>
+  <InstallFiles id={inst.id}/>
+  <AuditLog id={inst.id}/>
  </div>}
+
+const AREAS:Record<string,string>={identidade:'Identidade visual',servicos:'Serviços e preços',horarios:'Horários',links:'Links e domínio'};
+const CSTATUS:Record<string,string>={registrado:'Registrado',aplicado:'Aplicado',validado:'Validado'};
+function Customizations({id}:{id:string}){
+ const [rows,setRows]=useState<Tables<'installation_customizations'>[]>([]);
+ useEffect(()=>{supabase.from('installation_customizations').select('*').eq('installation_id',id).then(({data})=>setRows((data||[]).sort((a,b)=>Object.keys(AREAS).indexOf(a.area)-Object.keys(AREAS).indexOf(b.area))))},[id]);
+ async function save(r:Tables<'installation_customizations'>){const {error}=await supabase.from('installation_customizations').update({status:r.status,details:r.details}).eq('id',r.id);if(error)return err(error);toast.success('Personalização salva')}
+ const upd=(r:Tables<'installation_customizations'>,p:object)=>setRows(rows.map(x=>x.id===r.id?{...x,...p}:x));
+ return <div className="glass-card space-y-3 rounded-xl p-4"><h4 className="font-medium">Personalização</h4>
+  {rows.map(r=><div key={r.id} className="space-y-2 rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-medium">{AREAS[r.area]}</span><Badge variant={r.status==='validado'?'default':'secondary'}>{CSTATUS[r.status]}</Badge></div>
+   <Textarea placeholder="O que foi definido" value={r.details||''} onChange={e=>upd(r,{details:e.target.value})}/>
+   <div className="flex gap-2"><select className={sel} value={r.status} onChange={e=>upd(r,{status:e.target.value})}>{Object.entries(CSTATUS).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select><Button variant="outline" className="min-h-11" onClick={()=>save(r)}>Salvar</Button></div></div>)}
+ </div>}
+
+function InstallFiles({id}:{id:string}){
+ const [files,setFiles]=useState<{name:string}[]>([]),[busy,setBusy]=useState(false);
+ const load=useCallback(()=>supabase.storage.from('deployment-files').list(id,{sortBy:{column:'created_at',order:'desc'}}).then(({data})=>setFiles((data||[]).filter(f=>f.name!=='.emptyFolderPlaceholder'))),[id]);
+ useEffect(()=>{load()},[load]);
+ async function upload(fl:FileList|null){if(!fl?.length)return;setBusy(true);for(const f of Array.from(fl)){const {error}=await supabase.storage.from('deployment-files').upload(`${id}/${Date.now()}-${f.name.replace(/[^\w.-]/g,'_')}`,f);if(error)err(error)}setBusy(false);load()}
+ async function open(n:string){const {data,error}=await supabase.storage.from('deployment-files').createSignedUrl(`${id}/${n}`,300);if(error)return err(error);window.open(data.signedUrl,'_blank','noopener')}
+ async function remove(n:string){if(!confirm('Remover este arquivo?'))return;const {error}=await supabase.storage.from('deployment-files').remove([`${id}/${n}`]);if(error)return err(error);load()}
+ return <div className="glass-card space-y-3 rounded-xl p-4"><h4 className="font-medium">Imagens e evidências</h4>
+  <label className="flex min-h-11 cursor-pointer items-center justify-center rounded-md border border-dashed text-sm">{busy?'Enviando...':'Enviar arquivos (até 20 MB cada)'}<input type="file" multiple accept="image/*,video/*,application/pdf" className="hidden" disabled={busy} onChange={e=>{upload(e.target.files);e.target.value=''}}/></label>
+  {files.length===0&&<p className="text-sm text-muted-foreground">Nenhum arquivo enviado.</p>}
+  <ul className="space-y-1">{files.map(f=><li key={f.name} className="flex items-center gap-2 text-sm"><button className="flex-1 truncate text-left text-primary underline" onClick={()=>open(f.name)}>{f.name.replace(/^\d+-/,'')}</button><Button size="sm" variant="ghost" onClick={()=>remove(f.name)}>Remover</Button></li>)}</ul>
+ </div>}
+
+const ACTIONS:Record<string,string>={'system_installations:insert':'Instalação criada','system_installations:update':'Instalação atualizada','installation_checklist_items:update':'Checklist atualizado','installation_customizations:update':'Personalização atualizada'};
+function AuditLog({id}:{id:string}){
+ const [rows,setRows]=useState<Tables<'installation_audit'>[]>([]);
+ useEffect(()=>{supabase.from('installation_audit').select('*').eq('installation_id',id).order('created_at',{ascending:false}).limit(50).then(({data})=>setRows(data||[]))},[id]);
+ return <details className="glass-card rounded-xl p-4"><summary className="cursor-pointer text-sm font-medium">Histórico ({rows.length})</summary>
+  <ul className="mt-3 space-y-2 text-sm">{rows.map(r=><li key={r.id} className="border-l-2 pl-2"><p>{ACTIONS[r.action]||r.action}</p><p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString('pt-BR')} · {Object.entries(r.details as Record<string,unknown>).map(([k,v])=>`${k}: ${v}`).join(' · ')}</p></li>)}</ul></details>}
 
 function ChecklistRow({it,onSave}:{it:Item;onSave:(p:Partial<Item>)=>void}){
  const [notes,setNotes]=useState(it.notes||''),[ev,setEv]=useState(it.evidence_url||'');

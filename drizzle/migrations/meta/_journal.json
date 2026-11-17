@@ -57,6 +57,13 @@
       "when": 1794939555835,
       "tag": "0007_templates_and_installations",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794947461646,
+      "tag": "0008_deployment_files_customization_audit",
+      "breakpoints": true
     }
   ]
 }
