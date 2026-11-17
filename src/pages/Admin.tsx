@@ -19,6 +19,7 @@ import type { User } from "@supabase/supabase-js";
 import { LeadsDashboard } from "@/components/admin/LeadsDashboard";
 import { VouchersManager } from "@/components/admin/VouchersManager";
 import { LandingPageEditor } from "@/components/admin/LandingPageEditor";
+import { DeploymentsManager } from "@/components/admin/DeploymentsManager";
 import { UsersManager } from "@/components/admin/UsersManager";
 
 interface Lead {
@@ -173,8 +174,8 @@ const Admin = () => {
 
       <main className="container px-3 sm:px-6 py-4 sm:py-8 min-w-0">
         <Dialog open={Boolean(selectedLead)} onOpenChange={open=>{if(!open)setSelectedLead(null)}}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>Detalhes da solicitação</DialogTitle></DialogHeader>{selectedLead&&<dl className="space-y-3 text-sm break-words">{[['Nome',selectedLead.name],['E-mail',selectedLead.email],['WhatsApp',selectedLead.phone],['Área de atuação',selectedLead.business_type],['Mensagem / plano solicitado',selectedLead.message],['Origem',selectedLead.source],['Recebido em',new Date(selectedLead.created_at).toLocaleString('pt-BR')]].map(([label,value])=><div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap">{value||'Não informado'}</dd></div>)}</dl>}</DialogContent></Dialog>
-      <Tabs defaultValue={['orders','contract'].includes(new URLSearchParams(window.location.search).get('tab')||'')?new URLSearchParams(window.location.search).get('tab')!:'dashboard'} className="space-y-6">
-          <TabsList className="sticky top-[57px] z-40 flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl p-1.5 shadow-sm [scrollbar-width:none] sm:static sm:grid sm:grid-cols-4 lg:grid-cols-7">
+      <Tabs defaultValue={['orders','contract','implantacoes'].includes(new URLSearchParams(window.location.search).get('tab')||'')?new URLSearchParams(window.location.search).get('tab')!:'dashboard'} className="space-y-6">
+          <TabsList className="sticky top-[57px] z-40 flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl p-1.5 shadow-sm [scrollbar-width:none] sm:static sm:grid sm:grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="dashboard" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="inline">Dashboard</span>
@@ -196,6 +197,7 @@ const Admin = () => {
               <span className="inline">Landing</span>
             </TabsTrigger>
             <TabsTrigger value="orders" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
+          <TabsTrigger value="implantacoes" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Implantações</TabsTrigger>
           <TabsTrigger value="contract" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Contrato</TabsTrigger>
           </TabsList>
 
@@ -203,6 +205,7 @@ const Admin = () => {
             <LeadsDashboard leads={leads} />
           </TabsContent>
 
+          <TabsContent value="implantacoes"><DeploymentsManager/></TabsContent>
           <TabsContent value="contract"><ContractProviderEditor/></TabsContent>
           <TabsContent value="orders"><OrdersList admin/></TabsContent>
           <TabsContent value="users">

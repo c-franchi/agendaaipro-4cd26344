@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
   public: {
     Tables: {
       business_order_audit: {
@@ -356,6 +351,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      installation_checklist_items: {
+        Row: {
+          done: boolean
+          done_at: string | null
+          evidence_url: string | null
+          id: string
+          installation_id: string
+          label: string
+          notes: string | null
+          position: number
+          step_key: string
+          updated_at: string
+        }
+        Insert: {
+          done?: boolean
+          done_at?: string | null
+          evidence_url?: string | null
+          id?: string
+          installation_id: string
+          label: string
+          notes?: string | null
+          position?: number
+          step_key: string
+          updated_at?: string
+        }
+        Update: {
+          done?: boolean
+          done_at?: string | null
+          evidence_url?: string | null
+          id?: string
+          installation_id?: string
+          label?: string
+          notes?: string | null
+          position?: number
+          step_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installation_checklist_items_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "system_installations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_content: {
         Row: {
@@ -775,6 +817,173 @@ export type Database = {
         }
         Relationships: []
       }
+      system_installations: {
+        Row: {
+          buyer_user_id: string | null
+          contracted_plan: string
+          created_at: string
+          created_by: string | null
+          delivered_at: string | null
+          domain: string | null
+          edit_url: string | null
+          enabled_features: string[]
+          establishment_name: string | null
+          external_installation_id: string | null
+          id: string
+          materials_notes: string | null
+          order_id: string
+          pending_notes: string | null
+          preview_url: string | null
+          status: string
+          template_id: string
+          template_version: string | null
+          updated_at: string
+        }
+        Insert: {
+          buyer_user_id?: string | null
+          contracted_plan: string
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          domain?: string | null
+          edit_url?: string | null
+          enabled_features?: string[]
+          establishment_name?: string | null
+          external_installation_id?: string | null
+          id?: string
+          materials_notes?: string | null
+          order_id: string
+          pending_notes?: string | null
+          preview_url?: string | null
+          status?: string
+          template_id: string
+          template_version?: string | null
+          updated_at?: string
+        }
+        Update: {
+          buyer_user_id?: string | null
+          contracted_plan?: string
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          domain?: string | null
+          edit_url?: string | null
+          enabled_features?: string[]
+          establishment_name?: string | null
+          external_installation_id?: string | null
+          id?: string
+          materials_notes?: string | null
+          order_id?: string
+          pending_notes?: string | null
+          preview_url?: string | null
+          status?: string
+          template_id?: string
+          template_version?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_installations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_installations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "system_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_template_versions: {
+        Row: {
+          confirmed: boolean
+          created_at: string
+          id: string
+          notes: string | null
+          template_id: string
+          version: string
+        }
+        Insert: {
+          confirmed?: boolean
+          created_at?: string
+          id?: string
+          notes?: string | null
+          template_id: string
+          version: string
+        }
+        Update: {
+          confirmed?: boolean
+          created_at?: string
+          id?: string
+          notes?: string | null
+          template_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "system_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_templates: {
+        Row: {
+          compatible_plans: string[]
+          created_at: string
+          current_version: string
+          description: string | null
+          duplication_instructions: string | null
+          features: string[]
+          github_repo: string | null
+          homologation_status: string
+          hosting_platform: string
+          id: string
+          images: string[]
+          name: string
+          source_project_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          compatible_plans?: string[]
+          created_at?: string
+          current_version?: string
+          description?: string | null
+          duplication_instructions?: string | null
+          features?: string[]
+          github_repo?: string | null
+          homologation_status?: string
+          hosting_platform?: string
+          id?: string
+          images?: string[]
+          name: string
+          source_project_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          compatible_plans?: string[]
+          created_at?: string
+          current_version?: string
+          description?: string | null
+          duplication_instructions?: string | null
+          features?: string[]
+          github_repo?: string | null
+          homologation_status?: string
+          hosting_platform?: string
+          id?: string
+          images?: string[]
+          name?: string
+          source_project_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1102,6 +1311,7 @@ export type Database = {
         Args: { voucher_code: string }
         Returns: undefined
       }
+      plan_allowed_features: { Args: { _plan: string }; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -1236,3 +1446,4 @@ export const Constants = {
     },
   },
 } as const
+
