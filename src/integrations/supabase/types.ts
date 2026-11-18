@@ -466,6 +466,47 @@ export type Database = {
           },
         ]
       }
+      installation_version_changes: {
+        Row: {
+          admin_id: string
+          changed_at: string
+          id: string
+          installation_id: string
+          new_version: string
+          previous_version: string
+          reason: string
+          tx_id: number
+        }
+        Insert: {
+          admin_id: string
+          changed_at?: string
+          id?: string
+          installation_id: string
+          new_version: string
+          previous_version: string
+          reason: string
+          tx_id?: number
+        }
+        Update: {
+          admin_id?: string
+          changed_at?: string
+          id?: string
+          installation_id?: string
+          new_version?: string
+          previous_version?: string
+          reason?: string
+          tx_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installation_version_changes_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "system_installations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       landing_content: {
         Row: {
           id: string
@@ -1376,6 +1417,14 @@ export type Database = {
       }
       increment_voucher_uses: {
         Args: { voucher_code: string }
+        Returns: undefined
+      }
+      installation_status_allowed: {
+        Args: { p_from: string; p_to: string }
+        Returns: boolean
+      }
+      installation_upgrade_template: {
+        Args: { p_installation: string; p_reason: string; p_version: string }
         Returns: undefined
       }
       plan_allowed_features: { Args: { _plan: string }; Returns: string[] }

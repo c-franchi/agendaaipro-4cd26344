@@ -64,6 +64,13 @@
       "when": 1794947461646,
       "tag": "0008_deployment_files_customization_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794968845891,
+      "tag": "0009_deployments_hardening",
+      "breakpoints": true
     }
   ]
 }
