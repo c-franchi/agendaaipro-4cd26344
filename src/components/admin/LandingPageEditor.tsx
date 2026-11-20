@@ -249,12 +249,12 @@ export const LandingPageEditor = () => {
     setUploading(`audience_${index}`);
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `audience-${index}-${Date.now()}.${fileExt}`;
+      const fileName = `audience-${index}-${crypto.randomUUID()}.${fileExt}`;
       const filePath = `audience/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("landing-images")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { upsert: false, contentType: file.type });
 
       if (uploadError) throw uploadError;
 
@@ -280,10 +280,10 @@ export const LandingPageEditor = () => {
   const handlePlanImageUpload = async (key: PlanKey, file: File) => {
     setUploading(key);
     try {
-      const path = `plans/${key}-${Date.now()}.${file.name.split(".").pop()}`;
+      const path = `plans/${key}-${crypto.randomUUID()}.${file.name.split(".").pop()}`;
       const { error } = await supabase.storage
         .from("landing-images")
-        .upload(path, file, { upsert: true });
+        .upload(path, file, { upsert: false, contentType: file.type });
       if (error) throw error;
       const { data } = supabase.storage
         .from("landing-images")
@@ -314,7 +314,7 @@ export const LandingPageEditor = () => {
 
       const { error: uploadError } = await supabase.storage
         .from("landing-images")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { upsert: false, contentType: file.type });
 
       if (uploadError) throw uploadError;
 
