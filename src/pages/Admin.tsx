@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserCheck, Mail, Phone, Search, RefreshCw, ArrowLeft, Trash2, Building2, LogOut, BarChart3, Gift, Settings } from "lucide-react";
+import { Users, UserCheck, Mail, Phone, Search, RefreshCw, ArrowLeft, Trash2, Building2, LogOut, BarChart3, Gift, Settings, ShoppingBag, Rocket, Handshake, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -176,31 +176,23 @@ const Admin = () => {
       <main className="container px-3 sm:px-6 py-4 sm:py-8 min-w-0">
         <Dialog open={Boolean(selectedLead)} onOpenChange={open=>{if(!open)setSelectedLead(null)}}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>Detalhes da solicitação</DialogTitle></DialogHeader>{selectedLead&&<dl className="space-y-3 text-sm break-words">{[['Nome',selectedLead.name],['E-mail',selectedLead.email],['WhatsApp',selectedLead.phone],['Área de atuação',selectedLead.business_type],['Mensagem / plano solicitado',selectedLead.message],['Origem',selectedLead.source],['Recebido em',new Date(selectedLead.created_at).toLocaleString('pt-BR')]].map(([label,value])=><div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap">{value||'Não informado'}</dd></div>)}</dl>}</DialogContent></Dialog>
       <Tabs defaultValue={['orders','contract','implantacoes'].includes(new URLSearchParams(window.location.search).get('tab')||'')?new URLSearchParams(window.location.search).get('tab')!:'dashboard'} className="space-y-6">
-          <TabsList className="sticky top-[57px] z-40 flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl p-1.5 shadow-sm [scrollbar-width:none] sm:static sm:grid sm:grid-cols-4 lg:grid-cols-8">
-            <TabsTrigger value="dashboard" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
-              <BarChart3 className="w-4 h-4" />
-              <span className="inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
-              <UserCheck className="w-4 h-4" />
-              <span className="inline">Usuários</span>
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
-              <Users className="w-4 h-4" />
-              <span className="inline">Leads</span>
-            </TabsTrigger>
-            <TabsTrigger value="vouchers" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
-              <Gift className="w-4 h-4" />
-              <span className="inline">Vouchers</span>
-            </TabsTrigger>
-            <TabsTrigger value="landing" className="flex min-h-12 shrink-0 rounded-lg px-3 flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm">
-              <Settings className="w-4 h-4" />
-              <span className="inline">Landing</span>
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
-          <TabsTrigger value="implantacoes" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Implantações</TabsTrigger>
-          <TabsTrigger value="afiliados" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Afiliados</TabsTrigger>
-          <TabsTrigger value="contract" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Contrato</TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-3 gap-1 rounded-xl p-1.5 shadow-sm sm:grid-cols-5 lg:grid-cols-9">
+            {([
+              ["dashboard", "Dashboard", BarChart3],
+              ["users", "Usuários", UserCheck],
+              ["leads", "Leads", Users],
+              ["vouchers", "Vouchers", Gift],
+              ["landing", "Landing", Settings],
+              ["orders", "Pedidos", ShoppingBag],
+              ["implantacoes", "Implantações", Rocket],
+              ["afiliados", "Afiliados", Handshake],
+              ["contract", "Contrato", FileText],
+            ] as const).map(([value, label, Icon]) => (
+              <TabsTrigger key={value} value={value} className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 text-[11px] sm:text-sm">
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="w-full truncate text-center">{label}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="dashboard">
