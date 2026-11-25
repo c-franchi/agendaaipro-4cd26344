@@ -1,5 +1,7 @@
 // Capture password-recovery intent before Supabase initializes.
 import "./lib/password-recovery";
+import { captureVoucherFromUrl } from "./lib/voucher-share";
+captureVoucherFromUrl();
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";

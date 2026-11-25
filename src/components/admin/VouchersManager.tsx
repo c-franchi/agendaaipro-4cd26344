@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, Edit, RefreshCw, Gift, DollarSign, Percent, Users } from "lucide-react";
+import { Plus, Trash2, Edit, RefreshCw, Gift, DollarSign, Percent, Users, Share2, Copy } from "lucide-react";
+import { whatsappShareUrl, voucherShareText } from "@/lib/voucher-share";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -558,6 +559,12 @@ export const VouchersManager = () => {
                                 checked={voucher.status === "active"}
                                 onCheckedChange={() => toggleStatus(voucher)}
                               />
+                              <Button variant="ghost" size="icon" aria-label="Enviar pelo WhatsApp" title="Enviar pelo WhatsApp" asChild>
+                                <a href={whatsappShareUrl(voucher)} target="_blank" rel="noopener noreferrer"><Share2 className="w-4 h-4" /></a>
+                              </Button>
+                              <Button variant="ghost" size="icon" aria-label="Copiar texto de divulgação" title="Copiar texto de divulgação" onClick={async () => { try { await navigator.clipboard.writeText(voucherShareText(voucher)); toast.success("Texto e link copiados!"); } catch { toast.error("Não foi possível copiar"); } }}>
+                                <Copy className="w-4 h-4" />
+                              </Button>
                               <Button variant="ghost" size="icon" onClick={() => handleEdit(voucher)}>
                                 <Edit className="w-4 h-4" />
                               </Button>

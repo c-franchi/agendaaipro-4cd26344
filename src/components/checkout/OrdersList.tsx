@@ -8,9 +8,10 @@ import {Input} from '@/components/ui/input';
 import {Checkbox} from '@/components/ui/checkbox';
 import {formatCurrency} from '@/lib/constants';
 import {getWhatsAppLink} from '@/lib/whatsapp';
+import {savedVoucher} from '@/lib/voucher-share';
 type VoucherQuote={code:string;baseCents:number;discountCents:number;dueCents:number;months:number};
 function VoucherInput({order,kind,onCode}:{order:BusinessOrder;kind:'setup'|'subscription';onCode:(code:string)=>void}){
- const [code,setCode]=useState(kind==='setup'?order.requested_setup_code||'':order.requested_monthly_code||''),[quote,setQuote]=useState<VoucherQuote|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const [code,setCode]=useState(kind==='setup'?order.requested_setup_code||savedVoucher():order.requested_monthly_code||savedVoucher()),[quote,setQuote]=useState<VoucherQuote|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  return <div className="space-y-2"><label className="text-sm block">Voucher para {kind==='setup'?'implementação':'mensalidade'}<Input maxLength={80} value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setQuote(null);onCode('');setError('')}} placeholder="Código opcional"/></label><Button variant="outline" disabled={busy||!code.trim()} onClick={async()=>{setBusy(true);setError('');try{const q=await commerce<VoucherQuote>('validate-voucher',{orderId:order.id,kind,code});setQuote(q);onCode(q.code)}catch(e){setQuote(null);onCode('');setError(e instanceof Error?e.message:'Voucher inválido')}finally{setBusy(false)}}}>Aplicar voucher</Button>{quote&&<p className="text-sm">Original: {formatCurrency(quote.baseCents/100)} · Desconto: {formatCurrency(quote.discountCents/100)} · <strong>Total: {formatCurrency(quote.dueCents/100)}</strong>{kind==='subscription'?(quote.months===0?' · desconto vitalício enquanto esta assinatura permanecer ativa.':` por ${quote.months} mês(es); depois ${formatCurrency(quote.baseCents/100)}/mês.`):' (pagamento único).'} A disponibilidade será confirmada ao abrir o checkout.</p>}{error&&<p role="alert" className="text-sm text-destructive">{error}</p>}</div>
 }
 type Availability={voucherVersion?:string;enabled:boolean;recurringEnabled:boolean;message:string};
