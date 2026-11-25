@@ -76,6 +76,14 @@ const Footer = () => {
                   Planos
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/afiliado"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  Programa de afiliados
+                </Link>
+              </li>
             </ul>
           </div>
 

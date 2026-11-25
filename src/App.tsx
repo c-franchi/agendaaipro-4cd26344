@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import MySubscription from "./pages/MySubscription";
 import MyProfile from "./pages/MyProfile";
+import Affiliate from "./pages/Affiliate";
 import NotFound from "./pages/NotFound";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/meus-pedidos/:orderId/:step" element={<Project />} />
           <Route path="/admin/pedidos/:orderId/:step" element={<Project />} />
           <Route path="/meu-perfil" element={<MyProfile />} />
+          <Route path="/afiliado" element={<Affiliate />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

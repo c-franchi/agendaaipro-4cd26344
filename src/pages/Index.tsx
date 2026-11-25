@@ -15,6 +15,7 @@ import ResponsibilitiesSection from "@/components/landing/ResponsibilitiesSectio
 import FAQSection from "@/components/landing/FAQSection";
 import ContactSection from "@/components/landing/ContactSection";
 import CTASection from "@/components/landing/CTASection";
+import AffiliateTeaser from "@/components/landing/AffiliateTeaser";
 import Footer from "@/components/landing/Footer";
 
 const Index = () => {
@@ -37,6 +38,7 @@ const Index = () => {
         <FAQSection />
         <CTASection />
         <ContactSection />
+        <AffiliateTeaser />
       </main>
       <Footer />
       <BackToTop />

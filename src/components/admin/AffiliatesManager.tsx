@@ -15,7 +15,7 @@ const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency"
 export function AffiliatesManager() {
   const [list, setList] = useState<Affiliate[]>([]);
   const [comms, setComms] = useState<Commission[]>([]);
-  const [form, setForm] = useState({ name: "", code: "", whatsapp: "", pix_key: "" });
+  const [form, setForm] = useState({ name: "", code: "", whatsapp: "", pix_key: "", email: "" });
 
   async function load() {
     const [a, c] = await Promise.all([
@@ -30,9 +30,9 @@ export function AffiliatesManager() {
   async function create() {
     const code = form.code.trim().toUpperCase();
     if (form.name.trim().length < 2 || !/^[A-Z0-9_-]{2,40}$/.test(code)) return toast.error("Informe nome e código (letras, números, - ou _).");
-    const { error } = await supabase.from("affiliates").insert({ name: form.name.trim(), code, whatsapp: form.whatsapp || null, pix_key: form.pix_key || null });
+    const { error } = await supabase.from("affiliates").insert({ name: form.name.trim(), code, whatsapp: form.whatsapp || null, pix_key: form.pix_key || null, ...(form.email ? { email: form.email.trim().toLowerCase() } : {}) } as never);
     if (error) return toast.error(error.message.includes("duplicate") ? "Código já existe." : "Não foi possível cadastrar.");
-    setForm({ name: "", code: "", whatsapp: "", pix_key: "" });
+    setForm({ name: "", code: "", whatsapp: "", pix_key: "", email: "" });
     toast.success("Afiliado cadastrado"); load();
   }
   async function toggle(a: Affiliate) { await supabase.from("affiliates").update({ active: !a.active }).eq("id", a.id); load(); }
@@ -46,11 +46,12 @@ export function AffiliatesManager() {
     <div className="space-y-4">
       <Card>
         <CardHeader><CardTitle>Novo afiliado</CardTitle></CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-5">
+        <CardContent className="grid gap-2 sm:grid-cols-6">
           <Input placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           <Input placeholder="Código (ex: JOAO)" value={form.code} onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })} />
           <Input placeholder="WhatsApp" value={form.whatsapp} onChange={e => setForm({ ...form, whatsapp: e.target.value })} />
           <Input placeholder="Chave Pix" value={form.pix_key} onChange={e => setForm({ ...form, pix_key: e.target.value })} />
+          <Input placeholder="E-mail de login" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
           <Button onClick={create}>Cadastrar</Button>
         </CardContent>
       </Card>
