@@ -67,6 +67,7 @@ export default function Affiliate() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="container max-w-3xl py-8 space-y-4">
         <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Início</Link>
+        <Link to="/termos-afiliados" className="ml-4 text-sm text-primary">Termos do programa</Link>
         <h1 className="text-2xl font-bold">Área do afiliado</h1>
         {loading ? <p className="text-muted-foreground">Carregando…</p> : failed ? <p role="alert">Não foi possível consultar seus dados. Tente novamente mais tarde.</p> : !aff ? (
           <Card><CardContent className="pt-6 space-y-3">

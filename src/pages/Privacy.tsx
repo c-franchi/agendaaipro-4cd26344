@@ -21,7 +21,7 @@ const Privacy = () => {
             <Shield className="w-8 h-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold">POLÍTICA DE PRIVACIDADE – AGENDAAÍ PRO</h1>
           </div>
-          <p className="text-muted-foreground mb-8">Última atualização: 13 de janeiro de 2026</p>
+          <p className="text-muted-foreground mb-8">Última atualização: 25 de novembro de 2026</p>
 
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg">
@@ -49,6 +49,13 @@ const Privacy = () => {
                 <li>Pagamentos</li>
                 <li>Relatórios financeiros</li>
               </ul>
+
+              <p className="font-semibold mt-4">Dados de afiliados (Programa de Afiliados):</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Nome, e-mail de acesso, WhatsApp e chave Pix</li>
+                <li>Código de indicação e histórico de comissões</li>
+              </ul>
+              <p className="mt-2">Quando um cliente compra por um link de indicação, guardamos o código do afiliado no navegador e no pedido para atribuir a venda. O afiliado não recebe dados pessoais do cliente indicado.</p>
             </section>
 
             <section>
@@ -59,6 +66,7 @@ const Privacy = () => {
                 <li>Processar pagamentos</li>
                 <li>Enviar notificações por e-mail</li>
                 <li>Comunicação via WhatsApp</li>
+                <li>Atribuir indicações e calcular e pagar comissões de afiliados</li>
                 <li>Cumprimento de obrigações legais</li>
                 <li>Melhoria do serviço</li>
               </ul>
@@ -107,7 +115,8 @@ const Privacy = () => {
                 <li>Análises de uso</li>
                 <li>Funcionalidades essenciais</li>
               </ul>
-              <p className="mt-4">Você pode gerenciar cookies no seu navegador.</p>
+              <p className="mt-4">Links de indicação e vouchers são guardados no armazenamento local do navegador para aplicar o desconto e identificar o afiliado na compra.</p>
+              <p className="mt-2">Você pode gerenciar cookies e esse armazenamento no seu navegador.</p>
             </section>
 
             <section>

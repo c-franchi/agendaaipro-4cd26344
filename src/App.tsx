@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import FAQ from "./pages/FAQ";
 import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
+import AffiliateTerms from "./pages/AffiliateTerms";
 import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/termos" element={<Terms />} />
+          <Route path="/termos-afiliados" element={<AffiliateTerms />} />
           <Route path="/privacidade" element={<Privacy />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/minha-assinatura" element={<MySubscription />} />
