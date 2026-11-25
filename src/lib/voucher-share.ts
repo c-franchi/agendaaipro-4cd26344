@@ -25,9 +25,22 @@ export function scopeLabel(v: ShareVoucher) {
   }
 }
 
+export function conditionsText(v: ShareVoucher) {
+  const n = v.discount_months;
+  const after = (m: number) => `A partir da ${m + 1}ª mensalidade, será cobrado o valor normal do plano escolhido, todo mês, enquanto a assinatura estiver ativa.`;
+  switch (v.applies_to) {
+    case "setup": return "O desconto vale somente para a implementação. As mensalidades do plano escolhido são cobradas normalmente desde o primeiro mês, após a contratação.";
+    case "first_payment": return `O desconto vale somente para a 1ª mensalidade. A implementação é cobrada normalmente. ${after(1)}`;
+    case "monthly": return n === 0 ? "O desconto vale para todas as mensalidades enquanto a assinatura estiver ativa. A implementação é cobrada normalmente." : `O desconto vale para as ${n} primeiras mensalidades. A implementação é cobrada normalmente. ${after(n)}`;
+    case "setup_and_first": return `O desconto vale para a implementação e para a 1ª mensalidade. ${after(1)}`;
+    case "setup_and_monthly": return n === 0 ? "O desconto vale para a implementação e para todas as mensalidades enquanto a assinatura estiver ativa." : `O desconto vale para a implementação e para as ${n} primeiras mensalidades. ${after(n)}`;
+    default: return "Os valores do plano escolhido são mostrados antes do pagamento.";
+  }
+}
+
 export function voucherShareText(v: ShareVoucher, ref?: string) {
   const until = v.expires_at ? `\n⏳ Válido até ${new Date(v.expires_at).toLocaleDateString("pt-BR")}. Corra!` : "\n⏳ Por tempo limitado!";
-  return `🎁 *PRESENTE EXCLUSIVO AgendaAÍ Pro!*\n\n🔥 *${discountLabel(v)}* ${scopeLabel(v)}!\n\nTenha seu próprio sistema de agendamento online, com pagamentos e vendas em um só lugar. 📅💳\n\n🎟️ Seu cupom: *${v.code}*${until}\n\n👉 Garanta agora: ${voucherLink(v.code, ref)}`;
+  return `🎁 *PRESENTE EXCLUSIVO AgendaAÍ Pro!*\n\n🔥 *${discountLabel(v)}* ${scopeLabel(v)}!\n\nTenha seu próprio sistema de agendamento online, com pagamentos e vendas em um só lugar. 📅💳\n\n🎟️ Seu cupom: *${v.code}*${until}\n\n📌 *Condições:* ${conditionsText(v)} Vale para todos os planos; os valores aparecem antes do pagamento.\n\n👉 Garanta agora: ${voucherLink(v.code, ref)}`;
 }
 
 export function whatsappShareUrl(v: ShareVoucher, ref?: string) {
