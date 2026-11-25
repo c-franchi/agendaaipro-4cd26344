@@ -1,3 +1,4 @@
+// @ts-ignore bun test runner
 import { test, expect } from "bun:test";
 import { voucherLink, scopeLabel, discountLabel } from "./voucher-share";
 const base = { code: "promo10", discount_type: "percentage" as const, discount_value: 10, applies_to: "monthly", discount_months: 3, expires_at: null };
