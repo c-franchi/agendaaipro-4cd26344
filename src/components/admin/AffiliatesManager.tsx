@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Copy } from "lucide-react";
 
-type Affiliate = { id: string; code: string; name: string; whatsapp: string | null; pix_key: string | null; active: boolean };
+type Affiliate = { id: string; code: string; name: string; email: string | null; whatsapp: string | null; pix_key: string | null; active: boolean };
 type Commission = { id: string; affiliate_id: string; kind: string; base_cents: number; commission_cents: number; status: string; created_at: string };
 const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -19,7 +19,7 @@ export function AffiliatesManager() {
 
   async function load() {
     const [a, c] = await Promise.all([
-      supabase.from("affiliates").select("id,code,name,whatsapp,pix_key,active").order("created_at", { ascending: false }),
+      supabase.from("affiliates").select("id,code,name,email,whatsapp,pix_key,active").order("created_at", { ascending: false }),
       supabase.from("affiliate_commissions").select("id,affiliate_id,kind,base_cents,commission_cents,status,created_at").order("created_at", { ascending: false }),
     ]);
     setList((a.data as Affiliate[]) || []);
@@ -30,8 +30,10 @@ export function AffiliatesManager() {
   async function create() {
     const code = form.code.trim().toUpperCase();
     if (form.name.trim().length < 2 || !/^[A-Z0-9_-]{2,40}$/.test(code)) return toast.error("Informe nome e código (letras, números, - ou _).");
-    const { error } = await supabase.from("affiliates").insert({ name: form.name.trim(), code, whatsapp: form.whatsapp || null, pix_key: form.pix_key || null, ...(form.email ? { email: form.email.trim().toLowerCase() } : {}) } as never);
-    if (error) return toast.error(error.message.includes("duplicate") ? "Código já existe." : "Não foi possível cadastrar.");
+    const email = form.email.trim().toLowerCase();
+    if (email && (email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) return toast.error("Informe um e-mail válido.");
+    const { error } = await supabase.from("affiliates").insert({ name: form.name.trim(), code, whatsapp: form.whatsapp || null, pix_key: form.pix_key || null, email: email || null });
+    if (error) return toast.error(error.code === "23505" ? "Código ou e-mail já cadastrado." : "Não foi possível cadastrar.");
     setForm({ name: "", code: "", whatsapp: "", pix_key: "", email: "" });
     toast.success("Afiliado cadastrado"); load();
   }
@@ -51,7 +53,7 @@ export function AffiliatesManager() {
           <Input placeholder="Código (ex: JOAO)" value={form.code} onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })} />
           <Input placeholder="WhatsApp" value={form.whatsapp} onChange={e => setForm({ ...form, whatsapp: e.target.value })} />
           <Input placeholder="Chave Pix" value={form.pix_key} onChange={e => setForm({ ...form, pix_key: e.target.value })} />
-          <Input placeholder="E-mail de login" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+          <Input type="email" aria-label="E-mail de login" placeholder="E-mail de login" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
           <Button onClick={create}>Cadastrar</Button>
         </CardContent>
       </Card>
@@ -65,6 +67,7 @@ export function AffiliatesManager() {
               <div>
                 <CardTitle className="text-base">{a.name} <Badge variant="secondary">{a.code}</Badge></CardTitle>
                 <p className="text-sm text-muted-foreground">Pix: {a.pix_key || "—"} · WhatsApp: {a.whatsapp || "—"}</p>
+                <p className="text-sm text-muted-foreground break-all">E-mail de login: {a.email || "Não vinculado"}</p>
                 <p className="text-sm">A pagar: <b>{brl(pending)}</b> · Pago: {brl(paid)}</p>
               </div>
               <div className="flex items-center gap-2">

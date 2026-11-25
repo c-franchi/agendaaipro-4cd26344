@@ -20,7 +20,8 @@ const Auth = () => {
   
   // Check for pending checkout data
   const pendingCheckout = localStorage.getItem("pending_checkout");
-  const isCheckoutFlow = redirectTo === "checkout" || !!pendingCheckout;
+  const isAffiliateFlow = redirectTo === "/afiliado";
+  const isCheckoutFlow = !isAffiliateFlow && (redirectTo === "checkout" || !!pendingCheckout);
 
   // Start with signup form when coming from checkout flow
   const [mode, setMode] = useState<AuthMode>(isCheckoutFlow ? "signup" : "login");
@@ -51,7 +52,9 @@ const Auth = () => {
   }, []);
 
   const handleSuccessfulAuth = async () => {
-    if (isCheckoutFlow && pendingCheckout) {
+    if (isAffiliateFlow) {
+      navigate("/afiliado", { replace: true });
+    } else if (isCheckoutFlow && pendingCheckout) {
       // Parse pending checkout data and open checkout modal
       try {
         const checkoutData = JSON.parse(pendingCheckout);
@@ -134,12 +137,12 @@ const Auth = () => {
     setLoading(true);
     try {
       // Preserve the pending plan choice so the checkout resumes after the OAuth redirect.
-      if (pendingCheckout) {
+      if (!isAffiliateFlow && pendingCheckout) {
         localStorage.setItem("auto_open_checkout", pendingCheckout);
         localStorage.removeItem("pending_checkout");
       }
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: isAffiliateFlow ? `${window.location.origin}/auth?redirect=/afiliado` : window.location.origin,
       });
       if (result.error) {
         toast.error("Não foi possível entrar com o Google. Tente novamente.");

@@ -10,3 +10,5 @@
 - [ ] Apply migration, confirm deployed functions, inspect grants/RLS and disabled flags.
 - [ ] Report source SHA, changed files, verification results and remaining limitations.
 - [x] Afiliados: cadastro, link ref, comissão 15% implementação + 5% mensalidades enquanto pagar
+- [x] Liberar acesso individual de afiliados: isolamento e reversão testados em PostgreSQL descartável; SQL autorizado aplicado byte a byte; políticas e recusa anônima verificadas, sem pedidos ou comissões de teste em produção.
+- [ ] Validar a área com o primeiro afiliado real após publicação — bloqueado: nenhum afiliado cadastrado e nenhuma sessão do proprietário disponível para verificar o fluxo autenticado.

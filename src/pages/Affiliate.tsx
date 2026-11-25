@@ -16,20 +16,48 @@ export default function Affiliate() {
   const [aff, setAff] = useState<Aff | null>(null);
   const [coms, setComs] = useState<Com[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    let canceled = false;
+    const clear = () => { setAff(null); setComs([]); };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      // Never retain another session's financial data after sign-out or account change.
+      clear();
+      setLoading(true);
+      setTimeout(() => { if (!canceled) void load(); }, 0);
+    });
+    async function load() {
+      setFailed(false);
+      try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { nav("/auth?redirect=/afiliado"); return; }
-      const { data } = await supabase.from("affiliates").select("*");
-      const mine = ((data as Aff[]) || []).find(a => a.email?.toLowerCase() === user.email?.toLowerCase()) || null;
-      setAff(mine);
+      if (canceled) return;
+      if (!user?.email) { clear(); nav("/auth?redirect=/afiliado", { replace: true }); return; }
+      // Exact email equality is case-insensitive; RLS remains the authority.
+      const escapedEmail = user.email.replace(/[\\%_]/g, "\\$&");
+      const { data: mine, error } = await supabase.from("affiliates").select("id,code,name,email").ilike("email", escapedEmail).maybeSingle();
+      if (error) throw error;
+      if (canceled) return;
+      let commissions: Com[] = [];
       if (mine) {
         const c = await supabase.from("affiliate_commissions").select("id,kind,base_cents,commission_cents,status,created_at").eq("affiliate_id", mine.id).order("created_at", { ascending: false });
-        setComs((c.data as Com[]) || []);
+        if (c.error) throw c.error;
+        commissions = c.data || [];
       }
-      setLoading(false);
-    })();
+      // Discard responses that completed after the authenticated account changed.
+      const { data: current } = await supabase.auth.getUser();
+      if (canceled) return;
+      if (current.user?.id !== user.id || current.user?.email !== user.email) { clear(); return; }
+      setAff(mine);
+      setComs(commissions);
+      } catch {
+        if (!canceled) { clear(); setFailed(true); }
+      } finally {
+        if (!canceled) setLoading(false);
+      }
+    }
+    void load();
+    return () => { canceled = true; subscription.unsubscribe(); };
   }, [nav]);
 
   const sum = (s: string) => coms.filter(c => c.status === s).reduce((t, c) => t + c.commission_cents, 0);
@@ -40,7 +68,7 @@ export default function Affiliate() {
       <div className="container max-w-3xl py-8 space-y-4">
         <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Início</Link>
         <h1 className="text-2xl font-bold">Área do afiliado</h1>
-        {loading ? <p className="text-muted-foreground">Carregando…</p> : !aff ? (
+        {loading ? <p className="text-muted-foreground">Carregando…</p> : failed ? <p role="alert">Não foi possível consultar seus dados. Tente novamente mais tarde.</p> : !aff ? (
           <Card><CardContent className="pt-6 space-y-3">
             <p>Seu e-mail ainda não está cadastrado como afiliado.</p>
             <Button asChild><a href="https://wa.me/5516997813038?text=Quero%20ser%20afiliado%20AgendaA%C3%8D%20Pro" target="_blank" rel="noopener noreferrer">Quero ser afiliado</a></Button>

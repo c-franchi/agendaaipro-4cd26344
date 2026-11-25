@@ -79,6 +79,7 @@ export type Database = {
           active: boolean
           code: string
           created_at: string
+          email: string | null
           id: string
           monthly_rate: number
           name: string
@@ -91,6 +92,7 @@ export type Database = {
           active?: boolean
           code: string
           created_at?: string
+          email?: string | null
           id?: string
           monthly_rate?: number
           name: string
@@ -103,6 +105,7 @@ export type Database = {
           active?: boolean
           code?: string
           created_at?: string
+          email?: string | null
           id?: string
           monthly_rate?: number
           name?: string
