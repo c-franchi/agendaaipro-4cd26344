@@ -18,6 +18,7 @@ import logoSimple from "@/assets/logo-simple.png";
 import type { User } from "@supabase/supabase-js";
 import { LeadsDashboard } from "@/components/admin/LeadsDashboard";
 import { VouchersManager } from "@/components/admin/VouchersManager";
+import { AffiliatesManager } from "@/components/admin/AffiliatesManager";
 import { LandingPageEditor } from "@/components/admin/LandingPageEditor";
 import { DeploymentsManager } from "@/components/admin/DeploymentsManager";
 import { UsersManager } from "@/components/admin/UsersManager";
@@ -198,6 +199,7 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="orders" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm" aria-label="Pedidos e implementações">Pedidos</TabsTrigger>
           <TabsTrigger value="implantacoes" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Implantações</TabsTrigger>
+          <TabsTrigger value="afiliados" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Afiliados</TabsTrigger>
           <TabsTrigger value="contract" className="min-h-12 shrink-0 rounded-lg px-3 text-xs sm:text-sm">Contrato</TabsTrigger>
           </TabsList>
 
@@ -300,6 +302,9 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="afiliados">
+            <AffiliatesManager />
+          </TabsContent>
           <TabsContent value="vouchers">
             <VouchersManager />
           </TabsContent>

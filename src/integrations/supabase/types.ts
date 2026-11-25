@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_commissions: {
+        Row: {
+          affiliate_id: string
+          base_cents: number
+          commission_cents: number
+          created_at: string
+          event_id: string
+          id: string
+          kind: string
+          note: string | null
+          order_id: string
+          paid_at: string | null
+          rate: number
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          base_cents: number
+          commission_cents: number
+          created_at?: string
+          event_id: string
+          id?: string
+          kind: string
+          note?: string | null
+          order_id: string
+          paid_at?: string | null
+          rate: number
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          base_cents?: number
+          commission_cents?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          order_id?: string
+          paid_at?: string | null
+          rate?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_commissions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "business_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          monthly_rate: number
+          name: string
+          pix_key: string | null
+          setup_rate: number
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          monthly_rate?: number
+          name: string
+          pix_key?: string | null
+          setup_rate?: number
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          monthly_rate?: number
+          name?: string
+          pix_key?: string | null
+          setup_rate?: number
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       business_order_audit: {
         Row: {
           actor_id: string | null
@@ -81,6 +180,7 @@ export type Database = {
       business_orders: {
         Row: {
           address_policy: string
+          affiliate_id: string | null
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null
@@ -125,6 +225,7 @@ export type Database = {
         }
         Insert: {
           address_policy?: string
+          affiliate_id?: string | null
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -169,6 +270,7 @@ export type Database = {
         }
         Update: {
           address_policy?: string
+          affiliate_id?: string | null
           approved_scope?: string | null
           billing_event_created?: number
           business_name?: string | null
@@ -211,7 +313,15 @@ export type Database = {
           user_id?: string
           website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_orders_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       commerce_contract_templates: {
         Row: {
@@ -1228,6 +1338,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      affiliate_attach: {
+        Args: { p_code: string; p_order: string }
+        Returns: boolean
+      }
+      affiliate_record_commission: {
+        Args: {
+          p_amount: number
+          p_event: string
+          p_kind: string
+          p_order: string
+        }
+        Returns: undefined
+      }
       commerce_claim_notifications: {
         Args: { p_order: string }
         Returns: {
@@ -1313,6 +1436,7 @@ export type Database = {
         }
         Returns: {
           address_policy: string
+          affiliate_id: string | null
           approved_scope: string | null
           billing_event_created: number
           business_name: string | null

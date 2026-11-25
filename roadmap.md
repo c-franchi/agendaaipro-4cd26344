@@ -9,4 +9,4 @@
 - [ ] Execute migration/handler/concurrency/replay/discount tests and password-recovery regressions.
 - [ ] Apply migration, confirm deployed functions, inspect grants/RLS and disabled flags.
 - [ ] Report source SHA, changed files, verification results and remaining limitations.
-- [ ] Afiliados: cadastro, link ref, comissão 15% implementação + 5% mensalidades enquanto pagar (aguarda aprovação da migração)
+- [x] Afiliados: cadastro, link ref, comissão 15% implementação + 5% mensalidades enquanto pagar

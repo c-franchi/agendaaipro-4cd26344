@@ -52,6 +52,7 @@ serve(async req=>{
    }
    const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:session.amount_total,p_currency:session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
    if(recordError)throw recordError;
+   if(kind==='setup'){const {error:affError}=await db.rpc('affiliate_record_commission',{p_order:orderId,p_event:event.id,p_kind:'setup',p_amount:session.amount_total??0});if(affError)throw affError;}
    await notifyOrder(db,orderId).catch(()=>console.error('order_email_queued',orderId));
   }else if(event.type==='checkout.session.expired'){
    const session=event.data.object as Stripe.Checkout.Session;
@@ -69,7 +70,7 @@ serve(async req=>{
    const subscriptionId=event.type.startsWith('customer.subscription')?object.id:id(object.parent?.subscription_details?.subscription||object.subscription);
    if(subscriptionId){
     const {data:order,error}=await db.from('business_orders').select('id').eq('stripe_subscription_id',subscriptionId).maybeSingle();if(error)throw error;
-    if(order){const current=await stripe.subscriptions.retrieve(subscriptionId);const {error:updateError}=await db.from('business_orders').update({subscription_status:current.status,billing_event_created:event.created,updated_at:new Date().toISOString()}).eq('id',order.id).lte('billing_event_created',event.created);if(updateError)throw updateError;await notifyOrder(db,order.id).catch(()=>console.error('order_email_queued',order.id));}
+    if(order){const current=await stripe.subscriptions.retrieve(subscriptionId);const {error:updateError}=await db.from('business_orders').update({subscription_status:current.status,billing_event_created:event.created,updated_at:new Date().toISOString()}).eq('id',order.id).lte('billing_event_created',event.created);if(updateError)throw updateError;if(event.type==='invoice.paid'){const {error:affError}=await db.rpc('affiliate_record_commission',{p_order:order.id,p_event:event.id,p_kind:'monthly',p_amount:Number((object as {amount_paid?:number}).amount_paid??0)});if(affError)throw affError;}await notifyOrder(db,order.id).catch(()=>console.error('order_email_queued',order.id));}
    }
   }
   return Response.json({received:true});
