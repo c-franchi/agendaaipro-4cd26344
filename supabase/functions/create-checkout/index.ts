@@ -31,7 +31,7 @@ serve(async req=>{
   if(live&&(!account.charges_enabled||!Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')||account.id!==Deno.env.get('STRIPE_EXPECTED_ACCOUNT_ID')))return reply(req,{error:'A conta Stripe ainda precisa ser validada para receber pagamentos.'},503);
   const column=kind==='setup'?'setup_session_id':'subscription_session_id';
   const previousId=order[column];
-  if(previousId){const existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url){if(kind==='setup'&&existing.amount_total!==contract.snapshot.quote.setupDueCents)return reply(req,{error:'O valor do checkout difere do contrato aceito. Aguarde a expiração e confira o contrato novamente.'},409);if((existing.metadata?.voucher_code||'')!==(typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():''))return reply(req,{error:'Este checkout já foi aberto com outra condição. Aguarde sua expiração para trocar o voucher.'},409);return reply(req,{url:existing.url});}if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);if(existing.status!=='expired')throw Error('Unknown checkout state');const {error:releaseError}=await db.from('commerce_voucher_reservations').update({state:'released'}).eq('order_id',order.id).eq('kind',kind).eq('session_id',previousId).eq('state','reserved');if(releaseError)throw releaseError;const {error:clearError}=await db.from('business_orders').update({[kind==='setup'?'setup_due_cents':'monthly_due_cents']:null}).eq('id',order.id).eq(column,previousId);if(clearError)throw clearError;}
+  if(previousId){let existing=await stripe.checkout.sessions.retrieve(previousId);if(existing.status==='open'&&existing.url){if(kind==='setup'&&(existing.mode==='setup'?0:existing.amount_total)!==contract.snapshot.quote.setupDueCents)return reply(req,{error:'O valor do checkout difere do contrato aceito. Aguarde a expiração e confira o contrato novamente.'},409);if((existing.metadata?.voucher_code||'')!==(typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():(kind==='setup'?order.requested_setup_code:order.requested_monthly_code)||''))return reply(req,{error:'Este checkout já foi aberto com outra condição. Aguarde sua expiração para trocar o voucher.'},409);if(kind==='setup'&&existing.mode==='payment'&&existing.amount_total===0){existing=await stripe.checkout.sessions.expire(previousId);}else return reply(req,{url:existing.url});}if(existing.status==='complete')return reply(req,{error:'Pagamento em confirmação. Atualize Meus pedidos.'},409);if(existing.status!=='expired')throw Error('Unknown checkout state');const {error:releaseError}=await db.from('commerce_voucher_reservations').update({state:'released'}).eq('order_id',order.id).eq('kind',kind).eq('session_id',previousId).eq('state','reserved');if(releaseError)throw releaseError;const {error:clearError}=await db.from('business_orders').update({[kind==='setup'?'setup_due_cents':'monthly_due_cents']:null}).eq('id',order.id).eq(column,previousId);if(clearError)throw clearError;}
   let reservation:any=null;
   const code=typeof body.voucherCode==='string'?body.voucherCode.trim().toUpperCase():(kind==='setup'?order.requested_setup_code:order.requested_monthly_code)||'';
   if(code.length>80)return reply(req,{error:'Código inválido.'},400);
@@ -45,14 +45,19 @@ serve(async req=>{
   }
 
   if(kind==='setup'&&(reservation?.due_cents??order.setup_cents)!==contract.snapshot.quote.setupDueCents)return reply(req,{error:'As condições do voucher mudaram. Confira e aceite o contrato atualizado em Meus pedidos.'},409);
-  const params:any=checkoutParams(order,kind,req.headers.get('origin')!);
+  const origin=req.headers.get('origin');if(!origin)return reply(req,{error:'Origem inválida.'},403);
+  const params:any=checkoutParams({...order,setup_due_cents:kind==='setup'?(reservation?.due_cents??order.setup_cents):order.setup_due_cents},kind,origin);
+  if(params.mode==='setup'&&!params.customer){const customer=await stripe.customers.create({email:order.email,metadata:{order_id:order.id,user_id:user.id,billing_version:'2026-10-28-v3'}},{idempotencyKey:`commerce-card-customer:${order.id}`});params.customer=customer.id;delete params.customer_email;}
   if(contract){params.metadata.contract_acceptance_id=contract.id;params.metadata.contract_version=contract.version;}
   if(reservation){
+   params.metadata.voucher_reservation=reservation.id;params.metadata.voucher_code=reservation.code;
+   if(params.mode!=='setup'){
    const coupon=await stripe.coupons.create({amount_off:reservation.discount_cents,currency:'brl',duration:kind==='subscription'&&reservation.months===0?'forever':kind==='setup'||reservation.months===1?'once':'repeating',...(kind==='subscription'&&reservation.months>1?{duration_in_months:reservation.months}:{}),name:`Voucher ${reservation.code}`},{idempotencyKey:`commerce-voucher:${reservation.id}`});
    params.discounts=[{coupon:coupon.id}];params.metadata.voucher_reservation=reservation.id;params.metadata.voucher_code=reservation.code;
    const {error}=await db.from('commerce_voucher_reservations').update({coupon_id:coupon.id}).eq('id',reservation.id);if(error)throw error;
+   }
   }
-  const session=await stripe.checkout.sessions.create(params,{idempotencyKey:`commerce-v3:${order.id}:${kind}:${reservation?.id||previousId||'first'}`});
+  const session=await stripe.checkout.sessions.create(params,{idempotencyKey:`commerce-card-v1:${order.id}:${kind}:${reservation?.id||previousId||'first'}`});
   if(reservation){const {error}=await db.from('commerce_voucher_reservations').update({session_id:session.id}).eq('id',reservation.id);if(error)throw error;}
   const {error:saveError}=await db.from('business_orders').update({[column]:session.id,livemode:session.livemode,updated_at:new Date().toISOString()}).eq('id',order.id).eq('user_id',user.id).eq('stage',order.stage).select('id').single();
   if(saveError){await stripe.checkout.sessions.expire(session.id).catch(()=>{});throw saveError;}

@@ -1,5 +1,8 @@
 # Checkout commerce v3 — vouchers
 
+- [x] Corrigir implementação gratuita: Checkout de cadastro de cartão, autorização verificada no webhook, retomada segura de sessões abertas antigas, testes de handlers/SQL descartável e funções publicadas; status 200, identidade inválida 401 e webhook sem assinatura 400. Nenhum pedido real alterado pela validação.
+- [ ] Validar conclusão com cartão real pelo comprador — bloqueado: testes não podem criar transações ou clientes reais; o comprador precisa retomar Meus pedidos. Textos novos dependem da publicação do frontend pelo proprietário.
+
 - [x] Melhorar leitura e organização dos pedidos no celular e conferir a pendência do pedido informado, sem alterar pagamentos: Stripe aberta com total zero; testes visuais fictícios em 360/1280 px e 9 testes aprovados. Sessão administrativa real indisponível.
 
 - [x] Inspect existing checkout, voucher administration, legacy endpoints, schema and test harness.

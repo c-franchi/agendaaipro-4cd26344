@@ -1,7 +1,7 @@
 import {notifyOrder} from '../_shared/order-notifications.ts';
 import {serve} from 'https://deno.land/std@0.190.0/http/server.ts';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
-import {BILLING_VERSION,isUuid,paymentMatches} from '../_shared/commerce.ts';
+import {BILLING_VERSION,isUuid,paymentMatches,setupAuthorizationMatches} from '../_shared/commerce.ts';
 import {database} from '../_shared/commerce-runtime.ts';
 const id=(v:unknown):string|null=>typeof v==='string'?v:v&&typeof v==='object'&&'id' in v?String(v.id):null;
 serve(async req=>{
@@ -19,19 +19,33 @@ serve(async req=>{
   if(['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(event.type)){
    const session=event.data.object as Stripe.Checkout.Session;
    if(session.metadata?.billing_version!==BILLING_VERSION)return Response.json({ignored:true});
-   if(session.payment_status!=='paid'&&!(session.payment_status==='no_payment_required'&&session.amount_total===0))return Response.json({pending:true});
+   if(session.payment_status!=='paid'&&!(session.payment_status==='no_payment_required'&&(session.amount_total===0||session.mode==='setup')))return Response.json({pending:true});
    const orderId=session.metadata.order_id,kind=session.metadata.kind;
    if(!isUuid(orderId)||!['setup','subscription'].includes(kind))throw Error('Invalid metadata');
    const {data:order,error}=await db.from('business_orders').select('*').eq('id',orderId).single();
-   if(error||!order||!paymentMatches(order,session,kind as 'setup'|'subscription'))throw Error('Payment mismatch');
+   if(error||!order)throw Error('Unknown order');
+   if(kind==='setup'&&session.mode==='payment'&&session.amount_total===0){if(order.payment_status==='paid'||order.payment_status==='refunded')return Response.json({received:true,legacy:true});throw Error('Card authorization required for free setup');}
+   if(!paymentMatches(order,session,kind as 'setup'|'subscription'))throw Error('Payment mismatch');
+   const cardSetup=session.mode==='setup';
+   let savedCustomer:string|null=null,savedPaymentMethod:string|null=null;
+   if(cardSetup){
+    const current=await stripe.checkout.sessions.retrieve(session.id);
+    if(current.status!=='complete'||current.livemode!==live||!paymentMatches(order,current,'setup')||id(current.customer)!==id(session.customer)||id(current.setup_intent)!==id(session.setup_intent))throw Error('Card checkout incomplete');
+    const intentId=id(current.setup_intent),customer=id(current.customer);if(!intentId)throw Error('Missing setup intent');
+    const intent=await stripe.setupIntents.retrieve(intentId);
+    if(!setupAuthorizationMatches(order,customer,{status:intent.status,customer:id(intent.customer),payment_method:id(intent.payment_method),usage:intent.usage,metadata:intent.metadata}))throw Error('Card authorization mismatch');
+    const paymentMethod=id(intent.payment_method);if(!customer||!paymentMethod)throw Error('Missing saved card');
+    savedCustomer=customer;savedPaymentMethod=paymentMethod;
+   }
    // Stripe can deliver a refund event before the checkout event. Read current
    // payment truth before fulfillment so an already-refunded order is never queued.
    const {data:reservation,error:reservationError}=await db.from('commerce_voucher_reservations').select('*').eq('order_id',order.id).eq('kind',kind).neq('state','released').maybeSingle();
    if(reservationError)throw reservationError;
    if(reservation){
-    const current=await stripe.checkout.sessions.retrieve(session.id,{expand:['discounts.coupon']});
-    const coupon=current.discounts?.[0]?.coupon;
-    if(reservation.session_id!==session.id||session.metadata.voucher_reservation!==reservation.id||id(coupon)!==reservation.coupon_id||current.total_details?.amount_discount!==reservation.discount_cents)throw Error('Voucher mismatch');
+    if(cardSetup){if(reservation.session_id!==session.id||session.metadata.voucher_reservation!==reservation.id||session.metadata.voucher_code!==reservation.code||reservation.due_cents!==0||reservation.base_cents!==order.setup_cents||reservation.discount_cents!==reservation.base_cents)throw Error('Free voucher mismatch');}
+    else{const current=await stripe.checkout.sessions.retrieve(session.id,{expand:['discounts.coupon']});
+     const coupon=current.discounts?.[0]?.coupon;
+     if(reservation.session_id!==session.id||session.metadata.voucher_reservation!==reservation.id||id(coupon)!==reservation.coupon_id||current.total_details?.amount_discount!==reservation.discount_cents)throw Error('Voucher mismatch');}
    }else if(session.metadata.voucher_reservation)throw Error('Unknown voucher');
    if(kind==='subscription'){
     const subId=id(session.subscription);if(!subId)throw Error('Missing subscription');
@@ -50,7 +64,10 @@ serve(async req=>{
      return Response.json({received:true,refunded:true});
     }
    }
-   const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:session.amount_total,p_currency:session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
+   // Only pending orders may change the default card; replay must not overwrite
+   // a card the customer has subsequently changed. No charge is made here.
+   if(savedCustomer&&savedPaymentMethod&&order.payment_status==='pending')await stripe.customers.update(savedCustomer,{invoice_settings:{default_payment_method:savedPaymentMethod}});
+   const {error:recordError}=await db.rpc('commerce_record_payment',{p_order:orderId,p_event:event.id,p_kind:kind,p_session:session.id,p_amount:cardSetup?0:session.amount_total,p_currency:cardSetup?'brl':session.currency,p_live:session.livemode,p_customer:id(session.customer),p_intent:id(session.payment_intent),p_subscription:id(session.subscription)});
    if(recordError)throw recordError;
    if(kind==='setup'){const {error:affError}=await db.rpc('affiliate_record_commission',{p_order:orderId,p_event:event.id,p_kind:'setup',p_amount:session.amount_total??0});if(affError)throw affError;}
    await notifyOrder(db,orderId).catch(()=>console.error('order_email_queued',orderId));
