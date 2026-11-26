@@ -2,3 +2,5 @@
 - Affiliate self-access is enforced by database RLS using the authenticated token email and an admin-managed unique email; client filters never grant access, and isolation tests run only on disposable local PostgreSQL.
 - Order financial summaries use persisted due amounts with a nullish fallback, so a zero-total voucher is never displayed as the catalog amount due.
 - Zero-due implementation checkouts use Checkout setup mode with a verified off-session SetupIntent before server fulfillment; paid implementations save cards for future use, and recurring checkout remains gated by delivery to prevent premature billing.
+
+- Project save-for-later reuses the authenticated workspace brief action without submitting materials or advancing the step, so partial data stays protected by existing server authorization.

@@ -17,3 +17,5 @@
 - [x] Afiliados: cadastro, link ref, comissão 15% implementação + 5% mensalidades enquanto pagar
 - [x] Liberar acesso individual de afiliados: isolamento e reversão testados em PostgreSQL descartável; SQL autorizado aplicado byte a byte; políticas e recusa anônima verificadas, sem pedidos ou comissões de teste em produção.
 - [ ] Validar a área com o primeiro afiliado real após publicação — bloqueado: nenhum afiliado cadastrado e nenhuma sessão do proprietário disponível para verificar o fluxo autenticado.
+
+- [x] Adicionar salvar e terminar depois às informações do projeto: aceita preenchimento parcial sem enviar materiais ou iniciar produção; verificar persistência em teste isolado.
