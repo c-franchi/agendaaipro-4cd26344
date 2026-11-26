@@ -1,5 +1,7 @@
 # Checkout commerce v3 — vouchers
 
+- [x] Melhorar leitura e organização dos pedidos no celular e conferir a pendência do pedido informado, sem alterar pagamentos: Stripe aberta com total zero; testes visuais fictícios em 360/1280 px e 9 testes aprovados. Sessão administrativa real indisponível.
+
 - [x] Inspect existing checkout, voucher administration, legacy endpoints, schema and test harness.
 - [ ] Define explicit legacy scope/duration compatibility and reviewed voucher configuration.
 - [ ] Implement authoritative quotes, immutable snapshots and atomic reservations/consumption/release.
